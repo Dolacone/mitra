@@ -54,6 +54,14 @@ export class AppLocale {
 		return regions
 	}
 
+	/** Reads every time on a 24-hour clock, whatever the language and region: a `-u-hc-h23` preference that {@link set} keeps. */
+	static readTwentyFourHours() {
+		const current = Localizer.locales.current
+		if (current.hourCycle !== 'h23') {
+			Localizer.locales.current = new Intl.Locale(current, { hourCycle: 'h23' }).toString()
+		}
+	}
+
 	/** Runs the app in `language`, read as in `region` or as the browser has it, keeping the tag's `-u-` preferences. */
 	static set(language: string, region: string | undefined) {
 		const current = Localizer.locales.current

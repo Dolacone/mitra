@@ -72,6 +72,7 @@ import '#integrations/demo/client/language.js'
 import { session } from '#infrastructure/http/PageSession.js'
 import { LocalePreview } from '#infrastructure/i18n/LocalePreview.js'
 import { LocaleSetting } from '#infrastructure/i18n/LocaleSetting.js'
+import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 import { Sidebar } from './Sidebar.js'
 import { consumeSubscribeParameter, observeFileDrops, observeLaunches } from './launch.js'
 import { syncThemeColor } from './pwa.js'
@@ -111,6 +112,7 @@ export class Mitra extends Application {
 		// After the integrations, so a linked language switches the sample calendar too.
 		LocaleSetting.followAccount()
 		LocaleSetting.rememberLinkedLanguage()
+		AppLocale.readTwentyFourHours()
 		// Nothing waits for it: until the account has a home, home is this device's zone anyway.
 		void TimeZones.settle().catch(() => void 0)
 		void offerToolsToBrowserAgents().catch(() => void 0)
