@@ -103,6 +103,7 @@ Clicking the name opens the **About** dialog, which shows the version and commit
 | Variable | Default | Description |
 | --- | --- | --- |
 | `MITRA_VAPID_SUBJECT` | `mailto:mitra@localhost` | The contact push services see for your server's [reminders](reminders.md), usually a `mailto:` address. Nobody using Mitra sees it. The signing keys are generated automatically, so there's nothing else to set. |
+| `MITRA_DISCORD_WEBHOOK_URL` | *(unset)* | A Discord webhook every notification is also posted to: every account's [reminders](reminders.md), snoozed ones and test notifications. With it set, accounts with no device are reminded too, in their home time zone. Set `MITRA_URL` to link each message to its entry. |
 
 ### Location
 

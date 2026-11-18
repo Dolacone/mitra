@@ -1,5 +1,6 @@
 import { type MikroORM } from '@mikro-orm/sqlite'
 import { User } from '#features/identity'
+import { TimeZone } from '#features/time/TimeZone.js'
 import '#features/time/TimeSpan.time.js'
 import { createLogger } from '#infrastructure/logging/Logger.js'
 import { localizeIn } from '#infrastructure/i18n/dictionaries.js'
@@ -7,7 +8,8 @@ import { State } from '#infrastructure/database/State.js'
 import { BackgroundJob } from '#infrastructure/server/BackgroundJob.js'
 import { DueReminder } from '../Reminders.js'
 import { NotificationSubscription } from '../NotificationSubscription.js'
-import { push } from './Push.js'
+import { notifier } from './Notifier.js'
+import { discord } from './Discord.js'
 
 /**
  * Periodic reminder tick scheduler. Scans upcoming reminders in `(watermark, now + interval]` window,
@@ -56,11 +58,11 @@ export class ReminderScheduler {
 		const until = new Date(now.getTime() + ReminderScheduler.interval)
 
 		const em = this.orm.em.fork()
-		// Only those with a device are reminded, each where their device was seen last.
+		// Those with a device are reminded where their device was seen last; with a Discord webhook everyone is, the rest in their home zone.
 		const devices = Map.groupBy(await em.find(NotificationSubscription, {}, { orderBy: { lastSeenAt: 'desc' } }), device => device.userId)
 		let scheduled = 0
-		for (const user of await em.find(User, { id: { $in: [...devices.keys()] } })) {
-			const zone = devices.get(user.id)!.find(device => device.timeZone)?.timeZone
+		for (const user of await em.find(User, discord.enabled ? {} : { id: { $in: [...devices.keys()] } })) {
+			const zone = devices.get(user.id)?.find(device => device.timeZone)?.timeZone ?? (discord.enabled ? user.timeZones?.home?.zone ?? TimeZone.default : undefined)
 			for (const reminder of await DueReminder.of(em, user, watermark, until, zone)) {
 				const key = `${reminder.occurrence.key}|${reminder.minutes}|${reminder.fireAt}`
 				if (this.dispatched.has(key)) {
@@ -88,7 +90,7 @@ export class ReminderScheduler {
 		const notification = reminder.notification()
 		const send = () => {
 			this.logger.info(`Reminder: "${entry.heading}" ${minutes ? `in ${TimeSpan.fromMinutes(minutes).formatAsWholeUnit(localizeIn('en'))}` : 'now'}`)
-			push.send(user, notification).catch(error => this.logger.warn('Reminder delivery failed:', error instanceof Error ? error.message : error))
+			notifier.send(user, notification).catch(error => this.logger.warn('Reminder delivery failed:', error instanceof Error ? error.message : error))
 		}
 		const delay = fireAt - now
 		if (delay <= 0) {

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { validation } from '#infrastructure/validation'
 import { http, operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
 import { ReminderNotification } from '../ReminderNotification.js'
-import { push } from './Push.js'
+import { notifier } from './Notifier.js'
 
 class Parameters {
 	@validation(z.enum(['event', 'task']).optional())
@@ -13,10 +13,10 @@ class Parameters {
 
 @operation(Parameters)
 @label('Send a test notification')
-@description('Sends every device of the user a rehearsal of a reminder for an event or a task.')
+@description('Sends every device of the user, and the Discord webhook where one is set, a rehearsal of a reminder for an event or a task.')
 @http({ method: 'POST', path: '/push/test', status: 202 })
 export class SendTestNotification extends Operation<Parameters, void> {
 	async run({ user }: OperationContext) {
-		await push.send(user, ReminderNotification.rehearsal(this.parameters.kind ?? 'event', Date.now()))
+		await notifier.send(user, ReminderNotification.rehearsal(this.parameters.kind ?? 'event', Date.now()))
 	}
 }

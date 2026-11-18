@@ -3,7 +3,7 @@ import { type Request } from 'express'
 import { ValidationError } from '#infrastructure/validation'
 import { http, operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
 import { ReminderNotification } from '../ReminderNotification.js'
-import { push } from './Push.js'
+import { notifier } from './Notifier.js'
 
 @operation()
 @label('Snooze a notification')
@@ -22,7 +22,7 @@ export class SnoozeNotification extends Operation<{ readonly facts: unknown }, v
 		}
 		this.logger.info(`Snoozing "${notification.facts.heading}" for ${ReminderNotification.snoozeMinutes} minutes`)
 		setTimeout(
-			() => push.send(user, notification).catch(error => this.logger.warn('Snoozed re-send failed:', error instanceof Error ? error.message : error)),
+			() => notifier.send(user, notification).catch(error => this.logger.warn('Snoozed re-send failed:', error instanceof Error ? error.message : error)),
 			ReminderNotification.snoozeMinutes * 60_000,
 		)
 		return Promise.resolve()

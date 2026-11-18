@@ -26,6 +26,8 @@ export class Environment {
 	readonly photon: URL
 	/** Who push services may contact about this instance (`MITRA_VAPID_SUBJECT`). */
 	readonly vapidSubject: string
+	/** The Discord webhook every notification is also posted to (`MITRA_DISCORD_WEBHOOK_URL`), where one is set and reads as a URL. */
+	readonly discordWebhook?: URL
 	/** The largest file in bytes (`MITRA_FILE_MAX_SIZE`) and each account's total (`MITRA_FILE_QUOTA`), where set. */
 	readonly files: { readonly maxSize?: number, readonly quota?: number }
 	/** Sign-in through OpenID Connect (`MITRA_OIDC_*`), never on a demo, which opens sandboxes instead. */
@@ -44,6 +46,7 @@ export class Environment {
 		this.url = Environment.urlOf(variables.MITRA_URL)
 		this.photon = new URL(variables.MITRA_PHOTON_URL || 'https://photon.komoot.io')
 		this.vapidSubject = variables.MITRA_VAPID_SUBJECT || 'mailto:mitra@localhost'
+		this.discordWebhook = Environment.urlOf(variables.MITRA_DISCORD_WEBHOOK_URL)
 		this.files = { maxSize: Environment.bytesOf(variables.MITRA_FILE_MAX_SIZE), quota: Environment.bytesOf(variables.MITRA_FILE_QUOTA) }
 		this.oidc = this.demo ? undefined : this.oidcOf(variables)
 		this.google = Environment.googleOf(variables)
