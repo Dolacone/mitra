@@ -1,6 +1,7 @@
 import { Controller, type Component } from '@a11d/lit'
 import { DateTime } from '@3mo/date-time'
 import { MemoizeExpiring as memoizeExpiring } from 'typescript-memoize'
+import { DayHours } from '#features/entries/client/DayHours.js'
 
 /**
  * Calendar month representation within the buffered date window.
@@ -29,7 +30,7 @@ export class CalendarMonth {
 
 export class CalendarDatesController extends Controller {
 	@memoizeExpiring(60_000)
-	static get today() { return new DateTime().dayStart }
+	static get today() { return DayHours.today }
 
 	static *generate(start: DateTime, count: number, step: 'days' | 'months' | 'years') {
 		for (let i = 0; i < count; i++) {

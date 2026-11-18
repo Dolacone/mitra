@@ -1,4 +1,5 @@
 import { DateTime } from '@3mo/date-time'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { calendarViews, type CalendarView } from '../CalendarView.js'
 import './DateTime.calendar.js'
 
@@ -13,7 +14,7 @@ export class CalendarLocation {
 	static from(parameters: CalendarParameters | undefined, fallbackView: CalendarView) {
 		return new CalendarLocation(
 			calendarViews.find(view => view === parameters?.view) ?? fallbackView,
-			CalendarLocation.dateFrom(parameters?.date) ?? new DateTime(),
+			CalendarLocation.dateFrom(parameters?.date) ?? DayHours.today,
 			parameters?.selected || undefined,
 			parameters?.settings || undefined,
 		)
@@ -38,7 +39,7 @@ export class CalendarLocation {
 	) { }
 
 	private get anchoredToday() {
-		return this.date.dayStart.equals(new DateTime().dayStart)
+		return this.date.dayStart.equals(DayHours.today)
 	}
 
 	get parameters(): CalendarParameters {

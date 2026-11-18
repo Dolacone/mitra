@@ -1,4 +1,4 @@
-import type { DateTime } from '@3mo/date-time'
+import { DateTime } from '@3mo/date-time'
 
 /**
  * The wall-clock minutes of a day a grid shows, counted from the day's midnight, past 1440 into the next day. A timed
@@ -10,6 +10,12 @@ export class DayHours {
 	static readonly whole = new DayHours(0, 1440)
 	/** The week view's: 07:00 to 01:00 the next day. */
 	static readonly week = new DayHours(7 * 60, 25 * 60)
+
+	/** The day it is now, which lasts until the week view's hours end, at 01:00 the next day. */
+	static get today() {
+		const now = new DateTime()
+		return now.hour * 60 + now.minute < DayHours.week.to - 1440 ? now.dayStart.subtract({ days: 1 }) : now.dayStart
+	}
 
 	private constructor(readonly from: number, readonly to: number) { }
 

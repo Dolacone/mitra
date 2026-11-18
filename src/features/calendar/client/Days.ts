@@ -622,7 +622,9 @@ export class Days extends Component {
 			const hour = hours.from / 60 + i
 			return reference.dayStart.add({ days: Math.floor(hour / 24) }).with({ hour: hour % 24, minute: 0, second: 0, millisecond: 0 })
 		}
-		const currentTimeString = today.format({ timeStyle: 'short' })
+		// Past midnight the week's hours go on counting: 24:06, not 00:06.
+		const pastMidnight = (minute: number) => minute < 1440 ? undefined : `${Math.floor(minute / 60)}:${String(minute % 60).padStart(2, '0')}`
+		const currentTimeString = pastMidnight(hours.from + currentMinute) ?? today.format({ timeStyle: 'short' })
 		// A 12-hour clock names a whole hour alone ("4 PM"); a 24-hour one keeps its minutes, as its hour alone reads "16 Uhr".
 		const hourStyle: Intl.DateTimeFormatOptions = new Intl.DateTimeFormat(Localizer.locales.current, { hour: 'numeric' }).resolvedOptions().hour12 ? { hour: 'numeric' } : { timeStyle: 'short' }
 		const here = TimeZones.here
@@ -645,7 +647,7 @@ export class Days extends Component {
 				<div class="axis" data-chrome>
 					${zones.map((zone, column) => Array.from({ length: hourCount }).map((_, i) => {
 						const isCloseToNow = !zone && todayIndex !== -1 && Math.abs(i * 60 - currentMinute) < 15
-						const timeText = (i === 0 || isCloseToNow) ? '' : hourAt(i).format(!zone ? hourStyle : styleIn(zone.zone))
+						const timeText = (i === 0 || isCloseToNow) ? '' : (!zone && pastMidnight(hours.from + i * 60)) || hourAt(i).format(!zone ? hourStyle : styleIn(zone.zone))
 						return html`
 							<div class="hour" style="--_at: ${i * 60}; grid-column: ${column + 2};" ?data-foreign=${!!zone}>
 								${timeText}
