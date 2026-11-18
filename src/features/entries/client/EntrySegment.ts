@@ -2,6 +2,7 @@ import type { DateTime } from '@3mo/date-time'
 import type { EntryOccurrence } from '#features/recurrence'
 import { SnapSetting } from './SnapSetting.js'
 import { EntryStore } from './EntryStore.js'
+import { DayHours } from './DayHours.js'
 
 export interface TimedOverlap {
 	readonly slot: number
@@ -17,7 +18,7 @@ export class EntrySegment {
 	overlap?: TimedOverlap
 	covers = false
 
-	constructor(readonly occurrence: EntryOccurrence, readonly date?: DateTime) { }
+	constructor(readonly occurrence: EntryOccurrence, readonly date?: DateTime, readonly hours = DayHours.whole) { }
 
 	/** What it shows. */
 	get entry() {
@@ -28,20 +29,29 @@ export class EntrySegment {
 	get hasNext() { return !!this.next }
 
 	private _startMinute?: number
-	get startMinute() {
+	get startMinute(): number {
 		const { start } = this.occurrence
-		return this._startMinute ??= this.previous ? 1 : start ? start.hour * 60 + start.minute + 1 : 1
+		return this._startMinute ??= this.previous || !start ? 1 : this.minuteOf(start) + 1
 	}
 
 	private _endMinute?: number
-	get endMinute() {
+	get endMinute(): number {
 		if (this._endMinute === undefined) {
 			const { end } = this.occurrence
-			const endsPastDay = this.dayValue !== undefined && !!end && end.dayStart.valueOf() > this.dayValue
-			const line = endsPastDay ? 1441 : end ? end.hour * 60 + end.minute + 1 : undefined
-			this._endMinute = line !== undefined && line > this.startMinute ? line : Math.min(this.startMinute + SnapSetting.current, 1441)
+			const { length } = this.hours
+			const line = end ? Math.min(this.minuteOf(end), length) + 1 : undefined
+			this._endMinute = line !== undefined && line > this.startMinute ? line : Math.min(this.startMinute + SnapSetting.current, length + 1)
 		}
 		return this._endMinute
+	}
+
+	/** Whether it begins within its day's hours rather than after them. */
+	get shown() {
+		return this.startMinute <= this.hours.length
+	}
+
+	private minuteOf(instant: DateTime) {
+		return this.date ? this.hours.minuteOf(instant, this.date) : instant.hour * 60 + instant.minute
 	}
 
 	/** Midnight epoch-ms for the segment's day. */

@@ -2,6 +2,7 @@ import { type DateTime } from '@3mo/date-time'
 import type { EntryOccurrence } from '#features/recurrence'
 import { EntrySegment } from './EntrySegment.js'
 import { EntryStore } from './EntryStore.js'
+import { DayHours } from './DayHours.js'
 
 export interface MonthBar {
 	readonly segment: EntrySegment
@@ -20,41 +21,47 @@ export interface MonthWeek {
  * Derives per-day segment slices, timed column clusters, and month/all-day lane slots.
  */
 export class EntrySegments {
-	private static readonly perOccurrence = new WeakMap<EntryOccurrence, { readonly spanKey: string, readonly segments: ReadonlyArray<EntrySegment> }>()
+	private static readonly perOccurrence = new Map<DayHours, WeakMap<EntryOccurrence, { readonly spanKey: string, readonly segments: ReadonlyArray<EntrySegment> }>>()
 
 	private static spanKey(occurrence: EntryOccurrence) {
 		return `${occurrence.start?.valueOf()}:${occurrence.end?.valueOf()}:${occurrence.allDay}`
 	}
 
-	/** Returns memoized per-day slices for an occurrence. */
-	static for(occurrence: EntryOccurrence): ReadonlyArray<EntrySegment> {
+	/** Returns memoized per-day slices for an occurrence, its timed dates split where `hours` begin a day. */
+	static for(occurrence: EntryOccurrence, hours = DayHours.whole): ReadonlyArray<EntrySegment> {
 		const spanKey = EntrySegments.spanKey(occurrence)
-		let memo = EntrySegments.perOccurrence.get(occurrence)
+		let memos = EntrySegments.perOccurrence.get(hours)
+		if (!memos) {
+			memos = new WeakMap()
+			EntrySegments.perOccurrence.set(hours, memos)
+		}
+		let memo = memos.get(occurrence)
 		if (memo?.spanKey !== spanKey) {
-			memo = { spanKey, segments: EntrySegments.slice(occurrence) }
-			EntrySegments.perOccurrence.set(occurrence, memo)
+			memo = { spanKey, segments: EntrySegments.slice(occurrence, occurrence.allDay ? DayHours.whole : hours) }
+			memos.set(occurrence, memo)
 		}
 		return memo.segments
 	}
 
-	private static slice(occurrence: EntryOccurrence): ReadonlyArray<EntrySegment> {
+	private static slice(occurrence: EntryOccurrence, hours: DayHours): ReadonlyArray<EntrySegment> {
 		const { start, end } = occurrence
 		if (!start) {
-			return [new EntrySegment(occurrence)]
+			return [new EntrySegment(occurrence, undefined, hours)]
 		}
+		const startDay = hours.dayOf(start)
 		// A moment with no end still belongs to the day it starts on.
 		if (!end) {
-			return [new EntrySegment(occurrence, start.dayStart)]
+			return [new EntrySegment(occurrence, startDay, hours)]
 		}
-		const startDay = start.dayStart
-		const endDay = end.dayStart
-		if (startDay.equals(endDay) || (end.hour === 0 && end.minute === 0 && startDay.equals(endDay.subtract({ days: 1 })))) {
-			return [new EntrySegment(occurrence, startDay)]
+		const endDay = hours.dayOf(end)
+		const endsAsDayBegins = hours.minuteOf(end, endDay) === 0
+		if (startDay.equals(endDay) || (endsAsDayBegins && startDay.equals(endDay.subtract({ days: 1 })))) {
+			return [new EntrySegment(occurrence, startDay, hours)]
 		}
 		const segments = new Array<EntrySegment>()
 		let day = startDay
-		while (day.isBefore(endDay) || (day.equals(endDay) && (end.hour > 0 || end.minute > 0))) {
-			const segment = new EntrySegment(occurrence, day)
+		while (day.isBefore(endDay) || (day.equals(endDay) && !endsAsDayBegins)) {
+			const segment = new EntrySegment(occurrence, day, hours)
 			const previous = segments.at(-1)
 			if (previous) {
 				previous.next = segment
@@ -69,12 +76,12 @@ export class EntrySegments {
 	private static readonly cache = new WeakMap<ReadonlyArray<DateTime>, EntrySegments>()
 
 	/** Returns cached or new EntrySegments cohort for given occurrences and days. */
-	static of(occurrences: ReadonlyArray<EntryOccurrence>, days: ReadonlyArray<DateTime>): EntrySegments {
+	static of(occurrences: ReadonlyArray<EntryOccurrence>, days: ReadonlyArray<DateTime>, hours = DayHours.whole): EntrySegments {
 		const cached = EntrySegments.cache.get(days)
-		if (cached?.occurrences === occurrences) {
+		if (cached?.occurrences === occurrences && cached.hours === hours) {
 			return cached
 		}
-		const cohort = new EntrySegments(occurrences, days, cached?.clustered)
+		const cohort = new EntrySegments(occurrences, days, hours, cached?.hours === hours ? cached.clustered : undefined)
 		EntrySegments.cache.set(days, cohort)
 		return cohort
 	}
@@ -82,6 +89,7 @@ export class EntrySegments {
 	constructor(
 		readonly occurrences: ReadonlyArray<EntryOccurrence>,
 		readonly days: ReadonlyArray<DateTime>,
+		readonly hours = DayHours.whole,
 		/** Each day's clustered list with the segments it was made of, handed on to the next cohort of these days. */
 		private readonly clustered = new Map<number, { readonly members: ReadonlyArray<EntrySegment>, readonly list: ReadonlyArray<EntrySegment> }>(),
 	) { }
@@ -92,10 +100,10 @@ export class EntrySegments {
 			const byDay = new Map<number, Array<EntrySegment>>()
 			for (const occurrence of this.occurrences) {
 				if (!occurrence.allDay) {
-					for (const segment of EntrySegments.for(occurrence)) {
+					for (const segment of EntrySegments.for(occurrence, this.hours)) {
 						// The day `fallsOn` names: its own, else for a dateless slice its start.
 						const day = segment.date ? segment.dayValue : occurrence.start?.dayStart.valueOf()
-						if (day !== undefined) {
+						if (day !== undefined && segment.shown) {
 							const list = byDay.get(day)
 							list ? list.push(segment) : byDay.set(day, [segment])
 						}
@@ -130,7 +138,7 @@ export class EntrySegments {
 		if (!this._segmentsByDay) {
 			const map = new Map<number, Array<EntrySegment>>()
 			for (const occurrence of this.occurrences) {
-				for (const segment of EntrySegments.for(occurrence)) {
+				for (const segment of EntrySegments.for(occurrence, this.hours)) {
 					if (segment.dayValue !== undefined) {
 						const list = map.get(segment.dayValue)
 						list ? list.push(segment) : map.set(segment.dayValue, [segment])
@@ -245,7 +253,7 @@ export class EntrySegments {
 		const datesByOccurrence = new Map<EntryOccurrence, ReadonlyArray<number>>()
 		const previewDates = new Map<EntryOccurrence, ReadonlyArray<number>>()
 		for (const occurrence of occurrences) {
-			const dates = EntrySegments.for(occurrence).map(s => s.dayValue).filter((v): v is number => v !== undefined)
+			const dates = EntrySegments.for(occurrence, this.hours).map(s => s.dayValue).filter((v): v is number => v !== undefined)
 			if (!dates.length) {
 				continue
 			}

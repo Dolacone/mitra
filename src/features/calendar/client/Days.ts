@@ -6,6 +6,7 @@ import { type TimeZone } from '#features/time/TimeZone.js'
 import { type UserTimeZone } from '#features/time/UserTimeZones.js'
 import type { EntryOccurrence } from '#features/recurrence'
 import { EntrySegments } from '#features/entries/client/EntrySegments.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { type EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
 import { Availability } from '#features/availability/client/Availability.js'
@@ -63,9 +64,8 @@ export class Days extends Component {
 		suspended: () => this.zoneLane.moving,
 		// Today is arrived at at the time it is now, any other day at its middle.
 		arrival: date => {
-			const target = date.dayStart.equals(CalendarDatesController.today)
-				? this.renderRoot.querySelector('.overlays > .now')
-				: this.renderRoot.querySelector(`[data-date="${date.dayStart.toISOString()}"]`)
+			const target = (date.dayStart.equals(CalendarDatesController.today) ? this.renderRoot.querySelector('.overlays > .now') : undefined)
+				?? this.renderRoot.querySelector(`[data-date="${date.dayStart.toISOString()}"]`)
 			const box = target?.getBoundingClientRect()
 			return !box ? undefined : box.top - this.getBoundingClientRect().top - this.clientTop + this.scrollTop + (box.height - this.clientHeight) / 2
 		},
@@ -74,7 +74,7 @@ export class Days extends Component {
 	protected readonly entryGestures = new EntryGestureController(this)
 	protected readonly density = new DayDensityController(this)
 	protected readonly zoneLane: TimeZoneLaneController = new TimeZoneLaneController(this, settled => void this.scrolling.anchor().then(() => settled && this.updateLaneHeight()))
-	private get segments() { return EntrySegments.of(Availability.outside(this.occurrences), this.dates.window.days) }
+	private get segments() { return EntrySegments.of(Availability.outside(this.occurrences), this.dates.window.days, DayHours.week) }
 
 	/** `undefined` is the anchor, here, which comes last. */
 	private get timeZoneColumns(): Array<UserTimeZone | undefined> {
@@ -380,7 +380,7 @@ export class Days extends Component {
 						grid-row: 1;
 						align-self: start;
 						position: relative;
-						top: calc(var(--_at) * 100% / 1440);
+						top: calc(var(--_at) * 100% / ${DayHours.week.length});
 					}
 
 					.timezone {
@@ -466,12 +466,12 @@ export class Days extends Component {
 							}
 
 							> .gap {
-								top: calc(var(--_from) * 100% / 1440);
-								block-size: calc((var(--_to) - var(--_from)) * 100% / 1440);
+								top: calc(var(--_from) * 100% / ${DayHours.week.length});
+								block-size: calc((var(--_to) - var(--_from)) * 100% / ${DayHours.week.length});
 							}
 
 							> .line {
-								top: calc(var(--_at) * 100% / 1440);
+								top: calc(var(--_at) * 100% / ${DayHours.week.length});
 							}
 						}
 
@@ -612,9 +612,16 @@ export class Days extends Component {
 
 		const today = new DateTime()
 		const reference = this.dates.navigatingDate
-		const todayValue = today.dayStart.valueOf()
-		const todayIndex = this.days.findIndex(d => d.dayStart.valueOf() === todayValue)
-		const currentMinute = today.hour * 60 + today.minute
+		const hours = DayHours.week
+		const nowDay = hours.dayOf(today)
+		const currentMinute = hours.minuteOf(today, nowDay)
+		const nowDayValue = nowDay.valueOf()
+		const todayIndex = currentMinute >= hours.length ? -1 : this.days.findIndex(d => d.dayStart.valueOf() === nowDayValue)
+		const hourCount = hours.length / 60
+		const hourAt = (i: number) => {
+			const hour = hours.from / 60 + i
+			return reference.dayStart.add({ days: Math.floor(hour / 24) }).with({ hour: hour % 24, minute: 0, second: 0, millisecond: 0 })
+		}
 		const currentTimeString = today.format({ timeStyle: 'short' })
 		// A 12-hour clock names a whole hour alone ("4 PM"); a 24-hour one keeps its minutes, as its hour alone reads "16 Uhr".
 		const hourStyle: Intl.DateTimeFormatOptions = new Intl.DateTimeFormat(Localizer.locales.current, { hour: 'numeric' }).resolvedOptions().hour12 ? { hour: 'numeric' } : { timeStyle: 'short' }
@@ -636,9 +643,9 @@ export class Days extends Component {
 				</div>
 
 				<div class="axis" data-chrome>
-					${zones.map((zone, column) => Array.from({ length: reference.hoursInDay }).map((_, i) => {
+					${zones.map((zone, column) => Array.from({ length: hourCount }).map((_, i) => {
 						const isCloseToNow = !zone && todayIndex !== -1 && Math.abs(i * 60 - currentMinute) < 15
-						const timeText = (i === 0 || isCloseToNow) ? '' : reference.with({ hour: i, minute: 0, second: 0, millisecond: 0 }).format(!zone ? hourStyle : styleIn(zone.zone))
+						const timeText = (i === 0 || isCloseToNow) ? '' : hourAt(i).format(!zone ? hourStyle : styleIn(zone.zone))
 						return html`
 							<div class="hour" style="--_at: ${i * 60}; grid-column: ${column + 2};" ?data-foreign=${!!zone}>
 								${timeText}
@@ -651,13 +658,13 @@ export class Days extends Component {
 				</div>
 
 				<div class="overlays">
-					${Array.from({ length: reference.hoursInDay }).map((_, i) => {
+					${Array.from({ length: hourCount }).map((_, i) => {
 						if (i === 0) return html.nothing
 						return html`<div class="hour" style="--_at: ${i * 60};"></div>`
 					})}
 
 					<mitra-due-mark .view=${this} .draw=${(occurrence: EntryOccurrence) => occurrence.allDay ? html.nothing
-						: DueMark.down(occurrence, this.dates.window.days, day => this.dates.columnOf(day))}></mitra-due-mark>
+						: DueMark.down(occurrence, this.dates.window.days, day => this.dates.columnOf(day), hours)}></mitra-due-mark>
 
 					${todayIndex === -1 ? html.nothing : html`
 						<div class="now" style="--_at: ${currentMinute};">
@@ -681,7 +688,7 @@ export class Days extends Component {
 					style="grid-column: ${offset + index + 1};"
 					.date=${day}
 					.entries=${this.segments.timedOn(day)}
-					.availability=${Availability.on(this.occurrences, day)}
+					.availability=${Availability.on(this.occurrences, day, DayHours.week)}
 					?today=${day.dayStart.valueOf() === todayValue}
 				></mitra-day>
 			`)}

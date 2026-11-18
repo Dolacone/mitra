@@ -2,6 +2,7 @@ import type { DateTime } from '@3mo/date-time'
 import { type Entry } from '../../Entry.js'
 import { SnapSetting } from '../SnapSetting.js'
 import { type DayCells, type DayCell } from '../DayCells.js'
+import { DayHours } from '../DayHours.js'
 
 /** Whether a gesture places days or times. */
 export type DragMode = 'timed' | 'allday'
@@ -116,10 +117,12 @@ export abstract class DragGesture {
 		return cell ? { date: cell.date, minute: mode === 'timed' ? DragGesture.minuteIn(cell, y) : 0 } : undefined
 	}
 
+	/** Times are placed on the week view's hours, the only grid that has them. */
 	private static minuteIn(cell: DayCell, y: number) {
-		const raw = (y - cell.gridTop) / (cell.gridHeight / 1440)
+		const { from, length } = DayHours.week
+		const raw = (y - cell.gridTop) / (cell.gridHeight / length)
 		const snapped = Math.round(raw / SnapSetting.current) * SnapSetting.current
-		return Math.max(0, Math.min(1440, snapped))
+		return from + Math.max(0, Math.min(length, snapped))
 	}
 
 	protected pointAt(x: number, y: number, mode: DragMode) {

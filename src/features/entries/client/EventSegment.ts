@@ -72,7 +72,7 @@ export class EntrySegmentComponent extends Component {
 		}
 		const entry = EntryStore.editable(segment.occurrence)
 		const occurrence = EntryStore.occurrences.find(occurrence => occurrence.entry === entry)
-		const days = occurrence ? EntrySegments.for(occurrence) : []
+		const days = occurrence ? EntrySegments.for(occurrence, segment.hours) : []
 		this.segment = days.find(day => day.dayValue === segment.dayValue) ?? days[0] ?? segment
 	}
 

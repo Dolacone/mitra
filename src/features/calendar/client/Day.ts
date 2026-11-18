@@ -2,6 +2,7 @@ import { Component, component, html, property, css, repeat, styleMap } from '@a1
 import { type DateTime } from '@3mo/date-time'
 import type { EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { Availability, type AvailabilityPlacement } from '#features/availability/client/Availability.js'
 import '#features/entries/client/EventSegment.js'
 import '#features/availability/client/AvailabilitySegment.js'
@@ -138,7 +139,7 @@ export class Day extends Component {
 						grid-column: 1 / -1;
 						/* Absolute in its grid area, so its margins take from its minutes as they did stretched across its rows. */
 						position: absolute;
-						inset-block: calc(var(--_from) * 100% / 1440) calc((1440 - var(--_to)) * 100% / 1440);
+						inset-block: calc(var(--_from) * 100% / ${DayHours.week.length}) calc((${DayHours.week.length} - var(--_to)) * 100% / ${DayHours.week.length});
 						inset-inline-start: 0;
 						z-index: 2;
 

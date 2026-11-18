@@ -2,6 +2,7 @@ import { Component, component, css, html, property, state, bind } from '@a11d/li
 import { type EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntryEditorAnchor } from '#features/entries/client/EntryEditorAnchor.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { entryColors } from '#features/entries/client/entryColors.css.js'
 import { Availability } from './Availability.js'
 
@@ -43,7 +44,7 @@ export class AvailabilitySegment extends Component {
 					grid-row: 1;
 					grid-column: 1 / -1;
 					position: absolute;
-					inset-block: calc(var(--_from) * 100% / 1440) calc((1440 - var(--_to)) * 100% / 1440);
+					inset-block: calc(var(--_from) * 100% / ${DayHours.week.length}) calc((${DayHours.week.length} - var(--_to)) * 100% / ${DayHours.week.length});
 					inset-inline: 0;
 				}
 

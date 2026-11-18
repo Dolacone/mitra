@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
 import { Entry } from '../Entry.js'
 import { EntrySegments } from './EntrySegments.js'
+import { DayHours } from './DayHours.js'
 import { EntryStore } from './EntryStore.js'
 
 describe('EntrySegments', () => {
@@ -125,6 +126,49 @@ describe('EntrySegments', () => {
 			entry.setAllDay(true)
 			assert.notEqual(EntrySegments.for(entry.occurrences.single)[0], before[0])
 			assert.equal(EntrySegments.for(entry.occurrences.single)[0]!.allDay, true)
+		})
+	})
+
+	describe('on the week view\'s hours', () => {
+		const week = DayHours.week
+		/** Where `hours` past `base`'s midnight lands on a day's hours, 1-based as segments count. */
+		const line = (hours: number) => hours * 60 - week.from + 1
+		const timed = (heading: string, from: number, to: number) => new Entry({ heading, start: base.add({ minutes: from * 60 }), end: base.add({ minutes: to * 60 }) })
+
+		it('keeps an entry running past midnight on the day it began, low on its hours', () => {
+			const segments = EntrySegments.for(timed('Late', 23, 24.5).occurrences.single, week)
+			assert.equal(segments.length, 1)
+			assert.ok(segments[0]!.date!.equals(base))
+			assert.equal(segments[0]!.startMinute, line(23))
+			assert.equal(segments[0]!.endMinute, line(24.5))
+			assert.equal(segments[0]!.allDay, false)
+		})
+
+		it('runs an entry past the hours\' end to their bottom', () => {
+			const [segment] = EntrySegments.for(timed('Night', 23, 27).occurrences.single, week)
+			assert.equal(segment!.endMinute, week.length + 1)
+		})
+
+		it('splits an entry where the next day\'s hours begin, not at midnight', () => {
+			const segments = EntrySegments.for(timed('Shift', 30, 32).occurrences.single, week)
+			assert.equal(segments.length, 2)
+			assert.ok(segments[0]!.date!.equals(base))
+			assert.equal(segments[0]!.shown, false)
+			assert.ok(segments[1]!.date!.equals(base.add({ days: 1 })))
+			assert.equal(segments[1]!.startMinute, 1)
+			assert.equal(segments[1]!.endMinute, line(8))
+		})
+
+		it('lists late entries on the day they belong to and leaves out what falls between two days\' hours', () => {
+			const cohort = EntrySegments.of(shown([timed('Late', 24.25, 24.75), timed('Small hours', 27, 28), timed('Breakfast', 31, 32)]), [base, base.add({ days: 1 })], week)
+			assert.deepEqual(cohort.timedOn(base).map(s => s.entry.heading), ['Late'])
+			assert.deepEqual(cohort.timedOn(base.add({ days: 1 })).map(s => s.entry.heading), ['Breakfast'])
+		})
+
+		it('keeps an all-day entry on its own days', () => {
+			const segments = EntrySegments.for(allDay('Holiday', 1).occurrences.single, week)
+			assert.equal(segments.length, 1)
+			assert.ok(segments[0]!.date!.equals(base.add({ days: 1 })))
 		})
 	})
 

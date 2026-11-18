@@ -3,6 +3,7 @@ import type { Entry } from '#features/entries'
 import type { EntryOccurrence } from '#features/recurrence'
 import { type EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntrySegments } from '#features/entries/client/EntrySegments.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { HideAvailabilitySetting } from './HideAvailabilitySetting.js'
 
 interface Partition {
@@ -54,7 +55,7 @@ export class Availability {
 		return [entry.heading, entry.location].map(part => part?.trim()).filter(Boolean).join(' · ')
 	}
 
-	private static readonly byDay = new WeakMap<ReadonlyArray<EntryOccurrence>, Map<number, ReadonlyArray<AvailabilityPlacement>>>()
+	private static readonly byDay = new WeakMap<ReadonlyArray<EntryOccurrence>, { readonly hours: DayHours, readonly index: Map<number, ReadonlyArray<AvailabilityPlacement>> }>()
 	/** The index last built, whose days keep their lists where their windows did not change: a drag elsewhere leaves them be. */
 	private static lastIndex?: Map<number, ReadonlyArray<AvailabilityPlacement>>
 
@@ -86,17 +87,18 @@ export class Availability {
 		return positions
 	}
 
-	/** The availability on one day. None while the lens hides availability. */
-	static on(occurrences: ReadonlyArray<EntryOccurrence>, date: DateTime): ReadonlyArray<AvailabilityPlacement> {
+	/** The availability on one day's `hours`. None while the lens hides availability. */
+	static on(occurrences: ReadonlyArray<EntryOccurrence>, date: DateTime, hours = DayHours.whole): ReadonlyArray<AvailabilityPlacement> {
 		if (HideAvailabilitySetting.current) {
 			return Availability.none
 		}
-		let index = Availability.byDay.get(occurrences)
+		const cached = Availability.byDay.get(occurrences)
+		let index = cached?.hours === hours ? cached.index : undefined
 		if (!index) {
 			const segmentsByDay = new Map<number, Array<EntrySegment>>()
 			for (const occurrence of Availability.partition(occurrences).availability) {
-				for (const segment of EntrySegments.for(occurrence)) {
-					if (segment.dayValue === undefined) {
+				for (const segment of EntrySegments.for(occurrence, hours)) {
+					if (segment.dayValue === undefined || !segment.shown) {
 						continue
 					}
 					const day = segmentsByDay.get(segment.dayValue)
@@ -114,7 +116,7 @@ export class Availability {
 				const positions = Availability.labelPositions(labelled)
 				index.set(dayValue, segments.map(segment => ({ segment, labelAt: positions[labelled.indexOf(segment)] ?? 0.5 })))
 			}
-			Availability.byDay.set(occurrences, index)
+			Availability.byDay.set(occurrences, { hours, index })
 			Availability.lastIndex = index
 		}
 		return index.get(date.dayStart.valueOf()) ?? Availability.none

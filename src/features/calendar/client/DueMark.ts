@@ -3,6 +3,7 @@ import { type DateTime } from '@3mo/date-time'
 import type { EntryOccurrence } from '#features/recurrence'
 import { type EntrySegmentComponent } from '#features/entries/client/EventSegment.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 
 /**
  * The way from the task under the pointer, else the one open, to its due date: a tint that grows out of the task and runs
@@ -94,24 +95,27 @@ export class DueMark extends Component {
 	 * The way on the hours of `days`: a piece in each day it crosses, cut to the minutes it covers there and growing away from
 	 * the task, then the line at the due time.
 	 */
-	static down(occurrence: EntryOccurrence, days: ReadonlyArray<DateTime>, columnOf: (day: DateTime) => number | undefined) {
+	static down(occurrence: EntryOccurrence, days: ReadonlyArray<DateTime>, columnOf: (day: DateTime) => number | undefined, hours = DayHours.whole) {
 		const gap = occurrence.dueGap
-		const crossed = !gap ? [] : DueMark.daysIn(gap, days)
-		const minuteOf = (date: DateTime) => date.hour * 60 + date.minute
+		const crossed = !gap ? [] : days
+			.map(day => ({ day, from: Math.max(0, hours.minuteOf(gap.start!, day)), to: Math.min(hours.length, hours.minuteOf(gap.end!, day)) }))
+			.filter(({ from, to }) => from < to)
 		const due = occurrence.due!
-		const dueColumn = columnOf(due)
+		const dueDay = hours.dayOf(due)
+		const dueMinute = hours.minuteOf(due, dueDay)
+		const dueColumn = dueMinute > hours.length ? undefined : columnOf(dueDay)
 		return html`
-			${crossed.map((day, index) => html`
+			${crossed.map(({ day, from, to }, index) => html`
 				<div class="gap" style=${styleMap({
 					gridColumn: `${columnOf(day)! + 1}`,
-					'--_from': `${gap!.start!.isAfter(day.dayStart) ? minuteOf(gap!.start!) : 0}`,
-					'--_to': `${gap!.end!.isBefore(day.dayStart.add({ days: 1 })) ? minuteOf(gap!.end!) : 1440}`,
+					'--_from': `${from}`,
+					'--_to': `${to}`,
 					// Away from the task: forwards to a due ahead, backwards to one it missed.
 					'--_step': `${occurrence.scheduledPastDue ? crossed.length - 1 - index : index}`,
 				})}></div>
 			`)}
 			${dueColumn === undefined ? html.nothing : html`
-				<div class="line" style=${styleMap({ gridColumn: `${dueColumn + 1}`, '--_at': `${minuteOf(due)}`, '--_step': `${crossed.length}` })}>
+				<div class="line" style=${styleMap({ gridColumn: `${dueColumn + 1}`, '--_at': `${dueMinute}`, '--_step': `${crossed.length}` })}>
 					<mitra-icon icon="flag" fill></mitra-icon>
 				</div>
 			`}
