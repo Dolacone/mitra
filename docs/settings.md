@@ -3,7 +3,7 @@ title: Settings
 description: "Choose Mitra's theme and default view, and how new entries start out. Search finds any setting, and the command palette changes most of them directly."
 ---
 
-Mitra keeps its settings in one dialog. Open it with **Settings** at the bottom of the sidebar, with <kbd>Ctrl</kbd>+<kbd>,</kbd> (<kbd>⌘</kbd>+<kbd>,</kbd> on a Mac) from anywhere, or from the [command palette](shortcuts.md). When you sign in with an account, **Settings** is the gear on your account card at the bottom of the sidebar, and the **⋯** beside it holds **Sign out**.
+Mitra keeps its settings in one dialog. Open it with **Settings** at the bottom of the sidebar, with <kbd>Ctrl</kbd>+<kbd>,</kbd> (<kbd>⌘</kbd>+<kbd>,</kbd> on a Mac) from anywhere, or from the [command palette](shortcuts.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../assets/screenshots/settings-detail-dark.webp">
