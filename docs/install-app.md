@@ -5,11 +5,10 @@ description: "Install Mitra as an app on a computer, an Android phone, an iPhone
 
 Mitra runs in your browser, and you can also install it as an app. Nothing comes from an app store: your browser gives Mitra its own window and icon, and you open it from your dock, taskbar, start menu or home screen like any other app.
 
-Installing is worth it for three reasons:
+Installing is worth it for two reasons:
 
 - Mitra opens in its own window, away from your browser tabs, and its notifications show under its own name and icon.
 - On an iPhone or iPad, it's the only way to get [reminders](reminders.md).
-- On a computer, Mitra can open `webcal://` links for you. See [Calendar files](calendar-files.md).
 
 The installed app is always called Mitra and has Mitra's icon, even when your server gives the instance [a name of its own](configuration.md#name-your-instance).
 
