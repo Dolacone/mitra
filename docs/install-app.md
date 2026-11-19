@@ -14,7 +14,7 @@ The installed app is always called Mitra and has Mitra's icon, even when your se
 
 ## On a computer
 
-In Chrome, Edge and other Chromium-based browsers, open Mitra and click the install icon at the end of the address bar. When the browser offers to install Mitra, the sidebar also shows an **Install as an App** button at the bottom. You can also go through the browser's menu: in Chrome, **Cast, save, and share → Install page as app**, and in Edge, **Apps → Install this site as an app**.
+In Chrome, Edge and other Chromium-based browsers, open Mitra and click the install icon at the end of the address bar. You can also go through the browser's menu: in Chrome, **Cast, save, and share → Install page as app**, and in Edge, **Apps → Install this site as an app**.
 
 In Safari on a Mac, choose **File → Add to Dock**.
 

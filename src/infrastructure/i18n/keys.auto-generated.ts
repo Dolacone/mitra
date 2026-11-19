@@ -205,8 +205,6 @@ declare global {
 		"hours": unknown
 		"How to connect": unknown
 		"Importing entries…": unknown
-		"Install as an App": unknown
-		"Install mitra as an app. It gets its own window, and notifications appear under its own name and icon": unknown
 		"Integration options": unknown
 		"Interval": unknown
 		"Its routine counts it as not kept": unknown

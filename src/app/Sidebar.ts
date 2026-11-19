@@ -16,7 +16,6 @@ import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
 import type { Integration } from '#integrations'
 import { session } from '#infrastructure/http/PageSession.js'
 import { PageState } from '#infrastructure/http/PageState.js'
-import { canInstall, promptInstall, onInstallAvailabilityChange } from './pwa.js'
 
 type SidebarTab = 'calendars' | 'planning' | 'routines'
 
@@ -108,18 +107,6 @@ export class Sidebar extends Component {
 			await Calendars.fetch()
 			this.requestUpdate()
 		})
-	}
-
-	private unsubscribeInstallAvailability?: () => void
-
-	protected override connected() {
-		super.connected()
-		this.unsubscribeInstallAvailability = onInstallAvailabilityChange(() => this.requestUpdate())
-	}
-
-	protected override disconnected() {
-		super.disconnected()
-		this.unsubscribeInstallAvailability?.()
 	}
 
 	/** Re-check metadata on visibility change. */
@@ -867,14 +854,6 @@ export class Sidebar extends Component {
 						<mitra-icon icon="settings"></mitra-icon>
 						${t('Settings')}
 					</mitra-button>
-					${!canInstall() ? html.nothing : html`
-						<mitra-button class="action"
-							title=${t('Install mitra as an app. It gets its own window, and notifications appear under its own name and icon')}
-							@click=${() => promptInstall()}>
-							<mitra-icon icon="monitor-down"></mitra-icon>
-							${t('Install as an App')}
-						</mitra-button>
-					`}
 				</div>
 			</nav>
 		`
