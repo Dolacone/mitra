@@ -28,9 +28,7 @@ COPY tsconfig.json ./
 COPY assets ./assets
 COPY scripts ./scripts
 COPY src ./src
-# Every release's notes, and the captures of the one this image is, which the build copies into dist/ for What's New.
-COPY releases ./releases
-# The website's address, which the release notes link to.
+# The website's address, which the app's documentation links are built from.
 COPY website/site.mjs ./website/site.mjs
 RUN npm run build
 
@@ -48,10 +46,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/out ./out
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
-
-# The changelog the About dialog serves (see src/features/about/server/changelog.ts), which CI generates into the build
-# context (see docker.yml), as the context has no .git. The pattern lets a local build without one go ahead.
-COPY CHANGELOG.m[d] ./
 
 # SQLite database lives here; mount a volume to persist it across container updates.
 RUN mkdir -p /app/data

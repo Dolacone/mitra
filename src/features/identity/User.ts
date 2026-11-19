@@ -46,8 +46,6 @@ export class User {
 
 	@property({ type: 'json', nullable: true }) settings?: UserSettings
 
-	@property({ type: 'string', nullable: true }) lastSeenVersion?: string
-
 	/** Sources hidden before a solo view began; presence marks an active solo. */
 	@property({ type: 'json', nullable: true }) previouslyHiddenSourceIds?: Array<string>
 
@@ -72,15 +70,6 @@ export class User {
 
 	get administers() {
 		return this.role === 'administrator'
-	}
-
-	hasSeen(version: string) {
-		return this.lastSeenVersion === version
-	}
-
-	/** Whether `version` is news to the user, who saw an earlier release. A new account has nothing to catch up on. */
-	hasMissed(version: string) {
-		return !!this.lastSeenVersion && !this.hasSeen(version)
 	}
 
 	/** The reminders a new entry of the user's starts with. */

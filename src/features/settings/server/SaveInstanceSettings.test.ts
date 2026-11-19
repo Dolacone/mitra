@@ -1,7 +1,7 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { GetMeta } from '#features/about/server/GetMeta.js'
 import { OperationServer } from '#infrastructure/operations/OperationServer.testing.js'
+import { GetMeta } from './GetMeta.js'
 import { SaveInstanceSettings } from './SaveInstanceSettings.js'
 
 describe('SaveInstanceSettings', () => {

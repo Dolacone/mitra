@@ -13,7 +13,6 @@ describe('GetMeta', () => {
 		const instance = await GetMeta.call()
 		assert.ok(instance instanceof Instance)
 		assert.equal(instance.version, mitra.version)
-		assert.equal(instance.stale, false)
 		assert.ok(instance.files!.maxSize > 0)
 	})
 })

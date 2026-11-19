@@ -1,5 +1,5 @@
 import { Localizer } from '@3mo/localization'
-import { docsBase, languages, localized, site, withBase } from '../../../../website/site.mjs'
+import { docsBase, languages, localized, site, withBase } from '../../../website/site.mjs'
 
 /** A page of the website, in the app's language where the website has it. */
 export const onWebsite = (route: string) => {

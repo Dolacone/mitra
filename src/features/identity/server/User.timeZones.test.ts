@@ -26,7 +26,7 @@ describe('User.timeZones in the database', () => {
 		const em = orm.em.fork()
 		const user = await em.findOneOrFail(User, { id: 'u' })
 		assert.ok(!user.timeZones)
-		user.lastSeenVersion = '0.7.0'
+		user.settings = { hideDoneTasks: true }
 		await em.flush()
 	}))
 

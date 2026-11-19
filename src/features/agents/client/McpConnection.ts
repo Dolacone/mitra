@@ -1,5 +1,5 @@
 import { Component, component, html, state } from '@a11d/lit'
-import { docsPage } from '#features/about/client/website.js'
+import { docsPage } from '#infrastructure/http/website.js'
 import { session } from '#infrastructure/http/PageSession.js'
 import { mcpAddress } from './accessTokens.js'
 

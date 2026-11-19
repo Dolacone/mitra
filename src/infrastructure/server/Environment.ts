@@ -14,8 +14,6 @@ export class Environment {
 	readonly developer: boolean
 	/** Whether agents may connect over MCP (`MITRA_MCP`). */
 	readonly mcp: boolean
-	/** Whether the server asks GitHub for updates (`MITRA_UPDATE_CHECK`). */
-	readonly updateCheck: boolean
 	/** The instance's public address (`MITRA_URL`), where one is set and reads as a URL. */
 	readonly url?: URL
 	/** Where places are looked up (`MITRA_PHOTON_URL`). */
@@ -34,7 +32,6 @@ export class Environment {
 		this.name = variables.MITRA_NAME || undefined
 		this.developer = variables.MITRA_DEV === 'true'
 		this.mcp = !Environment.off(variables.MITRA_MCP)
-		this.updateCheck = !Environment.off(variables.MITRA_UPDATE_CHECK)
 		this.url = Environment.urlOf(variables.MITRA_URL)
 		this.photon = new URL(variables.MITRA_PHOTON_URL || 'https://photon.komoot.io')
 		this.vapidSubject = variables.MITRA_VAPID_SUBJECT || 'mailto:mitra@localhost'

@@ -1,30 +1,9 @@
 ---
 title: Updates
-description: How Mitra tells you about new versions, what that check sends, how to turn it off, and how to update.
+description: How to choose an image tag and update Mitra.
 ---
 
-Mitra tells you when a newer version than the one you're running exists. It never updates itself: pulling the new version is up to you.
-
-## The update indicator
-
-When something newer exists, a small dot appears on the logo in the sidebar. Click your instance's name to open **About**, which shows the version and commit you're running and links to what's new. **Copy** there copies the version details, which is what a bug report needs.
-
-**What's New**, in the [command palette](shortcuts.md#command-palette), lists the changes of every version. After your server is updated, Mitra asks you to **Reload to finish updating** in any tab that was open from before.
-
-If you run a release (`latest`, `0.6` or an exact version), it points you to the newest release. If you run the `dev` image, it points to the newest commits on `main` and tells you how far ahead they are.
-
-## What the check sends
-
-The server, never your browser, asks GitHub a few times a day whether there's something newer. The request carries nothing about your instance beyond what any request does: your IP address, and the running version in its user agent. No telemetry, no identifiers, no counts.
-
-If the server can't reach GitHub, it logs that once and keeps quiet afterwards.
-
-To turn the check off entirely, set `MITRA_UPDATE_CHECK` to `off` (`false`, `0` and `no` work too):
-
-```yaml
-environment:
-  MITRA_UPDATE_CHECK: 'off'
-```
+Mitra never updates itself: pulling the new version is up to you.
 
 ## Choose an image tag
 

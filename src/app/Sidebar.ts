@@ -4,7 +4,6 @@ import { MediaQueryController } from '@3mo/media-query-observer'
 import { RenameSource, RecolorSource, SetSourceRoutines, CreateSource, ReimportSource, SetDefaultCalendar, DisconnectIntegration, ReimportIntegration, RenameIntegration } from '#operations'
 import { focusRing, windowDragHandle, scrollbar } from '#design'
 import { Calendars } from '#features/sources/client/Calendars.js'
-import { DialogAbout } from '#features/about/client/DialogAbout.js'
 import { DialogSourceDeletion } from '#features/sources/client/DialogSourceDeletion.js'
 import { type Source, Color } from '#features/sources'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
@@ -213,8 +212,7 @@ export class Sidebar extends Component {
 						${windowDragHandle};
 
 						/* The one part of the column that is inert on purpose: the brand mark carries the
-						   window, so the logo moves it. Its version whisper does not: it stays live (see
-						   .version), which is what keeps About reachable from a row that drags. */
+						   window, so the logo moves it. */
 						.brand, .brand :is(.mark, img, .name) {
 							-webkit-app-region: drag;
 						}
@@ -279,8 +277,7 @@ export class Sidebar extends Component {
 
 				/* The brand row: the one place the app names itself (MITRA_NAME can rename it). The mark is
 				   the favicons-generated PNG, so replacing assets/mitra.svg rebrands this too. The version
-				   whisper rides at its end, ellipsized when it's a long git-describe string; clicking the
-				   row opens the About dialog. Sized to the main header's row (0.75rem padding + content =
+				   whisper rides at its end, ellipsized when it's a long git-describe string. Sized to the main header's row (0.75rem padding + content =
 				   3.5rem) and pulled up against the nav's own padding, so logo and page title share a line. */
 				.brand {
 					all: unset;
@@ -292,45 +289,16 @@ export class Sidebar extends Component {
 					flex-shrink: 0;
 					margin-top: -1.5rem;
 					padding-inline: 0.5rem;
-					cursor: pointer;
 					border-radius: calc(var(--border-radius) * 1.5);
-
-					/* The global button skin's hover/active box is far too loud for a brand mark. The only
-					   affordance is the version whisper waking up. */
-					&:not(:disabled) {
-						&:hover, &:active {
-							background: none;
-							box-shadow: none;
-						}
-
-						&:hover .version .label {
-							opacity: 1;
-						}
-					}
 
 					img {
 						width: 1.375rem;
 						height: 1.375rem;
 					}
 
-					/* The update badge: a quiet accent dot on the mark's corner, with no text, no animation;
-					   the row's title whispers what it means, the About dialog carries the detail. */
 					.mark {
-						position: relative;
 						display: inline-flex;
 						flex-shrink: 0;
-
-						.dot {
-							position: absolute;
-							top: -2px;
-							right: -3px;
-							width: 6px;
-							height: 6px;
-							border-radius: 50%;
-							background: var(--color-accent);
-							/* ringed with the sidebar's background so it reads on the mark's own pixels */
-							box-shadow: 0 0 0 2px var(--color-background);
-						}
 					}
 
 					.name {
@@ -353,45 +321,13 @@ export class Sidebar extends Component {
 						letter-spacing: 0.02em;
 						color: var(--color-text-muted);
 
-						/* Dimmed on the text only, since the news dot inside must keep its full accent. */
 						.label {
 							overflow: hidden;
 							white-space: nowrap;
 							text-overflow: ellipsis;
 							opacity: 0.7;
 						}
-
-						/* The news dot: the instance moved since this user last opened What's New. Quiet by
-						   design: no toast, no auto-opened dialog; it goes out when What's New is opened
-						   (About → What's New, or the palette command). */
-						.news-dot {
-							flex-shrink: 0;
-							width: 6px;
-							height: 6px;
-							border-radius: 50%;
-							background: var(--color-accent);
-						}
-
-						/* Under Window Controls Overlay the brand row drags the window, making this whisper
-						   the row's only click-through to About. It is already live (the handle hands every
-						   element back), so all it needs here is a real hit area and a hover affordance. */
-						@media (display-mode: window-controls-overlay) {
-							cursor: pointer;
-							padding: 0.125rem 0.375rem;
-							margin-inline-end: -0.375rem;
-							border-radius: var(--border-radius);
-
-							&:hover {
-								background: color-mix(in srgb, var(--color-text) 8%, transparent);
-
-								.label {
-									opacity: 1;
-								}
-							}
-						}
 					}
-
-					${focusRing};
 				}
 
 				/* The scrolling middle: takes whatever height the brand row and footer leave over.
@@ -876,15 +812,6 @@ export class Sidebar extends Component {
 		return mitra.version === 'dev' || /^v\d.*-\d+-g[0-9a-f]+$/.test(mitra.version) ? 'dev' : mitra.version
 	}
 
-	/** Update availability tooltip text. */
-	private get updateHint() {
-		if (session.instance.stale) {
-			return t('Reload to finish updating')
-		}
-		const update = session.instance.update
-		return !update ? undefined : t('Update available: ${version}', { version: update.version })
-	}
-
 	private get calendarsTemplate() {
 		return html`
 			<div class="integrations">
@@ -970,17 +897,15 @@ export class Sidebar extends Component {
 	private get navTemplate() {
 		return html`
 			<nav>
-				<button class="brand" title=${[`Mitra ${mitra.version}`, this.updateHint].filter(Boolean).join('\n')} @click=${() => new DialogAbout().confirm()}>
+				<div class="brand" title=${`Mitra ${mitra.version}`}>
 					<span class="mark">
 						<img src="/android-chrome-192x192.png" alt="">
-						${!this.updateHint ? '' : html`<span class="dot"></span>`}
 					</span>
 					<span class="name">${session.instance.displayName}</span>
 					<span class="version">
 						<span class="label">${this.versionLabel}</span>
-						${this.updateHint || !DialogAbout.hasNews ? html.nothing : html`<span class="news-dot" title=${t('What\'s New')}></span>`}
 					</span>
-				</button>
+				</div>
 				<mitra-tabs compact .selected=${this.tab} @selectedChange=${(e: CustomEvent<string>) => this.setTab(e.detail as SidebarTab)}>
 					<mitra-tab name="calendars" icon="calendar-days">${t('Calendars')}</mitra-tab>
 					<mitra-tab-panel name="calendars">${this.calendarsTemplate}</mitra-tab-panel>

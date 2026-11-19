@@ -19,8 +19,6 @@ import { PageCalendar } from '#features/calendar/client/PageCalendar.js'
 import { CommandPalette } from '#features/commands/client/CommandPalette.js'
 import { Planning } from '#features/planning/client/Planning.js'
 import { EntryDetailsComponent } from '#features/entries/client/EventDetails.js'
-import { DialogAbout } from '#features/about/client/DialogAbout.js'
-import { ReleaseNotesComponent } from '#features/about/client/ReleaseNotesComponent.js'
 import { DialogWelcome } from '#features/onboarding/client/DialogWelcome.js'
 import { DialogKeyboardShortcuts } from '#features/commands/client/DialogKeyboardShortcuts.js'
 import { DialogSettings } from '#features/settings/client/DialogSettings.js'
@@ -100,9 +98,6 @@ export class Mitra extends Application {
 		Localizer.locales.change.subscribe(() => document.title = this.documentTitle)
 		syncPushSubscription()
 		syncThemeColor()
-		if (session.user && !session.user?.lastSeenVersion) {
-			DialogAbout.markSeen()
-		}
 		await super.initialized()
 		claimFileDrops()
 		if (!Calendars.integrations.length) {
@@ -209,8 +204,6 @@ export class Mitra extends Application {
 			${EntryDetailsComponent.styles}
 			${EntryDetailsWhen.styles}
 			${EntryDetailsSharing.styles}
-			${DialogAbout.styles}
-			${ReleaseNotesComponent.styles}
 			${DialogIntegration.styles}
 			${DialogWelcome.styles}
 			${DialogKeyboardShortcuts.styles}

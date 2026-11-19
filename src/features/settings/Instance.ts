@@ -1,7 +1,7 @@
-import type { InstanceSettings } from '#features/settings/InstanceSettings.js'
 import { model } from '#infrastructure/model'
+import type { InstanceSettings } from './InstanceSettings.js'
 
-/** What an instance says of itself (`GetMeta`), which the browser reads once it loads and again when it is stale. */
+/** What an instance says of itself (`GetMeta`), which the browser reads once it loads. */
 @model('Instance')
 export class Instance {
 	/** The operator's `MITRA_NAME`, if any. */
@@ -10,8 +10,6 @@ export class Instance {
 	commit!: string
 	node?: string
 	development?: boolean
-	releaseUrl?: string
-	update?: { readonly version: string, readonly url: string, readonly commits?: number }
 	/** The largest file in bytes (0 takes no uploads), and each account's total. */
 	files?: { readonly maxSize: number, readonly quota?: number }
 	/** Whether people sign in, so an agent needs an access token. */
@@ -28,10 +26,5 @@ export class Instance {
 	/** The operator's name, else Mitra's own in the current language. */
 	get displayName() {
 		return this.name ?? String(t('Mitra'))
-	}
-
-	/** Whether the server runs another release than this page, which a reload catches up with. */
-	get stale() {
-		return this.version !== mitra.version
 	}
 }

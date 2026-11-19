@@ -19,7 +19,6 @@ import { healthRouter } from '#infrastructure/http/health.js'
 import { compression, precompressed } from '#infrastructure/http/compression.js'
 import { errorHandler } from '#infrastructure/http/errorHandler.js'
 import { cacheControlOf } from '#infrastructure/http/caching.js'
-import { updateChecker } from '#features/about/server/updates.js'
 import { ReminderScheduler } from '#features/reminders/server/ReminderScheduler.js'
 import { UnusedFileDisposer } from '#features/files/server/UnusedFileDisposer.js'
 import { fileContentRouter, filesRouter } from '#features/files/server/files.js'
@@ -36,7 +35,6 @@ new ReminderScheduler(orm).start()
 /** The tables holding files, which serving looks a file up in and the disposer keeps the bytes for. */
 const fileTables = [EntryFile]
 new UnusedFileDisposer(orm, fileTables).start()
-updateChecker.start()
 
 const app = express()
 app.use(cors())

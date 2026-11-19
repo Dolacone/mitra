@@ -1,6 +1,6 @@
 import { GetUser, GetMeta } from '#operations'
 import type { User } from '#features/identity'
-import { Instance } from '#features/about/Instance.js'
+import { Instance } from '#features/settings/Instance.js'
 import type { UserSettings } from '#features/settings/UserSettings.js'
 import type { InstanceSettings } from '#features/settings/InstanceSettings.js'
 import { PageState } from './PageState.js'

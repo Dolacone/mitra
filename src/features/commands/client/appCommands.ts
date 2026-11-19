@@ -1,4 +1,3 @@
-import { DialogAbout } from '#features/about/client/DialogAbout.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
 import { command, Command } from '../Command.js'
 import { DialogKeyboardShortcuts } from './DialogKeyboardShortcuts.js'
@@ -34,27 +33,7 @@ export class AddIntegration extends Command {
 	execute() { return new DialogIntegration({}).confirm() }
 }
 
-// The version string itself is a keyword, so typing what the sidebar's brand row shows finds these.
-
-@command()
-export class About extends Command {
-	heading = t('About')
-	icon = 'info'
-	keywords = `${t('About.Keywords')} ${mitra.version}`
-	group = undefined
-	keys = []
-	execute() { return new DialogAbout().confirm() }
-}
-
-@command()
-export class WhatsNew extends Command {
-	heading = t('What\'s New')
-	icon = 'sparkles'
-	keywords = `${t('WhatsNew.Keywords')} ${mitra.version}`
-	group = undefined
-	keys = []
-	execute() { return new DialogAbout().confirm() }
-}
+// The version string itself is a keyword, so typing what the sidebar's brand row shows finds it.
 
 @command()
 export class CopyVersion extends Command {

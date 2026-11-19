@@ -17,13 +17,7 @@ data
 .idea
 website
 *.md
-# …except the changelog CI generates into the context, which the About dialog serves (see
-# src/features/about/server/changelog.ts), copied into the image by the Dockerfile.
-!CHANGELOG.md
-# …and the release notes and their translations, which the build bundles into dist/ (see scripts/releaseAssets.ts).
-!releases/*/README.md
-!releases/*/README.*.md
-# …and the site's address, which the app's release notes link to (website/site.mjs states it once).
+# …except the site's address, which the app's documentation links are built from (website/site.mjs states it once).
 !website/site.mjs
 
 # Misc
