@@ -52,6 +52,7 @@ declare global {
 		"Alt+click to show only this one": unknown
 		"Alt+click to show the previously visible ones": unknown
 		"Amount": unknown
+		"API token": unknown
 		"At start": unknown
 		"At start of event": unknown
 		"At the time of the task": unknown
@@ -93,6 +94,8 @@ declare global {
 		"Commands": unknown
 		"Confidential": unknown
 		"Confirmed": unknown
+		"Connect": unknown
+		"Connecting…": unknown
 		"Copy the address": unknown
 		"Copy Version": unknown
 		"CopyVersion.Keywords": unknown
@@ -101,6 +104,7 @@ declare global {
 		"Create a calendar": unknown
 		"Create and move entries right on the grid.": unknown
 		"Create Entry": unknown
+		"Create one in the TickTick web app under Settings, Account, API Token.": unknown
 		"CreateAvailability.Keywords": unknown
 		"CreateEntry.Keywords": unknown
 		"Ctrl": unknown
@@ -308,6 +312,7 @@ declare global {
 		"Read this calendar again from the start": unknown
 		"read-only": unknown
 		"Recolor, rename or hide them in the sidebar anytime.": unknown
+		"Refresh": unknown
 		"Reminder": unknown
 		"Reminder notifications": unknown
 		"Reminders": unknown
@@ -391,6 +396,7 @@ declare global {
 		"the last ${weekday}": unknown
 		"The step dragging and resizing land on": unknown
 		"The streak ended": unknown
+		"The tasks of your TickTick lists": unknown
 		"Theme": unknown
 		"ThemeSetting.Keywords": unknown
 		"This and following entries": unknown
@@ -399,6 +405,7 @@ declare global {
 		"this device": unknown
 		"This entry": unknown
 		"This file could not be uploaded": unknown
+		"TickTick": unknown
 		"Time zone": unknown
 		"Timed entries only": unknown
 		"Timeline": unknown
@@ -417,6 +424,7 @@ declare global {
 		"Tomorrow": unknown
 		"Track how it goes": unknown
 		"Type": unknown
+		"unchanged": unknown
 		"Unit": unknown
 		"Unknown device": unknown
 		"Unscheduled": unknown

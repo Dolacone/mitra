@@ -14,6 +14,14 @@ const inputsOf = async (options: esbuild.BuildOptions) => {
 }
 
 describe('the server bundle', () => {
+	it('registers the sync engines', async () => {
+		const inputs = await inputsOf(backendOptions)
+		assert.ok(
+			inputs.some(input => input.includes('integrations/server/registerEngines')),
+			'app/server.ts must (transitively) import integrations/server/registerEngines.js',
+		)
+	})
+
 	it('carries no settings UI, so the domain can never reach for a preference', async () => {
 		const inputs = await inputsOf(backendOptions)
 		assert.ok(
@@ -57,7 +65,7 @@ describe('the browser bundle', () => {
 
 	it('carries no sync engine, nor the protocol client only an engine talks to, nor the protocol agents speak', async () => {
 		const inputs = await inputsOf(frontendOptions)
-		for (const forbidden of ['node_modules/@modelcontextprotocol']) {
+		for (const forbidden of ['TickTickSyncEngine', 'TickTickClient', 'node_modules/@modelcontextprotocol']) {
 			assert.ok(
 				!inputs.some(input => input.includes(forbidden)),
 				`${forbidden} must not reach the browser bundle`,

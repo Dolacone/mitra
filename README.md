@@ -30,7 +30,7 @@ Most tools make you choose between a calendar for your time and a to-do app for 
 ## Features
 
 - Events and tasks on one timeline, in week, month, year, timeline and table views. Drag to create, move and resize anything.
-- Calendars stored in Mitra itself, with no account behind them.
+- Calendars stored in Mitra itself, with no account behind them, and your TickTick lists as task calendars.
 - Planning: tasks without a date wait in the Planning tab with a due date and an estimate, until you drag them into your week.
 - Availability, checklists, files attached to entries, reminders as push notifications, and a command palette for the keyboard.
 - AI connectors: Claude, Cursor and other AI tools can read and plan your calendars over the Model Context Protocol (MCP).

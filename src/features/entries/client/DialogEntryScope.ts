@@ -34,6 +34,9 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 		const series = !!entry.recurringEntryId
 		// Deleting a routine's date offers to cancel it instead.
 		const cancels = intent === 'delete' && !!entry.routineId && entry.statuses.includes(EntryStatus.Cancelled) && !entry.cancelled
+		if (series && intent !== 'delete' && !entry.source.capabilities.entries.occurrences) {
+			return Promise.resolve({ recurrence: EntryOccurrenceChangeScope.All })
+		}
 		if (bypass || (!series && !cancels)) {
 			return Promise.resolve({ recurrence: series ? EntryOccurrenceChangeScope.This : undefined })
 		}

@@ -36,6 +36,19 @@ export class UpdateEntryOccurrence extends Operation<Parameters, Entry> {
 		const patch = this.parameters
 		const { scope } = patch
 		const existing = await user.getEntry(em, patch.id)
+		const occurrence = existing.occurrences.existing(patch.occurrence)
+		// Where the calendar keeps the dates as one, completing the first completes the entry, which the calendar moves on.
+		if (!existing.source.capabilities.entries.occurrences && occurrence.first && occurrence.completedBy(patch)) {
+			const completion = existing.completion()
+			const refused = [...completion.validate()]
+			if (refused.length) {
+				throw new AggregateError(refused)
+			}
+			await completion.save(em)
+			await em.flush()
+			this.logger.debug(`Completed the first occurrence of series ${existing.id}`)
+			return existing
+		}
 		// Judged as an edit of the repeating entry, whose occurrence the change below then writes.
 		const change = existing.edit(patch)
 		// The calendar it ends up in comes through the user, which proves it theirs.
@@ -50,7 +63,7 @@ export class UpdateEntryOccurrence extends Operation<Parameters, Entry> {
 			patch.estimate = null
 		}
 
-		const result = await existing.occurrences.existing(patch.occurrence).edit(patch, scope).save(em, change.from.integration, change.to.integration)
+		const result = await occurrence.edit(patch, scope).save(em, change.from.integration, change.to.integration)
 		await em.flush()
 		this.logger.debug(`Edited occurrence of series ${existing.id} (scope '${scope}')`)
 		return result

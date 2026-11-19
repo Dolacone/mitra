@@ -168,6 +168,11 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 	@converter({ construct: (value: unknown) => value === undefined || value === null ? value : EntryFiles.of(value), deconstruct: (value: EntryFiles | null | undefined) => value === undefined ? value : !value?.length ? null : EntryFiles.converter.deconstruct!(value, {}) })
 	files?: EntryFiles | null
 
+	/** Why one date of a repeating entry cannot change or go alone in a calendar that keeps its dates as one. */
+	static get occurrencesRefused() {
+		return new ValidationError('This calendar keeps a repeating entry\'s dates as one: change or delete all of them')
+	}
+
 	/** What makes the patch invalid: a field that came malformed, and with a context what the edit may not do there. */
 	*validate(context?: EntryPatchContext) {
 		if (this.recurrence && !this.recurrence.valid) {
@@ -218,6 +223,9 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 		const anchor = entry.start ? 'start' : 'due'
 		if (scope && scope !== EntryOccurrenceChangeScope.This && entry.recurrence && this[anchor] === null) {
 			yield new ValidationError('A repeating entry cannot lose the date it repeats from', [anchor])
+		}
+		if (scope && scope !== EntryOccurrenceChangeScope.All && entry.recurrence && !current.entries.occurrences) {
+			yield EntryPatch.occurrencesRefused
 		}
 		if (moving && scope !== EntryOccurrenceChangeScope.This && recurrence && !to.ownership.holds('recurrence')) {
 			yield whereUnsupported.fieldOf(Entry, 'recurrence').error!

@@ -6,6 +6,7 @@ import { tool } from '#features/agents/server/tool.js'
 import { validation, ValidationError } from '#infrastructure/validation'
 import { updates } from '#infrastructure/realtime/Updates.js'
 import { http, operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
+import { EntryPatch } from '../EntryPatch.js'
 
 class Parameters {
 	@validation(z.string())
@@ -34,6 +35,9 @@ export class DeleteEntryOccurrence extends Operation<Parameters, void> {
 		const entry = await user.getEntry(em, this.parameters.id)
 		if (!entry.deletable) {
 			throw new ValidationError('Entries in this calendar cannot be deleted from mitra')
+		}
+		if (scope !== EntryOccurrenceChangeScope.All && !entry.source.capabilities.entries.occurrences) {
+			throw EntryPatch.occurrencesRefused
 		}
 		const occurrence = entry.occurrences.existing(this.parameters.occurrence)
 		if (scope === EntryOccurrenceChangeScope.All) {

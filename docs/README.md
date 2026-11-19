@@ -28,7 +28,7 @@ Before you rely on it, [back up](backups.md) `~/mitra` and [put it behind HTTPS]
 
 ## Get a calendar
 
-Mitra offers to add one when you first open it: a [Mitra calendar](integrations/mitra.md) kept on your server.
+Mitra offers to add one when you first open it: a [Mitra calendar](integrations/mitra.md) kept on your server. To bring in the tasks of your TickTick lists, [connect TickTick](integrations/ticktick.md).
 
 ## Things to try
 

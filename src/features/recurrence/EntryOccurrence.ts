@@ -153,6 +153,13 @@ export class EntryOccurrence {
 				: undefined
 	}
 
+	/** Whether `patch` completes this occurrence and changes nothing else of it. */
+	completedBy(patch: EntryPatch) {
+		const before = this.override()
+		const after = before.clone().patch(patch)
+		return after.done && !before.done && before.equals(Object.assign(after.clone(), { status: before.status, percentComplete: before.percentComplete }))
+	}
+
 	/**
 	 * What editing this occurrence changes in `scope`: 'this' detaches it, 'following' splits the rule here, 'all' rewrites
 	 * the entry. A calendar in the patch moves what the scope reaches.

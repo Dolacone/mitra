@@ -660,6 +660,13 @@ export class Entry extends Entity implements Validatable {
 		return new EntryChange(this, new Entry({ source: this.source }).patch(EntryPatch.of(this)).patch(patch), patch)
 	}
 
+	/** Its completion as an edit: done, its progress full. */
+	completion() {
+		const completed = this.clone()
+		completed.done = true
+		return this.edit(EntryPatch.of(completed, ['status', 'percentComplete']))
+	}
+
 	/** Takes over what `patch` sets, and a new entry's value where it clears. What the type can't hold goes, and an estimate a start replaced. */
 	patch(patch: EntryPatch) {
 		const cleared = new Entry()

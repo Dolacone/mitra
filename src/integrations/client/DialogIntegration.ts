@@ -1,22 +1,28 @@
-import { component, html, css, state, bind, unsafeHTML, ifDefined, live } from '@a11d/lit'
+import { component, html, css, state, Binder, bind, unsafeHTML, ifDefined, live } from '@a11d/lit'
 import { DialogComponent } from '@a11d/lit-application'
-import { CreateSource, ConnectIntegration, UpdateIntegration } from '#operations'
+import { CreateSource, DiscoverSources, ConnectIntegration, UpdateIntegration } from '#operations'
 import '#design/TextField.js'
 import { pressable } from '#design'
 import { docsPage } from '#infrastructure/http/website.js'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { integrationClasses, type Integration, type IntegrationClass } from '#integrations'
 import mitraLogo from '#integrations/mitra/logo.svg'
+import ticktickLogo from '#integrations/ticktick/logo.svg'
 
 const logos: Record<string, string> = {
 	mitra: mitraLogo,
+	ticktick: ticktickLogo,
 }
 
 @component('mitra-dialog-integration')
 export class DialogIntegration extends DialogComponent<{ readonly id?: string }, Integration> {
 	@state() private entity?: Integration
+	@state() private discovering = false
+	@state() private discoveryError?: string
 	/** The first calendar's name, for integrations that don't discover sources. */
 	@state() calendarName = ''
+
+	private readonly binder = new Binder(this, 'entity')
 
 	protected override createRenderRoot() { return this }
 
@@ -38,6 +44,34 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string },
 	private selectType(integrationClass: IntegrationClass) {
 		this.entity = new integrationClass({ sources: [] })
 		this.calendarName = ''
+		this.discovering = false
+		this.discoveryError = undefined
+	}
+
+	private async discover() {
+		const entity = this.entity!
+		this.discovering = true
+		this.discoveryError = undefined
+		try {
+			const sources = await DiscoverSources.call({ integration: entity })
+			if (this.entity !== entity) {
+				return
+			}
+			if (!this.isEdit) {
+				for (const source of sources) {
+					source.enabled = true
+				}
+			}
+			entity.sources = sources
+		} catch (error) {
+			if (this.entity === entity) {
+				this.discoveryError = error instanceof Error ? error.message : String(error)
+			}
+		} finally {
+			if (this.entity === entity) {
+				this.discovering = false
+			}
+		}
 	}
 
 	protected override connected() {
@@ -174,6 +208,9 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string },
 	}
 
 	private get saveDisabled() {
+		if (this.discovering) {
+			return true
+		}
 		return (this.discoversSources || this.isEdit) && !this.entity?.sources.length
 	}
 
@@ -252,6 +289,7 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string },
 	private get panelTemplate() {
 		switch (this.entity!.type) {
 			case 'mitra': return this.mitraTemplate
+			case 'ticktick': return this.ticktickTemplate
 			default: return html.nothing
 		}
 	}
@@ -264,6 +302,30 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string },
 	private get mitraTemplate() {
 		return this.isEdit ? html.nothing : html`
 			<mitra-text-field label=${t('Calendar name')} placeholder=${t('Calendar')} ${bind(this, 'calendarName', { event: 'input' })}></mitra-text-field>
+		`
+	}
+
+	private get ticktickTemplate() {
+		const { bind } = this.binder
+		return html`
+			<mitra-text-field label=${t('API token')} type="password" ${bind({ keyPath: 'credentials.token' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
+			<p class="hint">${t('Create one in the TickTick web app under Settings, Account, API Token.')}</p>
+			${this.connectTemplate}
+		`
+	}
+
+	private get connectDisabled(): boolean {
+		return !this.isEdit && !this.entity!.canConnect
+	}
+
+	private get connectTemplate() {
+		return this.discovering ? html`
+			<mitra-button class="connect" disabled>${t('Connecting…')}</mitra-button>
+		` : html`
+			<mitra-button class="connect" @click=${() => this.discover()} ?disabled=${this.connectDisabled}>
+				${this.entity!.sources.length ? t('Refresh') : t('Connect')}
+			</mitra-button>
+			${!this.discoveryError ? html.nothing : html`<p class="error">${this.discoveryError}</p>`}
 		`
 	}
 

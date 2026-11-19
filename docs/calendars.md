@@ -3,7 +3,7 @@ title: Calendars
 description: Add, rename, recolor, reorder and hide calendars, pick where new entries go, and move entries between calendars.
 ---
 
-Every row in the sidebar's **Calendars** tab is a calendar [stored in Mitra](integrations/mitra.md). They sit under the Mitra heading.
+Every row in the sidebar's **Calendars** tab is a calendar [stored in Mitra](integrations/mitra.md) or a [TickTick list](integrations/ticktick.md). Each sits under the heading of its integration.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../assets/screenshots/calendars-detail-dark.webp">

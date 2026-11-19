@@ -7,7 +7,6 @@ import { validation, ValidationError } from '#infrastructure/validation'
 import { updates } from '#infrastructure/realtime/Updates.js'
 import { http, operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
 import { type Entry } from '../Entry.js'
-import { EntryPatch } from '../EntryPatch.js'
 
 class Parameters {
 	@validation(z.string())
@@ -34,11 +33,10 @@ export class CompleteTask extends Operation<Parameters, Entry> {
 			throw new ValidationError('Only a task can be completed')
 		}
 
-		const completed = existing.clone()
-		completed.done = true
-		const change = existing.edit(EntryPatch.of(completed, ['status', 'percentComplete']))
-		// An occurrence detaches like a 'this' edit.
-		const scope = existing.recurrence?.freq ? EntryOccurrenceChangeScope.This : undefined
+		const change = existing.completion()
+		// An occurrence detaches like a 'this' edit. Where the calendar keeps the dates as one, completing the first completes the task, which the calendar moves on.
+		const movesOn = !!occurrence && !existing.source.capabilities.entries.occurrences && existing.occurrences.existing(occurrence).first
+		const scope = existing.recurrence?.freq && !movesOn ? EntryOccurrenceChangeScope.This : undefined
 		const errors = [
 			...scope && !occurrence ? [new ValidationError('This task repeats: name the occurrence to complete', ['occurrence'])] : [],
 			...change.validate({ scope }),
