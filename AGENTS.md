@@ -232,7 +232,6 @@
 - One Astro project: the homepage plus Starlight over `../docs` (linked by `prepare.mjs`). `tools/tokens.mjs` emits the look from `src/design`.
 - Rewrite raw HTML in remark, never rehype (`remarkDocsAssets`); clear `.astro` caches after changing a plugin. Use animation longhands with `animation-timeline` (the minifier breaks the shorthand).
 - Copy: plain sentences, no em or en dashes, no emoji bullets; quote a `description` with a colon.
-- **Translations**: the file beside the English one (`week.de.md`), complete or absent, keeping the English headings in number and order (anchors come from English). Change translations with their page (else an outdated notice shows), and translate a release's notes before its tag. The site's words live in `website/i18n/<lang>.json` over the app's dictionaries; `npm run i18n:analyze` checks both and the headings.
 - `robots.txt`: the site's points to the sitemap; the app's disallows everything.
 
 ## Build, Test & CI
