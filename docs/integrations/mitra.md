@@ -5,7 +5,7 @@ description: Calendars stored in Mitra itself, on your server, with no account b
 
 A Mitra calendar is stored in Mitra's own database. There's no account to connect and nothing to sync: you create a calendar and start adding entries.
 
-Mitra calendars live on your server, not on your device, so they're there wherever you open Mitra. They can hold everything Mitra can: events and tasks, repeats, reminders, [availability](../availability.md), [subtasks](../subtasks.md), [dependencies](../dependencies.md), due dates and estimates.
+Mitra calendars live on your server, not on your device, so they're there wherever you open Mitra. They can hold everything Mitra can: events and tasks, repeats, reminders, [availability](../availability.md), due dates and estimates.
 
 ## Add Mitra calendars
 

@@ -1,5 +1,5 @@
 import { DateTime } from '@3mo/date-time'
-import { type Entry, EntryStatus } from '#features/entries'
+import { EntryStatus } from '#features/entries'
 import { EntrySegments } from '#features/entries/client/EntrySegments.js'
 import { EntryEditorIntent } from '#features/entries/client/EntryEditorIntent.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
@@ -108,13 +108,6 @@ export class TableRow {
 
 	get participants() { return this.entry.participants?.length || undefined }
 	get reminders() { return this.entry.reminders?.length || undefined }
-	get subtaskOf() { return TableRow.headingsOf(this.entry.hierarchy.parents) }
-	get blockedBy() { return TableRow.headingsOf(this.entry.hierarchy.predecessors) }
-
-	private static headingsOf(entries: ReadonlyArray<Entry>) {
-		return entries.map(entry => entry.heading).join(', ')
-	}
-
 	/** The description's first line, which is all a row has room for. */
 	get description() {
 		return this.entry.description.split('\n').map(line => line.trim()).find(Boolean) ?? ''

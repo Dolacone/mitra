@@ -1,7 +1,5 @@
-import { EntryPlan } from '#features/relations'
-import { hierarchy } from '#features/relations/client/Hierarchy.js'
-import { EntryShift } from '../../EntryShift.js'
 import { type Entry } from '../../Entry.js'
+import { DialogEntryScope } from '../DialogEntryScope.js'
 import { EntryStore } from '../EntryStore.js'
 import { DragGesture, type DragMode, type DragStart } from './DragGesture.js'
 
@@ -23,7 +21,7 @@ export abstract class EditGesture extends DragGesture {
 		EntryStore.pending.setDragging(this.entry)
 	}
 
-	/** What the hierarchy is asked about the drop: a move may carry subtasks and dependents along. */
+	/** What the scope dialog is asked about the drop. */
 	protected abstract get intent(): 'move' | 'edit'
 
 	/** A tap, which never moved: the entry stays put. */
@@ -57,16 +55,12 @@ export abstract class EditGesture extends DragGesture {
 		if (delta === undefined) {
 			return
 		}
-		const moves = this.intent === 'move'
 		const bypass = e.ctrlKey || e.metaKey || entry.editsOnlyThisOccurrence(before)
-		const change = EntryShift.of(entry, before)
-		void hierarchy.resolveScope(entry, moves ? 'move' : 'edit', bypass, moves && delta !== 0, change).then(scope => {
+		void DialogEntryScope.resolve(entry, this.intent, bypass).then(scope => {
 			if (!scope) {
 				return EntryStore.revert(entry)
 			}
 			return EntryStore.commit(entry, scope.recurrence)
-				.then(() => scope.subtasks && delta !== 0 ? hierarchy.shiftSubtree(entry, delta) : EntryPlan.empty)
-				.then(subtree => scope.shift ? hierarchy.shiftDependents(change, scope.shift, subtree) : undefined)
 				.catch(() => EntryStore.revert(entry))
 		})
 	}

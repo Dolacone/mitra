@@ -1,17 +1,10 @@
-import { describe, it, before, after, beforeEach } from 'node:test'
+import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
-import { children } from '#infrastructure/model'
 import { DateTime } from '@3mo/date-time'
-import { User, Identity } from '#features/identity'
-import { Session } from '#features/identity/server/Session.js'
 import { Source } from '#features/sources'
 import { Entry, EntryStatus, Transparency, EntryType, EntryTypes } from '#features/entries'
 import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
-import { EntryRelation, EntryRelations, RelationGraph, RelationType } from '#features/relations'
-import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Integration } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { Availability } from './client/Availability.js'
 
@@ -139,79 +132,5 @@ describe('converting an entry to availability', () => {
 		entry.type = EntryType.Task
 		assert.equal(entry.location, 'Room 1')
 		assert.deepEqual(entry.reminders, EntryReminders.normalize([10]))
-	})
-})
-
-async function inMemoryOrm() {
-	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session],
-		dbName: ':memory:',
-		subscribers: [children.subscriber],
-		forceUndefined: true,
-		namingStrategy: class extends UnderscoreNamingStrategy {
-			override joinColumnName(propertyName: string) {
-				return this.propertyToColumnName(propertyName)
-			}
-
-			override joinKeyColumnName(entityName: string) {
-				return this.propertyToColumnName(entityName)
-			}
-		},
-		allowGlobalContext: true,
-	})
-	await orm.schema.update()
-	return orm
-}
-
-describe('availability and relations', () => {
-	let orm: MikroORM
-	let em: EntityManager
-	let user: User
-	let calendar: Source
-
-	before(async () => { orm = await inMemoryOrm() })
-	after(async () => { await orm.close(true) })
-
-	beforeEach(async () => {
-		await orm.schema.clear()
-		em = orm.em.fork()
-		user = new User({ username: 'me' })
-		em.persist(user)
-		const mitra = new MitraCalendar({ userId: user.id })
-		calendar = new Source({ integrationId: mitra.id, uri: MitraCalendar.sourceUri('calendar'), name: 'Personal', enabled: true, hidden: false })
-		em.persist([mitra, calendar])
-		await em.flush()
-	})
-
-	const persist = async (init: Partial<Entry>) => {
-		const entry = new Entry({ id: crypto.randomUUID(), uid: crypto.randomUUID(), heading: 'x', sourceId: calendar.id, ...init })
-		em.persist(entry)
-		await em.flush()
-		return entry
-	}
-
-	/** What keeps `entry` from holding a PARENT line to `target`, judged on the graph of the two. */
-	const relating = (entry: Entry, target: Entry) =>
-		[...EntryRelations.of([{ type: RelationType.Parent, targetUid: target.uid! }]).validate({ entry, graph: RelationGraph.of([entry, target]) })].map(error => error.message)
-
-	it('refuses availability as the source of a relation', async () => {
-		const availability = await persist({ type: EntryType.Availability })
-		const task = await persist({ type: EntryType.Task })
-
-		assert.match(String(relating(availability, task)), /Availability cannot be related/)
-	})
-
-	it('refuses availability as the target of a relation', async () => {
-		const availability = await persist({ type: EntryType.Availability })
-		const task = await persist({ type: EntryType.Task })
-
-		assert.match(String(relating(task, availability)), /Availability cannot be related/)
-	})
-
-	it('allows a relation between two ordinary entries', async () => {
-		const parent = await persist({ type: EntryType.Task })
-		const child = await persist({ type: EntryType.Task })
-
-		assert.deepEqual(relating(child, parent), [])
 	})
 })

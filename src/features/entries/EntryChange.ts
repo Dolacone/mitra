@@ -1,6 +1,5 @@
 import { equals } from '@a11d/equals'
 import { type EntityManager } from '@mikro-orm/core'
-import type { RelationGraph } from '#features/relations'
 import { OrganizerOnly } from '#features/participants/OrganizerOnly.js'
 import type { EntryOccurrenceChangeScope } from '#features/recurrence'
 import type { Validatable } from '#infrastructure/validation'
@@ -8,7 +7,6 @@ import { type Entry } from './Entry.js'
 import { type EntryPatch } from './EntryPatch.js'
 
 export interface EntryChangeContext {
-	readonly graph?: RelationGraph
 	readonly scope?: EntryOccurrenceChangeScope
 }
 
@@ -38,17 +36,11 @@ export class EntryChange implements Validatable<EntryChangeContext> {
 		return this.edited.type !== this.entry?.type || (moved && !movesInPlace)
 	}
 
-	/** The entries the relations' check reads around, by uid: this one's, and those its candidate lines name. */
-	get related() {
-		return [(this.entry ?? this.edited).uid, ...this.patch.relations?.all.map(relation => relation.targetUid) ?? []]
-	}
-
 	/**
 	 * What refuses the change, judged before any provider is written, as a refusal must leave it untouched: who may change
-	 * the participants, what the patch may do here and in `scope`, what the calendar can hold, and where the relations would
-	 * lead, on the `graph` `user.getRelationGraph(em, change.related)` gives where the patch carries them.
+	 * the participants, what the patch may do here and in `scope`, and what the calendar can hold.
 	 */
-	*validate({ graph, scope }: EntryChangeContext = {}) {
+	*validate({ scope }: EntryChangeContext = {}) {
 		const { entry, edited, patch } = this
 		// Changing the list is the organizer's prerogative, so content edits pass only while they leave it as it is.
 		if (entry && !Object[equals](edited.participants, entry.participants) && !entry.canManageParticipants) {
@@ -56,9 +48,6 @@ export class EntryChange implements Validatable<EntryChangeContext> {
 		}
 		yield* patch.validate({ entry, from: this.from, to: this.to, scope })
 		yield* edited.validate()
-		if (patch.relations !== undefined && graph) {
-			yield* patch.relations.validate({ entry: entry ?? edited, graph })
-		}
 	}
 
 	/** Writes the edit, fitted to its calendar, a new or re-created entry into the calendar it goes to. Answers with the entry as it now stands. */
@@ -80,7 +69,6 @@ export class EntryChange implements Validatable<EntryChangeContext> {
 			rank: edited.type.isTask ? entry.rank : undefined,
 			routineId: entry.routineId,
 			routineDeclined: entry.routineDeclined,
-			relations: edited.relations,
 		})
 		recreated.migrateTo(to)
 		return to.integration.recreate(em, recreated, entry, from.integration)

@@ -8,7 +8,6 @@ import { EntrySegments } from '#features/entries/client/EntrySegments.js'
 import { Availability } from '#features/availability/client/Availability.js'
 import { type EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
-import { ConnectorLinesSetting } from '#features/relations/client/ConnectorLinesSetting.js'
 import { EntryGestureController } from '#features/entries/client/gestures/EntryGestureController.js'
 import { CalendarDatesController } from './CalendarDatesController.js'
 import { CalendarScrollController } from './CalendarScrollController.js'
@@ -360,7 +359,6 @@ export class Timeline extends Component {
 					align-content: start;
 					z-index: 1;
 					position: relative;
-					--mitra-connection-z: 0;
 
 					> .row {
 						grid-column: 1 / -1;
@@ -689,12 +687,6 @@ export class Timeline extends Component {
 				<mitra-due-mark .view=${this} .draw=${(occurrence: EntryOccurrence) => this.dueGapTemplate(occurrence, placed)}></mitra-due-mark>
 				${repeat(placed, bar => bar.segment.id, bar => this.barTemplate(bar, bar.row))}
 				${placed.map(bar => this.dueTemplate(bar))}
-				${!ConnectorLinesSetting.showsIn('timeline') ? html.nothing : html`
-					<mitra-entry-connections
-						.segments=${placed.map(bar => bar.segment)}
-						.placement=${new Map(placed.map(bar => [bar.segment, { start: bar.startColumn, end: bar.startColumn + bar.span - 1, rank: bar.row }] as const))}
-					></mitra-entry-connections>
-				`}
 			</div>
 		`
 	}

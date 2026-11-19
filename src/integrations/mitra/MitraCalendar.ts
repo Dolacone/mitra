@@ -50,7 +50,7 @@ export class MitraCalendar extends Integration {
 		return new IntegrationOwnership({
 			end: 'mitra', recurrence: 'mitra', reminders: 'mitra', location: 'mitra', description: 'mitra', percentComplete: 'mitra',
 			due: 'mitra', estimate: 'mitra', timeZone: 'mitra', participants: 'mitra', attachments: 'mitra',
-			transparency: 'mitra', visibility: 'mitra', relations: 'mitra', allDay: 'mitra', rank: 'mitra',
+			transparency: 'mitra', visibility: 'mitra', allDay: 'mitra', rank: 'mitra',
 		})
 	}
 

@@ -14,7 +14,7 @@ The timeline shows your open tasks that have a date, one per row, in date order.
 
 A task's title sits beside its bar. When a bar is scrolled out of sight, a button at the edge of the view takes you back to it.
 
-A repeating task only shows the occurrences that are due, so a daily task doesn't fill the timeline. Lines between [dependent tasks](../dependencies.md) show here too, unless you turn them off in [Settings](../settings.md).
+A repeating task only shows the occurrences that are due, so a daily task doesn't fill the timeline.
 
 Drag a bar to move the task, or drag its ends to change its dates. To add a task, draw it on the empty row at the bottom.
 

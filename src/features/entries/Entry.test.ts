@@ -4,7 +4,6 @@ import { DateTime } from '@3mo/date-time'
 import { Recurrence, RecurrenceFrequency, RecurrenceEnd } from '#features/recurrence'
 import { ParticipantRole, Participants } from '#features/participants/Participant.js'
 import { Source, Color } from '#features/sources'
-import { EntryRelations, RelationType } from '#features/relations'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
@@ -824,23 +823,6 @@ describe('Entry', () => {
 	})
 
 	describe('duplicate', () => {
-		it('carries the relationships the entry OWNS: a copy of a subtask is a subtask of the same parent', () => {
-			const entry = new Entry({ id: 'e', sourceId: 's', uid: 'original', type: EntryType.Task, heading: 'Task' })
-			entry.relations = EntryRelations.of([
-				{ type: RelationType.Parent, targetUid: 'parent' },
-				{ type: RelationType.FinishToStart, targetUid: 'blocker' },
-			])
-
-			assert.deepEqual(entry.duplicate().relations?.all.map(relation => [relation.type.value, relation.targetUid]), [['FINISHTOSTART', 'blocker'], ['PARENT', 'parent']])
-		})
-
-		it('leaves the DERIVED half behind, so no copy gets to make another entry point at it', () => {
-			const entry = new Entry({ id: 'e', sourceId: 's', uid: 'original', type: EntryType.Task, heading: 'Task' })
-			entry.relations = EntryRelations.of([{ type: RelationType.Parent, targetUid: 'child', direction: 'incoming' }])
-
-			assert.equal(entry.duplicate().relations?.isEmpty, true)
-		})
-
 		it('is a copy without the rule', () => {
 			const entry = new Entry({ id: 'e', sourceId: 's', type: EntryType.Event, heading: 'Standup', start: at(0, 9), end: at(0, 10), recurrence: Recurrence.fromRRule('FREQ=DAILY') })
 			const duplicate = entry.duplicate()
@@ -851,7 +833,6 @@ describe('Entry', () => {
 
 		it('still sheds identity and series membership', () => {
 			const entry = new Entry({ id: 'e', sourceId: 's', uid: 'original', type: EntryType.Task, heading: 'Task', recurringEntryId: 'master' })
-			entry.relations = EntryRelations.of([{ type: RelationType.Parent, targetUid: 'parent' }])
 			const copy = entry.duplicate()
 
 			assert.equal(copy.id, undefined)
@@ -926,55 +907,6 @@ describe('Entry', () => {
 			const span = moment.spanOn(on('2026-10-21'), berlin)
 			assert.equal(span.start!.valueOf(), inBerlin('2026-10-21T10:00').valueOf())
 			assert.equal(span.end, undefined)
-		})
-	})
-
-	describe('violates', () => {
-		const dependent = (type: RelationType, start: number, end: number, gap: string | null = null) => {
-			const entry = new Entry({ id: 'd', sourceId: 's', type: EntryType.Task, uid: 'dependent', start: at(0, start), end: at(0, end) })
-			entry.relations = EntryRelations.of([{ type, targetUid: 'predecessor', gap }])
-			return entry
-		}
-		const predecessor = (start: number, end: number) => new Entry({ id: 'p', sourceId: 's', type: EntryType.Task, uid: 'predecessor', start: at(0, start), end: at(0, end) })
-		const verdict = (subject: Entry, against: Entry) => subject.violates(subject.relations!.all[0]!, against)
-
-		it('FINISHTOSTART breaks when the dependent starts before the predecessor ends; back-to-back is fine', () => {
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 10, 12), predecessor(9, 11)), true)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 11, 13), predecessor(9, 11)), false)
-		})
-
-		it('each coupling reads its OWN pair of boundaries', () => {
-			assert.equal(verdict(dependent(RelationType.FinishToFinish, 8, 10), predecessor(9, 11)), true)
-			assert.equal(verdict(dependent(RelationType.StartToStart, 8, 12), predecessor(9, 11)), true)
-			assert.equal(verdict(dependent(RelationType.StartToFinish, 7, 8), predecessor(9, 11)), true)
-			assert.equal(verdict(dependent(RelationType.StartToFinish, 7, 12), predecessor(9, 11)), false)
-		})
-
-		it('an end-less entry is its own end, so a same-instant handover holds', () => {
-			const bare = new Entry({ id: 'p', sourceId: 's', type: EntryType.Task, uid: 'predecessor', start: at(0, 11) })
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 11, 13), bare), false)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 10, 13), bare), true)
-		})
-
-		it('an all-day end is exclusive, so the very next day is a satisfied start', () => {
-			const allDay = (from: number, days: number) => new Entry({ id: 'p', sourceId: 's', type: EntryType.Task, uid: 'predecessor', allDay: true, start: day.add({ days: from }), end: day.add({ days: from + days }) })
-			const next = new Entry({ id: 'd', sourceId: 's', type: EntryType.Task, uid: 'dependent', allDay: true, start: day.add({ days: 1 }), end: day.add({ days: 2 }) })
-			next.relations = EntryRelations.of([{ type: RelationType.FinishToStart, targetUid: 'predecessor' }])
-			assert.equal(verdict(next, allDay(0, 1)), false)
-			assert.equal(verdict(next, allDay(0, 2)), true)
-		})
-
-		it('reads the lead/lag GAP into the boundary it compares against', () => {
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 11, 13, 'PT1H'), predecessor(9, 11)), true)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 12, 14, 'PT1H'), predecessor(9, 11)), false)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 10, 12, '-PT1H'), predecessor(9, 11)), false)
-		})
-
-		it('anything undecidable is NOT a violation: another family, an unreadable gap, a missing boundary', () => {
-			assert.equal(verdict(dependent(RelationType.Parent, 10, 12), predecessor(9, 11)), false)
-			assert.equal(verdict(dependent(RelationType.of('X-WAITS-FOR'), 10, 12), predecessor(9, 11)), false)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 10, 12, 'not a duration'), predecessor(9, 11)), false)
-			assert.equal(verdict(dependent(RelationType.FinishToStart, 10, 12), new Entry({ id: 'p', sourceId: 's', type: EntryType.Task, uid: 'predecessor' })), false)
 		})
 	})
 

@@ -39,7 +39,7 @@ The editor opens, so you can change the times, the days, the name, the place or 
 - Click inside a window to open it. Dragging across it still creates a normal entry, the same as on an empty part of the grid.
 - Availability repeats like any other entry. It has a time zone and a repeat rule, and when you change or delete one day of it, Mitra asks whether you mean that day or all of them.
 - The editor's **Calendar** field moves it to another calendar.
-- Availability only shows in the Week view. It doesn't appear in Month, Year, Timeline or Table, in search results, or in relationships.
+- Availability only shows in the Week view. It doesn't appear in Month, Year, Timeline or Table, or in search results.
 
 ## Show and hide
 

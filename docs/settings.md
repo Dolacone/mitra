@@ -22,7 +22,7 @@ The command palette knows the same words, and changes most settings without open
 
 Most settings belong to your account and follow you to every device and browser you sign in from: the language, the default view, **Hide done tasks**, **Hide cancelled**, **Hide availability**, the default calendar, the default duration, **Snap to**, both default reminders and your **Custom CSS**.
 
-The others belong to the device you're on, so your phone and your laptop can differ: the theme, the connector lines, and whether this browser shows notifications.
+The others belong to the device you're on, so your phone and your laptop can differ: the theme and whether this browser shows notifications.
 
 Mitra also remembers some things on each device as you use them: how far you've zoomed, whether the sidebar is open and on which tab, which time zones you've folded away, and the period the table view shows.
 
@@ -40,11 +40,9 @@ Each language also decides how dates and times read, which day the week starts o
 
 **Default View** is the view Mitra opens on: **Week**, unless you choose **Month**, **Year**, **Timeline** or **Table**.
 
-**Hide done tasks** takes done tasks off the week, month and year views and the Planning tab, and **Hide cancelled** does the same for cancelled tasks and events. Search still finds them, they still count towards their parent's progress, and the table view still lists them. A task you have open stays in sight until you close it.
+**Hide done tasks** takes done tasks off the week, month and year views and the Planning tab, and **Hide cancelled** does the same for cancelled tasks and events. Search still finds them, and the table view still lists them. A task you have open stays in sight until you close it.
 
 **Hide availability** takes [availability](availability.md) off the week view. It stays in its calendars, and busy availability still shows as busy to others.
-
-**Connector lines in the week view**, **Connector lines in the month view** and **Connector lines in the timeline** turn the lines between [subtasks](subtasks.md) and [dependencies](dependencies.md) on or off in each view. They're all on to begin with.
 
 ## Entries
 

@@ -5,7 +5,6 @@ import { construct } from '@a11d/converter'
 import { Recurrence, RecurrenceFrequency } from '#features/recurrence'
 import { ParticipantRole, Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
-import { RelationType, EntryRelations, Relation } from '#features/relations'
 import { Color } from '#features/sources'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
 import { Entity } from '#infrastructure/model'
@@ -26,8 +25,8 @@ describe('EntryPatch', () => {
 	/** A patch as the server receives it from the browser. */
 	const sent = (patch: EntryPatch) => revive<EntryPatch>(wireOf(patch))
 
-	it('reaches what makes two entries equal, and their relations, which have a write path of their own', () => {
-		assert.deepEqual(EntryPatch.fields.filter(field => field !== 'relations').toSorted(), Entity.fieldsOf(Entry, 'equality').toSorted())
+	it('reaches what makes two entries equal', () => {
+		assert.deepEqual(EntryPatch.fields.toSorted(), Entity.fieldsOf(Entry, 'equality').toSorted())
 	})
 
 	describe('of', () => {
@@ -41,11 +40,6 @@ describe('EntryPatch', () => {
 
 		it('takes only the fields it is given, and allDay with a date', () => {
 			assert.deepEqual(Object.keys(EntryPatch.of(task(), ['heading', 'due'])), ['allDay', 'heading', 'due'])
-		})
-
-		it('leaves out relations the entry does not know, and sends none it knows to have', () => {
-			assert.equal('relations' in EntryPatch.of(task()), false)
-			assert.equal(EntryPatch.of(task({ relations: EntryRelations.none })).relations, EntryRelations.none)
 		})
 	})
 
@@ -61,15 +55,13 @@ describe('EntryPatch', () => {
 			assert.equal(patch.heading, undefined)
 		})
 
-		it('carries a rule, participants and relations as the server reads them', () => {
+		it('carries a rule and participants as the server reads them', () => {
 			const patch = sent(EntryPatch.of(task({
 				recurrence: new Recurrence({ freq: RecurrenceFrequency.Weekly }),
 				participants: Participants.normalize([{ email: 'Organizer@Example.com', organizer: true, role: ParticipantRole.Required }]),
-				relations: EntryRelations.of([new Relation({ type: RelationType.Parent, targetUid: 'parent' })]),
-			}), ['recurrence', 'participants', 'relations']))
+			}), ['recurrence', 'participants']))
 			assert.equal(patch.recurrence?.freq, RecurrenceFrequency.Weekly)
 			assert.deepEqual(patch.participants?.map(participant => participant.email), ['organizer@example.com'])
-			assert.deepEqual((patch.relations as EntryRelations).all.map(relation => relation.targetUid), ['parent'])
 			assert.deepEqual([...patch.validate()], [])
 		})
 	})
@@ -90,8 +82,6 @@ describe('EntryPatch', () => {
 		})
 
 		it('names each malformed field', () => {
-			const errors = [...construct(EntryPatch, { relations: 'parent' }).validate()]
-			assert.deepEqual(errors.map(error => [error.message, error.fields]), [['Invalid relations', ['relations']]])
 			assert.throws(() => construct(EntryPatch, { recurrence: 'FREQ=SOMETIMES' }), (error: ValidationError) => error.fields.includes('recurrence'))
 			assert.deepEqual([...construct(EntryPatch, { recurrence: null }).validate()], [])
 		})
@@ -116,11 +106,6 @@ describe('EntryPatch', () => {
 			const entry = new Entry({ type: EntryType.Task, estimate: 45 })
 			entry.patch(Object.assign(new EntryPatch(), { start, end: start.add({ minutes: 45 }), estimate: 45 }))
 			assert.equal(entry.estimate, undefined)
-		})
-
-		it('clears relations to none, which is not unknown', () => {
-			const related = task({ relations: EntryRelations.of([{ type: RelationType.Parent, targetUid: 'parent' }]) })
-			assert.equal(related.patch(construct(EntryPatch, { relations: null })).relations, EntryRelations.none)
 		})
 
 		it('rebuilds an entry from its own patch', () => {

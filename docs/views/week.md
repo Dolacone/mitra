@@ -22,7 +22,6 @@ Moving and resizing snap to a step you choose with **Snap to** in [Settings](../
 
 ## What else it shows
 
-- Lines between [dependent entries](../dependencies.md) and from tasks to their [subtasks](../subtasks.md).
 - Your [availability](../availability.md), shaded in the color of its calendar.
 - A line across today at the current time.
 

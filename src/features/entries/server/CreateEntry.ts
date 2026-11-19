@@ -27,16 +27,13 @@ export class CreateEntry extends Operation<EntryPatch, Entry> {
 		if (patch.reminders === undefined && change.edited.holds('reminders')) {
 			change.edited.reminders = user.reminderDefaults.for(change.edited)
 		}
-		const reached = patch.relations && await user.getRelationGraph(em, change.related)
-		const errors = [...await fileStore.claim(user.id, patch.files ?? []), ...change.validate({ graph: reached })]
+		const errors = [...await fileStore.claim(user.id, patch.files ?? []), ...change.validate()]
 		if (errors.length) {
 			throw new AggregateError(errors)
 		}
 
 		const created = await change.save(em)
 		await em.flush()
-		const graph = await user.getRelationGraph(em, [created.uid])
-		graph.attach([created])
 		this.logger.debug(`Created ${created.type} "${created.heading}" (${created.id}) in source ${to.id}`)
 		return created
 	}

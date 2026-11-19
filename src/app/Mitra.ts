@@ -12,13 +12,11 @@ import { TableColumnMenu } from '#features/calendar/client/TableColumnMenu.js'
 import { TableSelection } from '#features/calendar/client/TableSelection.js'
 import { ParticipantAvatar } from '#features/participants/client/ParticipantAvatar.js'
 import { ParticipantFaces } from '#features/participants/client/ParticipantFaces.js'
-import { EntryLink } from '#features/relations/client/EntryLink.js'
 import { MapLink } from '#features/locations/client/MapLink.js'
 import { Day } from '#features/calendar/client/Day.js'
 import { DueMark } from '#features/calendar/client/DueMark.js'
 import { EntrySegmentComponent } from '#features/entries/client/EventSegment.js'
 import { AvailabilitySegment } from '#features/availability/client/AvailabilitySegment.js'
-import { EntryConnections } from '#features/relations/client/EntryConnections.js'
 import { PageCalendar } from '#features/calendar/client/PageCalendar.js'
 import { CommandPalette } from '#features/commands/client/CommandPalette.js'
 import { Planning } from '#features/planning/client/Planning.js'
@@ -40,7 +38,6 @@ import { LocationField } from '#features/locations/client/LocationField.js'
 import { RemindersField } from '#features/reminders/client/RemindersField.js'
 import { ParticipantsField } from '#features/participants/client/ParticipantsField.js'
 import { AttachmentsField } from '#features/entries/client/AttachmentsField.js'
-import { RelationsField } from '#features/relations/client/RelationsField.js'
 import { TimeZoneHeader } from '#features/time/client/TimeZoneHeader.js'
 import '#features/time/client/TimeZonePicker.js'
 import { TimeZones } from '#features/time/client/TimeZones.js'
@@ -48,9 +45,6 @@ import { syncPushSubscription } from '#features/reminders/client/push.js'
 import { DialogEntryScope } from '#features/entries/client/DialogEntryScope.js'
 import { DialogDeleteEntries } from '#features/entries/client/DialogDeleteEntries.js'
 import { DialogDuplicateDays } from '#features/entries/client/DialogDuplicateDays.js'
-import { DialogCompleteParent } from '#features/relations/client/DialogCompleteParent.js'
-import { DialogCloseSubtasks } from '#features/relations/client/DialogCloseSubtasks.js'
-import { DialogRelationFailed } from '#features/relations/client/DialogRelationFailed.js'
 import { EntryDetailsWhen } from '#features/entries/client/EntryDetailsWhen.js'
 import { EntryDetailsSharing } from '#features/entries/client/EntryDetailsSharing.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
@@ -61,7 +55,6 @@ import { RoutineDetails } from '#features/routines/client/RoutineDetails.js'
 import { DialogDissolveRoutine } from '#features/routines/client/DialogDissolveRoutine.js'
 import { RoutineField } from '#features/routines/client/RoutineField.js'
 import { ScrollDeviceController } from '#features/calendar/client/ScrollDeviceController.js'
-import { hierarchy } from '#features/relations/client/Hierarchy.js'
 import { CustomCss } from '#features/customization/client/CustomCss.js'
 import { CustomCssEditor } from '#features/customization/client/CustomCssEditor.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
@@ -73,8 +66,7 @@ import { Sidebar } from './Sidebar.js'
 import { claimFileDrops } from './launch.js'
 import { syncThemeColor } from './pwa.js'
 
-EntryStore.resolveScope = (entry, intent) => hierarchy.resolveRecurrenceScope(entry, intent)
-hierarchy.listen()
+EntryStore.resolveScope = async (entry, intent) => (await new DialogEntryScope({ entry, intent, series: true }).confirm())?.recurrence
 
 @application()
 @component('mitra-application')
@@ -218,13 +210,11 @@ export class Mitra extends Application {
 			${TableSelection.styles}
 			${ParticipantAvatar.styles}
 			${ParticipantFaces.styles}
-			${EntryLink.styles}
 			${MapLink.styles}
 			${Day.styles}
 			${DueMark.styles}
 			${EntrySegmentComponent.styles}
 			${AvailabilitySegment.styles}
-			${EntryConnections.styles}
 			${EntryDetailsComponent.styles}
 			${EntryDetailsWhen.styles}
 			${EntryDetailsSharing.styles}
@@ -243,9 +233,6 @@ export class Mitra extends Application {
 			${DialogEntryScope.styles}
 			${DialogDeleteEntries.styles}
 			${DialogDuplicateDays.styles}
-			${DialogCompleteParent.styles}
-			${DialogCloseSubtasks.styles}
-			${DialogRelationFailed.styles}
 			${EntryStatusComponent.styles}
 			${SourceIcon.styles}
 			${RepeatField.styles}
@@ -253,7 +240,6 @@ export class Mitra extends Application {
 			${RemindersField.styles}
 			${ParticipantsField.styles}
 			${AttachmentsField.styles}
-			${RelationsField.styles}
 			${TimeZoneHeader.styles}
 		`
 	}

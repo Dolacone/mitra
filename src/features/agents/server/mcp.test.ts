@@ -25,7 +25,7 @@ describe('The MCP endpoint', () => {
 		const { tools } = await agent.listTools()
 		assert.deepEqual(names(tools), new Set([
 			'get_context', 'get_overview', 'get_routines', 'search_entries', 'get_entry',
-			'create_entry', 'update_entry_occurrence', 'update_entry', 'relate_entries', 'unrelate_entries', 'complete_task', 'delete_entry_occurrence', 'delete_entry',
+			'create_entry', 'update_entry_occurrence', 'update_entry', 'complete_task', 'delete_entry_occurrence', 'delete_entry',
 			'create_calendar', 'delete_calendar',
 		]))
 		assert.deepEqual(names(tools.filter(tool => tool.annotations?.readOnlyHint)), new Set(['get_context', 'get_overview', 'get_routines', 'search_entries', 'get_entry']))

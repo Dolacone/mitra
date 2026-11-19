@@ -19,10 +19,6 @@ export class EntrySegmentComponent extends Component {
 
 	@property({ type: Object }) segment?: EntrySegment
 
-	private get anchorName() {
-		return `--mitra-entry-segment-${this.segment?.id}`
-	}
-
 	@state({
 		updated(this: EntrySegmentComponent, open: boolean, wasOpen: boolean) {
 			const segment = this.segment
@@ -97,8 +93,8 @@ export class EntrySegmentComponent extends Component {
 		if (!entry) {
 			return
 		}
-		// Its own name for the connectors, and the one its editor hangs from (EventDetails).
-		this.style.anchorName = `${this.anchorName}, --mitra-entry-details`
+		// The name its editor hangs from (EventDetails).
+		this.style.anchorName = '--mitra-entry-details'
 		this.toggleAttribute('data-draft', !entry.persisted)
 		this.toggleAttribute('data-routine', !!this.routine)
 		const recurring = this.segment!.occurrence.recurringEntry ?? entry
@@ -205,8 +201,7 @@ export class EntrySegmentComponent extends Component {
 				}
 
 				&:not([data-draft]):has([popover]:popover-open),
-				&:not([data-draft])[selected],
-				&[data-connect=target] {
+				&:not([data-draft])[selected] {
 					--segment-bg: var(--mitra-entry-segment-color);
 					background-color: var(--segment-bg);
 					${contrastColorOf('color', 'var(--mitra-entry-segment-color)')};
@@ -215,10 +210,6 @@ export class EntrySegmentComponent extends Component {
 					> .heading > .header > .due[data-late] {
 						color: inherit;
 					}
-				}
-
-				&[data-connect=reject] {
-					cursor: not-allowed;
 				}
 
 				@container (max-height: 450px) {

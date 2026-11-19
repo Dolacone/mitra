@@ -77,8 +77,7 @@ function materialize<Child extends object, Value>(owner: object, key: string, re
  * collection. With `saves`, what was set is written into the rows before every flush ({@link children.subscriber}); without, setting
  * them only changes what this instance shows. The children stay off the wire unless the member declares a `@converter` of its own.
  * With `as`, a collection value object (`() => EntryFiles`, lazily, as entities are named), the domain reads them as one; where its
- * values are not the rows (`EntryRelations` holds lines, stored as `EntryRelation` rows), `rows` maps what was set to the rows to
- * save. With `unknown`, an owner made outside the ORM and given none reads them as `undefined`, as a provider may not say.
+ * values are not the rows, `rows` maps what was set to the rows to save. With `unknown`, an owner made outside the ORM and given none reads them as `undefined`, as a provider may not say.
  */
 export function children<Owner extends object, Child extends object, Value = Iterable<Child>>(entity: () => EntityClass<Child>, mappedBy: (child: Child) => unknown, options?: Partial<OneToManyOptions<Owner, Child>> & {
 	// `NoInfer`: the child is the entity named, never what the collection's `of` happens to accept.

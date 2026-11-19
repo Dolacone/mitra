@@ -1,6 +1,6 @@
 /**
  * Parsed GFM task-list items (`- [ ]` / `- [x]`) within an entry description.
- * Counts towards progress rollups alongside subtasks; toggling mutates description text.
+ * Counts towards a task's progress; toggling mutates description text.
  */
 export interface ChecklistItem {
 	readonly line: number

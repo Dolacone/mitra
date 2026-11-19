@@ -6,7 +6,6 @@ import { User, Identity } from '#features/identity'
 import { Session } from '#features/identity/server/Session.js'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
-import { EntryRelation } from '#features/relations'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
 import { Integration } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
@@ -19,7 +18,7 @@ describe('recent locations', () => {
 
 	before(async () => {
 		orm = await MikroORM.init({
-			entities: [User, Identity, Session, Integration, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription],
+			entities: [User, Identity, Session, Integration, MitraCalendar, Source, Entry, NotificationSubscription],
 			dbName: ':memory:',
 			subscribers: [children.subscriber],
 			forceUndefined: true,

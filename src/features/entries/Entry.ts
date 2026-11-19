@@ -4,7 +4,6 @@ import { MarkdownLinks } from '#design/MarkdownLinks.js'
 import { Source, Color } from '#features/sources'
 import { Recurrence, EntryOccurrences } from '#features/recurrence'
 import { Participants, type ParticipantRole } from '#features/participants/Participant.js'
-import { type Relation, type RelationInit, type RelationType, RelationEdge, EntryRelation, EntryRelations, EntryHierarchy } from '#features/relations'
 import { ReminderDefaults } from '#features/reminders/ReminderDefaults.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { TimeZone } from '#features/time/TimeZone.js'
@@ -27,22 +26,6 @@ import { EntryPatch } from './EntryPatch.js'
 import { EntryChange } from './EntryChange.js'
 import { EntrySpan } from './EntrySpan.js'
 import { whereUnsupported } from './whereUnsupported.js'
-
-export interface EntryTally {
-	readonly done: number
-	readonly total: number
-}
-
-/** Task progress from subtasks and description checklist items alike. */
-export interface EntryRollup {
-	readonly done: number
-	readonly total: number
-	readonly progress: number
-	readonly subtasks: EntryTally
-	readonly checklist: EntryTally
-	readonly children: number
-	readonly descendants: number
-}
 
 export interface EntryData {
 	raw?: string
@@ -86,7 +69,7 @@ export class Entry extends Entity implements Validatable {
 
 	/**
 	 * Drops what the type can't hold. A type without days leaves the dates as they are, as a day read as a time would be a
-	 * midnight, and one without relations leaves them for the write to judge, as unknown relations keep their rows.
+	 * midnight.
 	 */
 	private fitType() {
 		if (this.status && !this.status.appliesTo(this._type)) {
@@ -238,6 +221,18 @@ export class Entry extends Entity implements Validatable {
 
 	get checklist(): Checklist {
 		return Checklist.of(this.description)
+	}
+
+	/** A task's progress by its checklist where its description holds one, else its own. */
+	get effectiveProgress() {
+		const checklist = this.type.isTask ? this.checklist : undefined
+		return checklist?.total ? checklist.progress : this.progress
+	}
+
+	/** Whether some of it is done, and not all. */
+	get partlyDone() {
+		const progress = this.effectiveProgress
+		return progress !== undefined && progress > 0 && progress < 1
 	}
 
 	get done() { return this.status === EntryStatus.Done }
@@ -417,36 +412,6 @@ export class Entry extends Entity implements Validatable {
 
 	@Entry.date() recurrenceId?: DateTime
 
-	/** Unknown while absent, as a provider may not say; none is an empty collection. The lines it owns are saved as rows, those pointing at it a read attaches. */
-	// Only the lines it owns count; a move repoints them rather than judging them.
-	@whereUnsupported({ save: { throw: 'This calendar does not support relations between entries' }, when: entry => !!entry.relations?.writes.length })
-	@converter(EntryRelations.converter)
-	@children(() => EntryRelation, row => row.entryId, {
-		eager: true,
-		orphanRemoval: true,
-		as: () => EntryRelations,
-		rows: relations => relations.writes.map(relation => EntryRelation.of(relation)),
-		unknown: true,
-		saves: true,
-	}) relations?: EntryRelations
-
-	relateTo(type: RelationType | string, targetUid: string) {
-		this.relations = (this.relations ?? EntryRelations.none).adding(type, targetUid, this.uid)
-	}
-
-	unrelate(relation: RelationInit) {
-		this.relations = (this.relations ?? EntryRelations.none).without(relation)
-	}
-
-	violates(relation: Relation | RelationInit, predecessor: Entry) {
-		return RelationEdge.of(this.uid ?? '', relation)?.violatedBy(predecessor, this) ?? false
-	}
-
-	/** The boundary instant for dependency comparisons. All-day ends are stored exclusive. */
-	boundaryOf(which: 'start' | 'end') {
-		return which === 'start' ? this.start : this.end ?? this.start
-	}
-
 	/**
 	 * The entry holds an all-day date as the midnight that begins its day in `TimeZone.local`, and a floating time as the instant its
 	 * wall clock reads there; the wire carries the day's UTC midnight and the wall clock as if in UTC. The conversion reads
@@ -509,10 +474,6 @@ export class Entry extends Entity implements Validatable {
 	/** A draft nothing was typed into, which is never saved: availability needs no title. */
 	get blank() {
 		return !this.persisted && !this.heading?.trim() && !this.type.isAvailability
-	}
-
-	get relatable() {
-		return this.persisted && !!this.uid
 	}
 
 	// The date facts are its own dates' (its single occurrence's), so the formulas live once.
@@ -579,16 +540,10 @@ export class Entry extends Entity implements Validatable {
 		return this.recurringEntryId ?? this.id
 	}
 
-	/** Where it stands among the other entries: its subtasks, parents and predecessors, and what they add up to. */
-	get hierarchy() {
-		return new EntryHierarchy(this)
-	}
-
-	/** A standalone copy: one that stands alone, without the rule, with the relationships this entry owns. */
+	/** A standalone copy: one that stands alone, without the rule. */
 	duplicate() {
 		const duplicate = this.copy()
 		duplicate.recurrence = undefined
-		duplicate.relations = this.relations?.owned
 		return duplicate
 	}
 

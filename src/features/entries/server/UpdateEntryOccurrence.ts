@@ -40,8 +40,7 @@ export class UpdateEntryOccurrence extends Operation<Parameters, Entry> {
 		const change = existing.edit(patch)
 		// The calendar it ends up in comes through the user, which proves it theirs.
 		change.edited.source = await user.getSource(em, change.edited.sourceId)
-		const reached = patch.relations && await user.getRelationGraph(em, change.related)
-		const errors = [...await fileStore.claim(user.id, patch.files ?? [], existing.files), ...change.validate({ graph: reached, scope })]
+		const errors = [...await fileStore.claim(user.id, patch.files ?? [], existing.files), ...change.validate({ scope })]
 		if (errors.length) {
 			throw new AggregateError(errors)
 		}
@@ -52,12 +51,7 @@ export class UpdateEntryOccurrence extends Operation<Parameters, Entry> {
 		}
 
 		const result = await existing.occurrences.existing(patch.occurrence).edit(patch, scope).save(em, change.from.integration, change.to.integration)
-		if (scope === EntryOccurrenceChangeScope.All && result !== existing) {
-			result.relations = existing.relations
-		}
 		await em.flush()
-		const graph = await user.getRelationGraph(em, [result.uid])
-		graph.attach([result])
 		this.logger.debug(`Edited occurrence of series ${existing.id} (scope '${scope}')`)
 		return result
 	}

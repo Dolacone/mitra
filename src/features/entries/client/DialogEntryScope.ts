@@ -1,21 +1,13 @@
 import { component, html, css, state } from '@a11d/lit'
 import { DialogComponent } from '@a11d/lit-application'
-import { ShiftStrategy, type EntryPlan } from '#features/relations'
 import { EntryOccurrenceChangeScope } from '#features/recurrence'
 import { type Entry } from '../Entry.js'
 import { EntryStatus } from '../EntryStatus.js'
 import { EntryStore } from './EntryStore.js'
 
-export interface ShiftOption {
-	readonly strategy: ShiftStrategy
-	readonly plan: EntryPlan
-}
-
-/** Scope for edit, move, or delete across recurrence, hierarchy, and dependency axes. */
+/** Scope for edit, move, or delete across a recurring entry's dates. */
 export interface EntryScope {
 	readonly recurrence?: EntryOccurrenceChangeScope
-	readonly subtasks: boolean
-	readonly shift?: ShiftStrategy
 	/** A deletion turned into cancelling this date alone, which a routine counts as not kept rather than forgets. */
 	readonly cancel?: boolean
 }
@@ -24,14 +16,12 @@ export interface EntryScopeParameters {
 	readonly entry: Entry
 	readonly intent: 'edit' | 'move' | 'delete'
 	readonly series: boolean
-	readonly subtasks: number
-	readonly shifts?: ReadonlyArray<ShiftOption>
 	/** Whether a deletion may cancel the date instead: an entry of a routine, on a calendar that keeps Cancelled. */
 	readonly cancels?: boolean
 }
 
 /**
- * Scope dialog for recurring series, subtasks, and dependent shifts.
+ * Scope dialog for recurring series.
  */
 @component('mitra-dialog-entry-scope')
 export class DialogEntryScope extends DialogComponent<EntryScopeParameters, EntryScope | undefined> {
@@ -39,8 +29,18 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 		return navigator.userAgent.includes('Mac') ? '⌘' : t('Ctrl')
 	}
 
+	/** Asks how far a gesture on `entry` reaches, unless nothing is to be asked. */
+	static resolve(entry: Entry, intent: 'edit' | 'move' | 'delete', bypass = false): Promise<EntryScope | undefined> {
+		const series = !!entry.recurringEntryId
+		// Deleting a routine's date offers to cancel it instead.
+		const cancels = intent === 'delete' && !!entry.routineId && entry.statuses.includes(EntryStatus.Cancelled) && !entry.cancelled
+		if (bypass || (!series && !cancels)) {
+			return Promise.resolve({ recurrence: series ? EntryOccurrenceChangeScope.This : undefined })
+		}
+		return new DialogEntryScope({ entry, intent, series, cancels }).confirm()
+	}
+
 	@state() private recurrence = EntryOccurrenceChangeScope.This
-	@state() private subtasks = false
 	@state() private step = 0
 
 	protected override createRenderRoot() { return this }
@@ -53,8 +53,6 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 		return [
 			...this.parameters.cancels && !this.parameters.series ? ['cancel' as const] : [],
 			...this.parameters.series ? ['recurrence' as const] : [],
-			...this.parameters.subtasks ? ['subtasks' as const] : [],
-			...(this.parameters.shifts?.length ?? 0) > 1 ? ['dependents' as const] : [],
 		]
 	}
 
@@ -65,16 +63,6 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 	private get heading() {
 		if (this.question === 'cancel') {
 			return t('Cancel or delete?')
-		}
-		if (this.question === 'dependents') {
-			return t('Move dependent entries too?')
-		}
-		if (this.question === 'subtasks') {
-			switch (this.parameters.intent) {
-				case 'delete': return t('Delete subtasks too?')
-				case 'move': return t('Move subtasks too?')
-				default: return t('Apply to subtasks too?')
-			}
 		}
 		switch (this.parameters.intent) {
 			case 'delete':
@@ -92,20 +80,11 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 	}
 
 	private cancel() {
-		this.close({ recurrence: this.parameters.series ? EntryOccurrenceChangeScope.This : undefined, subtasks: false, cancel: true })
-	}
-
-	private chooseSubtasks(subtasks: boolean) {
-		this.subtasks = subtasks
-		this.answered()
-	}
-
-	private chooseShift(shift: ShiftStrategy) {
-		this.close({ ...this.answer, shift: shift === ShiftStrategy.None ? undefined : shift })
+		this.close({ recurrence: this.parameters.series ? EntryOccurrenceChangeScope.This : undefined, cancel: true })
 	}
 
 	private get answer(): EntryScope {
-		return { recurrence: this.parameters.series ? this.recurrence : undefined, subtasks: this.subtasks }
+		return { recurrence: this.parameters.series ? this.recurrence : undefined }
 	}
 
 	private answered() {
@@ -157,7 +136,7 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 						@click=${() => this.step--}
 					></mitra-icon-button>
 				`}
-				${this.question === 'cancel' ? this.cancelChoices : this.question === 'dependents' ? this.dependentsChoices : this.question === 'subtasks' ? this.subtasksChoices : this.recurrenceChoices}
+				${this.question === 'cancel' ? this.cancelChoices : this.recurrenceChoices}
 				${this.step > 0 ? html.nothing : html`
 					<p class="hint">${t('Tip: hold ${modifier} to skip this dialog and apply to this entry only', { modifier: DialogEntryScope.modifier })}</p>
 				`}
@@ -192,36 +171,6 @@ export class DialogEntryScope extends DialogComponent<EntryScopeParameters, Entr
 				`}
 				<mitra-choice icon="repeat" @click=${() => this.chooseRecurrence(EntryOccurrenceChangeScope.All)}>${t('All entries')}</mitra-choice>
 				${this.parameters.intent === 'delete' ? this.cancelChoice : html.nothing}
-			</mitra-choices>
-		`
-	}
-
-	/** Renders choice cards for distinct shift outcomes. */
-	private get dependentsChoices() {
-		const options = this.parameters.shifts ?? []
-		const preferred = options.find(option => option.strategy === ShiftStrategy.Minimum) ?? options[0]
-		return html`
-			<mitra-choices>
-				${options.map(option => html`
-					<mitra-choice
-						?autofocus=${option === preferred}
-						icon=${option.strategy === ShiftStrategy.None ? this.entryIcon : option.strategy.icon}
-						@click=${() => this.chooseShift(option.strategy)}
-					>
-						${option.strategy.format()}
-						${!option.plan.count ? html.nothing : html`<span class="count">${t('${count:pluralityNumber} entries', { count: option.plan.count })}</span>`}
-					</mitra-choice>
-				`)}
-			</mitra-choices>
-		`
-	}
-
-	private get subtasksChoices() {
-		const count = this.parameters.subtasks
-		return html`
-			<mitra-choices>
-				<mitra-choice autofocus icon=${this.entryIcon} @click=${() => this.chooseSubtasks(false)}>${t('Only this entry')}</mitra-choice>
-				<mitra-choice icon="list-tree" @click=${() => this.chooseSubtasks(true)}>${t('This and its ${count:pluralityNumber} subtasks', { count })}</mitra-choice>
 			</mitra-choices>
 		`
 	}

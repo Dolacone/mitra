@@ -2,7 +2,6 @@ import { Controller } from '@a11d/lit'
 import { type ReactiveControllerHost } from 'lit'
 import { CreateEntry, UpdateEntry, UpdateEntryOccurrence, DeleteEntry, DeleteEntryOccurrence, RankTasks } from '#operations'
 import { Recurrence, EntryOccurrenceChangeScope, type EntryOccurrence } from '#features/recurrence'
-import { type EntryPlan, type SkippedEntry, EntryRelations, RelationGraph, EntryHierarchy } from '#features/relations'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { ApiError } from '#infrastructure/http/Api.js'
 import { type Entry } from '../Entry.js'
@@ -25,12 +24,11 @@ export class EntryStore extends Controller {
 	/** What a gesture lays over the stored entries: the draft, a drag's preview and the entry it holds, copies on their way. */
 	static readonly pending = new PendingEntries({ moved: (...entries) => EntryStore.notifyMoved(...entries), changed: () => EntryStore.notify() })
 
-	/** What keeps occurrences off every surface, as the hide-done setting does; search and rollups still see them. */
+	/** What keeps occurrences off every surface, as the hide-done setting does; search still sees them. */
 	static readonly lenses = new EntryLenses()
 
 	private static merged?: ReadonlyArray<Entry>
 	private static composed?: ReadonlyArray<EntryOccurrence>
-	private static graphOf?: { readonly entries: ReadonlyArray<Entry>, readonly graph: RelationGraph }
 	/** The window the entries were fetched for, whose dates the recurring ones yield; none for every entry once. */
 	private static window?: DateTimeRange
 
@@ -65,15 +63,6 @@ export class EntryStore extends Controller {
 	/** What the surfaces draw of the occurrences: every one, but what a lens keeps out ({@link EntryStore.lenses}). */
 	static get shown(): ReadonlyArray<EntryOccurrence> {
 		return this.lenses.apply(this.occurrences)
-	}
-
-	/** The relations among every entry held, which each entry's hierarchy reads; rebuilt once the entries change. */
-	static get graph(): RelationGraph {
-		const entries = this.entries
-		if (this.graphOf?.entries !== entries) {
-			this.graphOf = { entries, graph: RelationGraph.of(entries) }
-		}
-		return this.graphOf.graph
 	}
 
 	private static compose() {
@@ -172,22 +161,6 @@ export class EntryStore extends Controller {
 	static resolveScope: (entry: Entry, intent: 'edit' | 'delete') => Promise<EntryOccurrenceChangeScope | undefined> =
 		() => Promise.resolve(EntryOccurrenceChangeScope.All)
 
-	private static readonly closings = new Set<(entry: Entry) => void>()
-
-	/** Calls `listener` once a task the store saves closes, after the server took it; answers how to stop. */
-	static whenTaskCloses(listener: (entry: Entry) => void) {
-		this.closings.add(listener)
-		return () => void this.closings.delete(listener)
-	}
-
-	/** Saves an entry the store does not hold, as a linked one outside the window is, telling who listens once it closed. */
-	static async saveUntracked(entry: Entry) {
-		await EntryStore.persistence.update(entry)
-		if (entry.closed) {
-			this.closings.forEach(listener => listener(entry))
-		}
-	}
-
 	/** Persists local changes, chaining in-flight updates and resolving recurrence scope. */
 	static commit(entry: Entry, scope?: EntryOccurrenceChangeScope): Promise<void> {
 		const pending = this.inflight.get(entry)
@@ -200,7 +173,6 @@ export class EntryStore extends Controller {
 		if (!this.tracks(entry) || !this.isDirty(entry)) {
 			return Promise.resolve()
 		}
-		const wasClosed = entry.persisted && (this.canonicalById.get(entry.id!)?.closed ?? false)
 		let settled = false
 		const run = (async () => {
 			try {
@@ -252,10 +224,6 @@ export class EntryStore extends Controller {
 				this.inflight.delete(entry)
 				this.notify()
 			}
-			// A task's transition into closed state; runs outside finally so failed saves never prompt.
-			if (!wasClosed && entry.closed && entry.type.isTask && this.tracks(entry)) {
-				this.closings.forEach(listener => listener(entry))
-			}
 		})()
 		// A run that never awaited (nothing to send, or a throw before the first request) has settled by now,
 		// and its slot would turn away every later commit.
@@ -269,43 +237,6 @@ export class EntryStore extends Controller {
 	 * so it bypasses the scope dialog and routes straight to the master. */
 	private static ruleChanged(entry: Entry) {
 		return !Recurrence.equal(entry.recurrence, this.canonicalById.get(entry.id!)?.recurrence)
-	}
-
-	/** Optimistically applies and persists a relation mutation on the series master, restoring the prior relations on failure. */
-	static async commitRelations(owner: Entry, mutate: () => void): Promise<void> {
-		const before = owner.relations
-		mutate()
-		this.notify()
-		const id = owner.masterId
-		if (!id) {
-			return
-		}
-		try {
-			this.adoptRelations(await UpdateEntry.call({ id, relations: owner.relations ?? EntryRelations.none }))
-		} catch (error) {
-			owner.relations = before
-			this.notify()
-			throw error
-		}
-	}
-
-	/** Adopts a relations-only result onto the tracked copies. An incoming-line removal edits another entry than the
-	 * editor's, and a dirty copy of it would otherwise resurrect the removed link with its next full PUT. */
-	static adoptRelations(saved: Entry) {
-		if (saved.id === undefined) {
-			return
-		}
-		const working = this.workingById.get(saved.id)
-		const canonical = this.canonicalById.get(saved.id)
-		if (working) {
-			working.relations = saved.relations
-		}
-		if (canonical) {
-			canonical.relations = saved.relations
-		}
-		if (working || canonical) {
-			this.notify()
-		}
 	}
 
 	private static async commitOccurrence(entry: Entry, sent: Entry, preset?: EntryOccurrenceChangeScope): Promise<boolean> {
@@ -436,33 +367,6 @@ export class EntryStore extends Controller {
 			}
 		}
 		this.notify()
-	}
-
-	private static live(entry: Entry) {
-		return (entry.id !== undefined ? this.workingById.get(entry.id) : undefined) ?? entry
-	}
-
-	static async applyPlan(plan: EntryPlan): Promise<{ failed: Array<Entry>, skipped: ReadonlyArray<SkippedEntry> }> {
-		const failed = new Array<Entry>()
-		for (const entry of plan.deletions) {
-			const target = this.live(entry)
-			const write = target === entry && !this.tracks(target) ? EntryStore.persistence.delete(target.id!) : this.delete(target, EntryOccurrenceChangeScope.All)
-			await write.catch(() => void failed.push(entry))
-		}
-		for (const { entry, mutate } of plan.writes) {
-			const target = this.live(entry)
-			mutate(target)
-			this.notify()
-			if (this.tracks(target)) {
-				await this.commit(target, EntryOccurrenceChangeScope.All).catch(() => { this.revert(target); failed.push(entry) })
-			} else {
-				await EntryStore.persistence.update(target).catch(() => void failed.push(entry))
-			}
-		}
-		if (plan.count) {
-			this.notify()
-		}
-		return { failed, skipped: plan.skipped }
 	}
 
 	static revert(entry: Entry) {
@@ -610,5 +514,3 @@ export class EntryStore extends Controller {
 		EntryStore.hosts.delete(this.host)
 	}
 }
-
-EntryHierarchy.from(() => EntryStore.graph)

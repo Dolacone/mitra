@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { Recurrence, EntryOccurrenceChangeScope } from '#features/recurrence'
 import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
-import { EntryRelations } from '#features/relations'
 import { type Source, Color } from '#features/sources'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
 import { TimeZone } from '#features/time/TimeZone.js'
@@ -61,14 +60,14 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 	/** The fields an edit reaches, in the order they apply. */
 	static readonly fields = [
 		'sourceId', 'type', 'heading', 'description', 'location', 'color', 'allDay', 'start', 'end', 'due', 'estimate', 'timeZone',
-		'status', 'percentComplete', 'transparency', 'visibility', 'recurrence', 'reminders', 'participants', 'files', 'relations',
+		'status', 'percentComplete', 'transparency', 'visibility', 'recurrence', 'reminders', 'participants', 'files',
 	] as const satisfies ReadonlyArray<keyof Entry & keyof EntryPatch>
 
 	/** What an edit through one occurrence of a repeating entry changes for all of them, its rule aside. */
 	static readonly shared = ['heading', 'description', 'location', 'color', 'timeZone', 'transparency', 'visibility', 'reminders', 'participants', 'files'] as const satisfies ReadonlyArray<EntryPatchField>
 
 	/** What an edit of one occurrence carries: neither its type nor its rule are its own. */
-	static readonly occurrence = EntryPatch.fields.filter(field => field !== 'type' && field !== 'recurrence' && field !== 'relations')
+	static readonly occurrence = EntryPatch.fields.filter(field => field !== 'type' && field !== 'recurrence')
 
 	/** The given fields of `entry` as they stand, an empty one as cleared. A date brings what tells how it travels: `allDay`, and a floating entry's zone. */
 	static of(entry: Entry, fields: ReadonlyArray<EntryPatchField> = EntryPatch.fields) {
@@ -76,10 +75,7 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 		const dated = fields.some(field => field === 'start' || field === 'end' || field === 'due')
 		const travelling = !dated ? [] : (entry.floating ? ['allDay', 'timeZone'] as const : ['allDay'] as const).filter(field => !fields.includes(field))
 		for (const field of [...travelling, ...fields]) {
-			// Relations have a none of their own, an empty collection, so absent ones are unknown and stay out.
-			if (field !== 'relations' || entry.relations !== undefined) {
-				Object.assign(patch, { [field]: entry[field] ?? null })
-			}
+			Object.assign(patch, { [field]: entry[field] ?? null })
 		}
 		return patch
 	}
@@ -177,15 +173,8 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 	@converter({ construct: (value: unknown) => value === undefined || value === null ? value : EntryFiles.of(value), deconstruct: (value: EntryFiles | null | undefined) => value === undefined ? value : !value?.length ? null : EntryFiles.converter.deconstruct!(value, {}) })
 	files?: EntryFiles | null
 
-	@description('The entry\'s own links to other entries, each by the other\'s uid: FINISHTOSTART when this entry cannot start until the other finishes, PARENT when it is a subtask of the other. The list replaces the links the entry has, so keep those it should keep; links pointing at it are the other entry\'s and are left as they are. null removes them all.')
-	@converter(EntryRelations.writeConverter)
-	relations?: EntryRelations
-
 	/** What makes the patch invalid: a field that came malformed, and with a context what the edit may not do there. */
 	*validate(context?: EntryPatchContext) {
-		if (this.relations === EntryRelations.invalid) {
-			yield new ValidationError('Invalid relations', ['relations'])
-		}
 		if (this.recurrence && !this.recurrence.valid) {
 			yield new ValidationError('Invalid recurrence rule', ['recurrence'])
 		}
@@ -193,10 +182,6 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 			return
 		}
 		const { entry, to, scope } = context
-		// What an occurrence's edit carries leaves them out (`EntryPatch.occurrence`): links belong to the entry as a whole.
-		if (scope && this.relations !== undefined) {
-			yield new ValidationError('Relations belong to the repeating entry as a whole, never to one of its occurrences. To relate the occurrences to each other, make them separate entries.', ['relations'])
-		}
 		const target = to.capabilities
 		if (!entry) {
 			if (!target.entries.create) {

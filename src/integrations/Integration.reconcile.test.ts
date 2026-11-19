@@ -5,13 +5,12 @@ import { children } from '#infrastructure/model'
 import { User, Identity } from '#features/identity'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
-import { EntryRelation } from '#features/relations'
 import { Integration } from './Integration.js'
 import { MitraCalendar } from './mitra/MitraCalendar.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

@@ -3,7 +3,6 @@ import { fileDrop } from '@3mo/file-upload'
 import { centered, type Popover, startedInField, scrollbar } from '#design'
 import { type Source, Color } from '#features/sources'
 import { Calendars } from '#features/sources/client/Calendars.js'
-import { hierarchy } from '#features/relations/client/Hierarchy.js'
 import { RoutineField } from '#features/routines/client/RoutineField.js'
 import { type EntryTypeValue } from '../EntryType.js'
 import { EntryStatus } from '../EntryStatus.js'
@@ -11,6 +10,7 @@ import type { EntrySegment } from './EntrySegment.js'
 import { EntryStore, reportSaveError } from './EntryStore.js'
 import { EntryEditorIntent } from './EntryEditorIntent.js'
 import { DialogDuplicateDays } from './DialogDuplicateDays.js'
+import { DialogEntryScope } from './DialogEntryScope.js'
 import { EntryDetailsSharing } from './EntryDetailsSharing.js'
 import { editorFieldStyles } from './editorFields.css.js'
 import { AttachmentsField } from './AttachmentsField.js'
@@ -80,7 +80,7 @@ export class EntryDetailsComponent extends Component {
 
 	private readonly handleDelete = async (bypass: boolean) => {
 		const entry = this.segment!.entry
-		const scope = await hierarchy.resolveScope(entry, 'delete', bypass)
+		const scope = await DialogEntryScope.resolve(entry, 'delete', bypass)
 		if (!scope) {
 			return
 		}
@@ -90,7 +90,7 @@ export class EntryDetailsComponent extends Component {
 			EntryStore.notify()
 			return EntryStore.commit(entry, scope.recurrence).catch(reportSaveError)
 		}
-		return hierarchy.deleteScoped(entry, scope).catch(error =>
+		return EntryStore.delete(entry, scope.recurrence).catch(error =>
 			console.error('Deleting the entry failed, so it was restored in the view:', error))
 	}
 
@@ -172,7 +172,7 @@ export class EntryDetailsComponent extends Component {
 			}
 
 			/* The editor hangs from a named anchor rather than the one show() gives, which hiding takes away while it
-			   fades out. A segment names itself so beside its connector name (EventSegment); each keeps it to its own. */
+			   fades out. Each segment keeps the name to its own. */
 			mitra-entry-segment, mitra-availability-segment > .window {
 				anchor-scope: --mitra-entry-details;
 			}
@@ -382,10 +382,6 @@ export class EntryDetailsComponent extends Component {
 							outline: none;
 							border: none;
 							grid-column: -1 / 1;
-
-							&:has(+ mitra-relations-field[data-empty]) {
-								display: none;
-							}
 						}
 
 						> li {
@@ -546,9 +542,6 @@ export class EntryDetailsComponent extends Component {
 	 * its capability is off), never re-derived here, or the two would drift. The one row that cannot
 	 * answer as a template is the sharing element, which decides inside itself; it exposes the same
 	 * question as {@link EntryDetailsSharing.applies}.
-	 *
-	 * The order is the argument: everything up to reminders describes THIS entry, so relationships,
-	 * which connect it to OTHERS, and whose rows grow, close the popover as their own group.
 	 */
 	private get groups() {
 		const entry = this.segment!.entry
@@ -562,7 +555,6 @@ export class EntryDetailsComponent extends Component {
 				`,
 				this.remindersTemplate,
 			],
-			[this.segment!.entry.type.isAvailability ? html.nothing : html`<mitra-relations-field .entry=${entry}></mitra-relations-field>`],
 		]
 		return groups
 			.map(rows => rows.filter(row => row !== html.nothing))

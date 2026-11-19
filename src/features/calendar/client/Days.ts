@@ -7,11 +7,8 @@ import { type UserTimeZone } from '#features/time/UserTimeZones.js'
 import type { EntryOccurrence } from '#features/recurrence'
 import { EntrySegments } from '#features/entries/client/EntrySegments.js'
 import { DayHours } from '#features/entries/client/DayHours.js'
-import { type EntrySegment } from '#features/entries/client/EntrySegment.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
 import { Availability } from '#features/availability/client/Availability.js'
-import { type SegmentPlacement } from '#features/relations/client/EntryConnections.js'
-import { ConnectorLinesSetting } from '#features/relations/client/ConnectorLinesSetting.js'
 import { EntryGestureController } from '#features/entries/client/gestures/EntryGestureController.js'
 import { TimeZoneLaneController } from '#features/time/client/TimeZoneLaneController.js'
 import { TimeZones } from '#features/time/client/TimeZones.js'
@@ -183,7 +180,6 @@ export class Days extends Component {
 		this.style.setProperty('--_tz-count', this.timeZoneColumns.length.toString())
 		this.toggleAttribute('data-alternative-zones', this.timeZoneColumns.length > 1)
 		this.updateLaneHeight()
-		this.applyScrollRange()
 		// The header renders its names after this.
 		void this.querySelector('mitra-time-zone-header')?.updateComplete.then(() => this.measureLane())
 	}
@@ -292,14 +288,14 @@ export class Days extends Component {
 					grid-template-rows: subgrid;
 					scroll-snap-align: var(--scroll-snap-align);
 
-					/* The surface is the day's, beneath its entries, which are a stacking context (below), so the hour lines and
-					   connectors stay drawn between the two. The header and the lane cover its other rows. */
+					/* The surface is the day's, beneath its entries, which are a stacking context (below), so the hour lines
+					   stay drawn between the two. The header and the lane cover its other rows. */
 					background-color: var(--color-surface);
 
 					.entries {
 						grid-row: 3;
 						/* A zoom re-lays out every day, so the days out of view skip their chips. Its paint containment makes each day
-						   a stacking context, lifted as a whole to where its chips sat: over the hour lines and connectors. */
+						   a stacking context, lifted as a whole to where its chips sat: over the hour lines. */
 						content-visibility: auto;
 						contain-intrinsic-size: none;
 						z-index: 2;
@@ -327,7 +323,6 @@ export class Days extends Component {
 					top: var(--header-height, 2.75rem);
 					z-index: 90;
 					anchor-name: --mitra-all-day-lane;
-					--mitra-connection-z: 0;
 					display: grid;
 					grid-template-columns: subgrid;
 					grid-template-rows: repeat(var(--_all-day-window-rows, 1), 1.375rem);
@@ -519,41 +514,10 @@ export class Days extends Component {
 		return html`
 			${this.timeTemplate}
 			<div class="all-day-corner" data-chrome></div>
-			<div class="canvas" ${observeResize(this.updateScrollRange)}>
+			<div class="canvas">
 				${this.allDayTemplate}
 				${this.dateTemplate}
-				${this.connectionsTemplate}
 			</div>
-		`
-	}
-
-	private static readonly laneRankFloor = 1e12
-
-	private laneSegments: ReadonlyArray<EntrySegment> = []
-	private lanePlacement: ReadonlyMap<EntrySegment, SegmentPlacement> = new Map()
-
-	private lastScrollRange = -1
-	private readonly updateScrollRange = () => {
-		const range = Math.max(0, this.scrollHeight - this.clientHeight)
-		if (range !== this.lastScrollRange) {
-			this.lastScrollRange = range
-			this.applyScrollRange()
-		}
-	}
-
-	/** Set on the connection layers, its only readers: set on the host, every element of the week inherited it, and a zoom changes it every frame. */
-	private applyScrollRange() {
-		for (const layer of this.querySelectorAll<HTMLElement>('mitra-entry-connections')) {
-			layer.style.setProperty('--mitra-days-scroll-range', `${this.lastScrollRange}px`)
-		}
-	}
-
-	private get connectionsTemplate() {
-		return !ConnectorLinesSetting.showsIn('week') ? html.nothing : html`
-			<mitra-entry-connections draft-host
-				.segments=${[...this.laneSegments, ...this.dates.window.days.flatMap(day => this.segments.timedOn(day))]}
-				.placement=${this.lanePlacement}
-			></mitra-entry-connections>
 		`
 	}
 
@@ -561,8 +525,6 @@ export class Days extends Component {
 		const { days, offset } = this.dates.window
 		const first = days[0]
 		const last = days.at(-1)
-		this.laneSegments = []
-		this.lanePlacement = new Map()
 		if (!first || !last) {
 			return html.nothing
 		}
@@ -575,15 +537,6 @@ export class Days extends Component {
 			.filter(segment => !EntryStore.pending.isPreview(segment.entry))
 			.map(segment => ({ lane: laneOf(segment.occurrence), start: segment.dayValue!, end: segment.runEnd.dayValue! }))
 		this.style.setProperty('--_all-day-window-rows', `${laneCount + 1}`)
-		const lastValue = last.dayStart.valueOf()
-		const placements = new Map(runs.map(segment => [segment, {
-			start: Math.round(segment.dayValue! / 86_400_000),
-			end: Math.round(Math.min(segment.runEnd.dayValue ?? segment.dayValue!, lastValue) / 86_400_000),
-			rank: laneOf(segment.occurrence),
-		}]))
-		this.laneSegments = runs
-		this.lanePlacement = new Map([...placements].map(([segment, placement]) =>
-			[segment, { ...placement, rank: placement.rank - Days.laneRankFloor, frame: 'lane' as const }]))
 		return html`
 			<div class="all-day">
 				${days.map((_, index) => html`<div class="day" style="grid-column: ${offset + index + 1};"></div>`)}
@@ -598,9 +551,6 @@ export class Days extends Component {
 						.segment=${bar.segment}
 					></mitra-entry-segment>
 				`)}
-				${!ConnectorLinesSetting.showsIn('week') ? html.nothing : html`
-					<mitra-entry-connections .segments=${runs} .placement=${placements}></mitra-entry-connections>
-				`}
 			</div>
 		`
 	}

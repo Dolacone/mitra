@@ -15,9 +15,9 @@ describe('IntegrationOwnership', () => {
 	})
 
 	it('drops fields without changing what it derives from', () => {
-		const base = new IntegrationOwnership({ due: 'upstream', relations: 'upstream', rank: 'mitra' })
-		const derived = base.without('relations')
-		assert.deepEqual([derived.holds('relations'), derived.ownerOf('due')], [false, 'upstream'])
-		assert.equal(base.holds('relations'), true)
+		const base = new IntegrationOwnership({ due: 'upstream', location: 'upstream', rank: 'mitra' })
+		const derived = base.without('location')
+		assert.deepEqual([derived.holds('location'), derived.ownerOf('due')], [false, 'upstream'])
+		assert.equal(base.holds('location'), true)
 	})
 })

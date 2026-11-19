@@ -5,13 +5,12 @@ import { children } from '#infrastructure/model'
 import { User, Identity } from '#features/identity'
 import { Source, Color } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
-import { EntryRelation } from '#features/relations'
 import { Integration, IntegrationCapabilities } from '#integrations'
 import { MitraCalendar } from './MitraCalendar.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,
@@ -207,19 +206,15 @@ describe('MitraCalendar', () => {
 			assert.equal(source.supportsEntryType(EntryType.Task), true)
 		})
 
-		it('deleting a calendar takes its entries and their relations with it', async () => {
+		it('deleting a calendar takes its entries with it', async () => {
 			const em = orm.em.fork()
-			const { integration, source, entry } = await seed(em)
-			const other = new Entry({ id: crypto.randomUUID(), uid: crypto.randomUUID(), sourceId: source.id, type: EntryType.Task, heading: 'Book it' })
-			em.persist([other, new EntryRelation({ entryId: other.id!, type: 'PARENT', targetUid: entry.uid! } as never)])
-			await em.flush()
+			const { integration, source } = await seed(em)
 
 			await integration.deleteSource(em, source)
 			await em.flush()
 
 			assert.equal(await em.count(Source, { id: source.id }), 0)
 			assert.equal(await em.count(Entry, { sourceId: source.id }), 0)
-			assert.equal(await em.count(EntryRelation, { entryId: other.id! }), 0)
 		})
 
 		it('leaves the integration and its other calendars standing', async () => {

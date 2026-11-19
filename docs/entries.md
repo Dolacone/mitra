@@ -44,7 +44,7 @@ The type can't change on a repeating entry, or in a calendar that holds only one
 
 **Duplicate to other days…** puts a copy on several days at once, for work that falls on days no repeat could name, such as the 1st, 3rd and 17th. Click each day you want on the calendar it shows, then **Duplicate to 3 days**. Each copy keeps the entry's time of day and is an entry of its own. To choose a run of days, hold <kbd>Shift</kbd> while you click the last one. The days the entry already takes up have a dot and can't be chosen.
 
-**Delete** removes the entry. While the editor is open, <kbd>Delete</kbd> or <kbd>Backspace</kbd> does too, as long as you're not typing in a field. If the entry repeats or has subtasks, Mitra asks which ones you mean.
+**Delete** removes the entry. While the editor is open, <kbd>Delete</kbd> or <kbd>Backspace</kbd> does too, as long as you're not typing in a field. If the entry repeats, Mitra asks which ones you mean.
 
 ## Title and time
 
@@ -56,7 +56,9 @@ A task also has a due date and, while it's unscheduled, an estimate. See [Planni
 
 A task has a checkbox before its title, and one of four statuses: **To Do**, **Doing**, **Done** or **Cancelled**. Click the checkbox to mark the task done, and click it again to open it back up. To pick any status, right-click the checkbox or <kbd>Alt</kbd>-click it. This works on the calendar too.
 
-Done and cancelled tasks are struck through. A task with subtasks or a checklist shows its progress in the checkbox; see [Subtasks](subtasks.md#progress).
+Done and cancelled tasks are struck through. A task with a checklist shows its progress in the checkbox; see [Checklists](#checklists).
+
+A task with no checklist can carry a progress you set yourself. Right-click its checkbox, or <kbd>Alt</kbd>-click it, and drag **Progress** in steps of 5%. At 100%, the task becomes **Done**. Below 100%, a done task goes back to **Doing**, or to **To Do** at 0%. The **✕** beside the value clears it.
 
 ## Event status
 
@@ -77,15 +79,20 @@ Every entry has a visibility. **Default visibility** leaves it to the calendar. 
 - [Reminders](reminders.md) notify you before the entry starts, or before a task's due date.
 - [Links](links.md) gathers the links in the description above it.
 - [Attachments](attachments.md) holds the files added to the entry.
-- **Subtask of** and **Subtasks** build a tree of tasks; see [Subtasks](subtasks.md).
-- **Blocked by** and **Blocks** say what has to finish first; see [Dependencies](dependencies.md).
 
 ## The description
 
 Click the description to edit it, and click elsewhere to see it formatted again. It's written in Markdown, so headings, bulleted and numbered lists, bold and italic text, code, tables and links all render. A quote that starts with `> [!NOTE]`, `> [!TIP]` or `> [!WARNING]` becomes a colored callout. Clicking a link opens it instead of editing.
 
-Lines that start with `- [ ]` become a checklist, which you can tick without opening the text. See [Checklists](subtasks.md#checklists).
+### Checklists
 
-## Relationships from other apps
+Lines that start with `- [ ]` become a checklist:
 
-Other calendar apps can link entries in ways Mitra doesn't create itself. Mitra shows these links in a section of their own: **Related to** for entries that belong together, and a section named after the link's type for kinds it doesn't know. You can remove such a link with its **✕**, but not add one.
+```markdown
+- [ ] Book the venue
+- [x] Send the invitations
+```
+
+Tick a box right in the description to check it off, without opening the text. Mitra changes `[ ]` to `[x]` in the text. Ticking boxes never changes the task's status on its own. Only tasks count their checklists: an event's boxes can be ticked, but they count towards nothing.
+
+Each box of a task counts as one step. On the calendar, the outline of the task's checkbox fills up as boxes are ticked. Point at the checkbox to see the count, such as "2 of 3 checklist items done". Right-click it, or <kbd>Alt</kbd>-click it, to open the status menu with the exact percentage.

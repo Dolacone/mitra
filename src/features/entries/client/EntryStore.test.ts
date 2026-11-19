@@ -2,7 +2,6 @@ import { beforeEach, describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { DateTime, DateTimeRange } from '@3mo/date-time'
 import { Recurrence, RecurrenceFrequency, EntryOccurrenceChangeScope, type EntryOccurrence } from '#features/recurrence'
-import { EntryRelations } from '#features/relations'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { Color, Source } from '#features/sources'
 import { IntegrationOwnership } from '#integrations'
@@ -58,13 +57,11 @@ describe('EntryStore', () => {
 
 	const originalPersistence = EntryStore.persistence
 	const originalResolveScope = EntryStore.resolveScope
-	const listening = new Array<() => void>()
 
 	beforeEach(() => {
 		EntryStore.reset()
 		EntryStore.persistence = originalPersistence
 		EntryStore.resolveScope = originalResolveScope
-		listening.splice(0).forEach(stop => stop())
 	})
 
 	describe('entries (merged view)', () => {
@@ -832,27 +829,6 @@ describe('EntryStore', () => {
 		})
 	})
 
-	describe('relations', () => {
-		it('do NOT participate in dirty-tracking: the field persists them through its own PUT', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const working = entry({ uid: 'self', relations: EntryRelations.none })
-			EntryStore.applyServerEntries([working])
-			working.relateTo('FINISHTOSTART', 'other-uid')
-			assert.equal(EntryStore.isDirty(working), false)
-			await EntryStore.commit(working)
-			assert.equal(transport.calls.update, 0)
-		})
-
-		it('adoptRelations refreshes tracked copies, so views re-render the saved truth', () => {
-			const working = entry({ uid: 'self', relations: EntryRelations.none })
-			EntryStore.applyServerEntries([working])
-			EntryStore.adoptRelations(entry({ uid: 'self', relations: EntryRelations.of([{ type: 'PARENT', targetUid: 'p', gap: null }]) }))
-			assert.equal(working.relations?.all.length, 1)
-			assert.equal(EntryStore.isDirty(working), false)
-		})
-	})
-
 	describe('status round-trip', () => {
 		it('a task status edit follows the same derive-commit cycle', async () => {
 			const transport = fake()
@@ -865,82 +841,6 @@ describe('EntryStore', () => {
 			await transport.respond()
 			await commit
 			assert.equal(EntryStore.isDirty(working), false)
-		})
-	})
-
-	describe('whenTaskCloses', () => {
-		const task = (init?: Partial<Entry>) => entry({ type: EntryType.Task, status: EntryStatus.ToDo, ...init })
-
-		const watch = () => {
-			const closed = new Array<Entry>()
-			listening.push(EntryStore.whenTaskCloses(entry => void closed.push(entry)))
-			return closed
-		}
-
-		it('fires once when a task crosses into Done, after the response lands', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const closed = watch()
-			const working = task()
-			EntryStore.applyServerEntries([working])
-			working.status = EntryStatus.Done
-			const commit = EntryStore.commit(working)
-			assert.deepEqual(closed, [])
-			await transport.respond()
-			await commit
-			assert.deepEqual(closed, [working])
-		})
-
-		it('fires for Cancelled too', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const closed = watch()
-			const working = task()
-			EntryStore.applyServerEntries([working])
-			working.status = EntryStatus.Cancelled
-			const commit = EntryStore.commit(working)
-			await transport.respond()
-			await commit
-			assert.deepEqual(closed, [working])
-		})
-
-		it('stays silent when an already-closed task is saved again', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const closed = watch()
-			const working = task({ status: EntryStatus.Done })
-			EntryStore.applyServerEntries([working])
-			working.heading = 'Renamed'
-			const commit = EntryStore.commit(working)
-			await transport.respond()
-			await commit
-			assert.deepEqual(closed, [])
-		})
-
-		it('stays silent when the save fails, since the transition never reached the server', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const closed = watch()
-			const working = task()
-			EntryStore.applyServerEntries([working])
-			working.status = EntryStatus.Done
-			const commit = EntryStore.commit(working).catch(() => void 0)
-			await transport.fail(new Error('nope'))
-			await commit
-			assert.deepEqual(closed, [])
-		})
-
-		it('stays silent for an event', async () => {
-			const transport = fake()
-			EntryStore.persistence = transport.persistence
-			const closed = watch()
-			const working = entry()
-			EntryStore.applyServerEntries([working])
-			working.heading = 'Renamed'
-			const commit = EntryStore.commit(working)
-			await transport.respond()
-			await commit
-			assert.deepEqual(closed, [])
 		})
 	})
 })

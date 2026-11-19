@@ -2,27 +2,24 @@ import { Controller, type Component } from '@a11d/lit'
 import { DateTime } from '@3mo/date-time'
 import { haptic } from '#design'
 import { Calendars } from '#features/sources/client/Calendars.js'
-import { type EntryConnections } from '#features/relations/client/EntryConnections.js'
 import type { AvailabilitySegment } from '#features/availability/client/AvailabilitySegment.js'
 import { type Entry } from '../../Entry.js'
 import { EntryType } from '../../EntryType.js'
 import { EntryStore } from '../EntryStore.js'
-import { type EntrySegment } from '../EntrySegment.js'
 import type { EntrySegmentComponent } from '../EventSegment.js'
 import { DayCells } from '../DayCells.js'
 import { DragGesture, type DragMode, type DragPoint, type DragStart } from './DragGesture.js'
 import { CreateGesture } from './CreateGesture.js'
 import { MoveGesture } from './MoveGesture.js'
 import { ResizeGesture } from './ResizeGesture.js'
-import { RelateGesture } from './RelateGesture.js'
 
 const TOUCH_HOLD_MS = 500
 const TOUCH_HOLD_TOLERANCE = 10
 const TOUCH_HOLD_FEEDBACK_MS = 15
 
 /**
- * Listens for gestures on a calendar grid and hands each to the {@link DragGesture} it begins (create, move, resize,
- * relate): the pointer, a touch's hold, one frame at a time, the drop and a cancel.
+ * Listens for gestures on a calendar grid and hands each to the {@link DragGesture} it begins (create, move, resize):
+ * the pointer, a touch's hold, one frame at a time, the drop and a cancel.
  */
 export class EntryGestureController extends Controller {
 	private static readonly grids = new Set<EntryGestureController>()
@@ -206,19 +203,6 @@ export class EntryGestureController extends Controller {
 		const cells = this.snapshotCells()
 		// Snapshotted up front, like the cells, so every frame stays free of DOM reads (see startAt).
 		const start = this.startAt(e, cells, this.element)
-
-		// Connecting handle hit-test takes precedence over entry chip gestures.
-		const grip = target.closest('.connect') as (HTMLElement & { segment?: EntrySegment }) | null
-		if (grip) {
-			const from = grip.segment
-			const gripLayer = grip.closest('mitra-entry-connections') as EntryConnections | null
-			if (!from || !gripLayer || e.pointerType === 'touch' || !from.entry.relatable) {
-				return
-			}
-			const layers = [...this.element.querySelectorAll<EntryConnections>('mitra-entry-connections')]
-			this.begin(new RelateGesture({ ...start, armed: false }, this.editMode(from.entry), { from, source: gripLayer, layers, host: layers.find(layer => layer.draftHost) }))
-			return
-		}
 
 		// Move / resize an existing entry, persisted ones only (a draft is owned by the create flow + editor).
 		// An occurrence of a recurring entry drags as an override of its date: the drop's commit resolves the edit's scope.

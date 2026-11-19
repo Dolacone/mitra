@@ -119,7 +119,7 @@ describe('migrate', () => {
 		}
 	})
 
-	it('widens STATUS to an event\'s words, keeping the entries\' relations, files and overrides through the rebuild', async () => {
+	it('widens STATUS to an event\'s words, keeping the entries\' files and overrides through the rebuild', async () => {
 		const orm = await inMemoryOrm()
 		try {
 			const connection = orm.em.getConnection()
@@ -130,7 +130,6 @@ describe('migrate', () => {
 			await connection.execute('insert into `entry` (`id`, `source_id`, `type`, `heading`, `recurrence`) values (\'gym\', \'s\', \'event\', \'Gym\', \'FREQ=WEEKLY\')')
 			await connection.execute('insert into `entry` (`id`, `source_id`, `type`, `heading`, `recurring_entry_id`, `recurrence_id`) values (\'skipped\', \'s\', \'event\', \'Gym\', \'gym\', 1)')
 			await connection.execute('insert into `entry` (`id`, `source_id`, `type`, `heading`, `status`) values (\'report\', \'s\', \'task\', \'Report\', \'done\')')
-			await connection.execute('insert into `entry_relation` (`id`, `entry_id`, `target_uid`, `type`) values (\'r\', \'report\', \'gym\', \'PARENT\')')
 			await connection.execute('insert into `entry_file` (`id`, `entry_id`, `type`, `created_at`, `sha256`) values (\'f\', \'report\', \'attachment\', 0, \'abc\')')
 
 			await orm.migrator.up()
@@ -138,14 +137,13 @@ describe('migrate', () => {
 			assert.deepEqual(await connection.execute('select `id`, `status`, `recurring_entry_id` from `entry` order by `id`'), [
 				{ id: 'gym', status: null, recurring_entry_id: null }, { id: 'report', status: 'done', recurring_entry_id: null }, { id: 'skipped', status: null, recurring_entry_id: 'gym' },
 			])
-			assert.deepEqual(await connection.execute('select `id`, `entry_id` from `entry_relation`'), [{ id: 'r', entry_id: 'report' }])
 			assert.deepEqual(await connection.execute('select `id`, `entry_id` from `entry_file`'), [{ id: 'f', entry_id: 'report' }])
 			await connection.execute('update `entry` set `status` = \'cancelled\' where `id` = \'skipped\'')
 			await connection.execute('update `entry` set `status` = \'tentative\' where `id` = \'gym\'')
 			await assert.rejects(connection.execute('update `entry` set `status` = \'maybe\' where `id` = \'gym\''))
 			// The children still follow their entry.
 			await connection.execute('delete from `entry` where `id` = \'report\'')
-			assert.deepEqual(await connection.execute('select count(*) as `count` from `entry_relation`'), [{ count: 0 }])
+			assert.deepEqual(await connection.execute('select count(*) as `count` from `entry_file`'), [{ count: 0 }])
 		} finally {
 			await orm.close()
 		}

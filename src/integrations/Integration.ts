@@ -308,11 +308,6 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 		return run
 	}
 
-	/** Runs `work` holding the locks of several integrations, taken in sorted order to prevent deadlocks. */
-	static exclusivelyAcross<T>(ids: ReadonlyArray<string>, work: () => Promise<T>): Promise<T> {
-		return [...new Set(ids)].sort().reduceRight<() => Promise<T>>((inner, id) => () => Integration.exclusively(id, inner), work)()
-	}
-
 	/** Discards cached entries for a source and resets it for full background re-import. */
 	async reimportSource(em: EntityManager, source: Source): Promise<void> {
 		await Integration.exclusively(this.id, async () => {
@@ -370,10 +365,6 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 		existing.equate(incoming)
 		// An occurrence's deletion excludes its date through the edit; the rule's other bookkeeping is the row's own.
 		existing.exdates = incoming.exdates ?? existing.exdates
-		// Mitra's own: an edit carrying relations sets them, one without leaves the rows as they are.
-		if (incoming.relations !== undefined) {
-			existing.relations = incoming.relations
-		}
 		await this.stored(em, existing)
 	}
 

@@ -4,12 +4,11 @@ import { DataGridColumn } from '@3mo/data-grid/controller'
 import { MarkdownLinks } from '#design'
 import { type Entry } from '#features/entries'
 import '#features/participants/client/ParticipantFaces.js'
-import '#features/relations/client/EntryLink.js'
 import '#features/locations/client/MapLink.js'
 import '#features/time/TimeSpan.time.js'
 import { type TableRow } from './TableRow.js'
 
-type TableColumnKey = 'heading' | 'when' | 'due' | 'statusRank' | 'durationMinutes' | 'sourceName' | 'typeKey' | 'location' | 'repeats' | 'participants' | 'reminders' | 'subtaskOf' | 'blockedBy' | 'description'
+type TableColumnKey = 'heading' | 'when' | 'due' | 'statusRank' | 'durationMinutes' | 'sourceName' | 'typeKey' | 'location' | 'repeats' | 'participants' | 'reminders' | 'description'
 
 /** A cell's text, cut short where the column is narrower. */
 const text = (value: unknown) => html`<span class="text">${value ?? ''}</span>`
@@ -56,11 +55,6 @@ function participants(entry: Entry) {
 	`
 }
 
-/** The entries a row points at, each as the editor names it. */
-function links(entries: ReadonlyArray<Entry>) {
-	return html`${entries.map(entry => html`<mitra-entry-link .entry=${entry}></mitra-entry-link>`)}`
-}
-
 /** A place with its map; a location that is a link, as the link it is. */
 function location(value: string) {
 	const link = MarkdownLinks.sole(value)
@@ -77,8 +71,8 @@ function reminders(entry: Entry) {
 }
 
 function status(entry: Entry) {
-	const { partlyDone, progress } = entry.hierarchy
-	return text(`${entry.effectiveStatus.format()}${!partlyDone ? '' : ` · ${Math.round(progress! * 100).formatAsPercent()}`}`)
+	const { partlyDone, effectiveProgress } = entry
+	return text(`${entry.effectiveStatus.format()}${!partlyDone ? '' : ` · ${Math.round(effectiveProgress! * 100).formatAsPercent()}`}`)
 }
 
 /** A table makes them once: the grid controller syncs its definitions again for every new array. */
@@ -103,8 +97,6 @@ export const tableColumns = (): Array<DataGridColumn<TableRow>> => [
 	column('repeats', t('Repeats'), { hidden: true }),
 	column('participants', t('Participants'), { getContentTemplate: (_, row) => participants(row.entry) }),
 	column('reminders', t('Reminders'), { hidden: true, getContentTemplate: (_, row) => reminders(row.entry) }),
-	column('subtaskOf', t('Subtask of'), { getContentTemplate: (_, row) => links(row.entry.hierarchy.parents) }),
-	column('blockedBy', t('Blocked by'), { getContentTemplate: (_, row) => links(row.entry.hierarchy.predecessors) }),
 	column('description', t('Description'), { hidden: true }),
 ]
 
