@@ -7,10 +7,11 @@
   - Nest every rule along the DOM; state is a boolean data attribute nested under its element (`.child { &[data-state] {} }`), never fought with `:host([attr])`.
   - Domain class names (`.header`, `.time`), never structural (`wrapper`, `btn`); flat templates.
   - Logical properties only; no `box-shadow` for one-sided borders (use pseudo-elements).
-  - Every radius is a multiple of `--border-radius` (`calc(var(--border-radius) * 1.5)` a field, `* 2` a card, `* 3.5` a dialog), so a custom stylesheet's one value reshapes all of Mitra; only pills and marks of a few pixels keep their shape.
+  - Every radius is a multiple of `--border-radius` (`calc(var(--border-radius) * 1.5)` a field, `* 2` a card, `* 3.5` a dialog); only pills and marks of a few pixels keep their shape.
   - `rem` for layout; `px` only for 1px borders and container query thresholds. Container queries, not media queries.
   - No fallbacks in `var(--theme-var)`. Grid/Flexbox over JS math.
   - `all: unset` overrides `[hidden]`: restate `&[hidden] { display: none }`.
+  - Mitra's document styles are one cascade layer, `Mitra.styles` = `@layer mitra { Mitra.rules }`; nothing adds unlayered document styles. A dialog's shadow root wears `Mitra.rules` unlayered.
 - **Dates**:
   - Frontend: `@3mo/date-time`'s global `DateTime` for formatting and view math (`.equals()`, `.dayStart`, `.format()`), no raw `valueOf()` math. Shared and backend: Temporal (polyfilled by `scripts/injectTemporalPolyfill.ts`).
   - Days and instants meet on `TimeZone`: `zone.dayOf(instant)` is the day it falls on there, `zone.midnightOf(day)` the instant that day begins, `zone.shift(instant, from, to)` moves an instant by a wall-clock distance (`TimeZone.UTC`, `TimeZone.device`, and `TimeZone.default` where none is known, as on the server, where `TimeZone.local` is none).
@@ -187,12 +188,6 @@
 - Storage: `userStorage` (`User.settings`), `instanceStorage` (`InstanceSettings`, everyone's: one `State` row the browser reads in `session.instance`, written only by an administrator through `SaveInstanceSettings`, its settings on the Administration page and only where people sign in) or `deviceStorage`; only deviations are stored (`undefined` removes, `null` is an explicit none). `UserSettings` and `InstanceSettings` sanitize without importing settings.
 - Each setting is a card (a field's tint and hairline, `SettingRow`) beside an unfilled rail. `details` renders below a hairline in the same card; a `ul` there lays items on the card's own columns (glyph, `.text` with `.label`/`.hint`, `.end` with a `.chip` and an options `mitra-menu`), so a list needs no layout of its own. A list with an action is a setting of its own, the action its control (`DevicesSetting`, `AccessTokensSetting`); something made and shown once is a dialog pair, never a popover or an inline row. Relative times tick through `ClockController`.
 - Scroll containers need inline padding, or they clip focus rings. Settings add palette verbs (`settingCommands()`). The dialog is searchable, two-pane, opened from the sidebar, the palette or Ctrl+, (`PageCalendar.openSettings()`).
-
-## Custom CSS (`features/customization/`)
-- Mitra's document styles are one cascade layer, `Mitra.styles` = `@layer mitra { Mitra.rules }`; nothing adds unlayered document styles. A dialog's shadow root wears `Mitra.rules` unlayered.
-- Two stylesheets ride over it unlayered, so they win whatever their selector, each a `CustomCss` worn as an adopted sheet before the router renders, never a `<style>`: the instance's (`InstanceCssSetting`, `InstanceSettings.customCss`) and after it the account's (`CustomCssSetting`, `UserSettings.customCss`). Both are a `Stylesheet` (64 KB, `@import` stripped), off stored as `customCssEnabled: false`. `?css=off` wears neither for one load.
-- Nothing is promised stable before 1.0, but what a stylesheet targets reads as a domain fact: `data-outside` marks a month view's neighbouring days. The screenshot scene types the stylesheet `docs/custom-css.md` pictures (the accent in the logo's gold) and fails when it is not worn.
-- To lift a declaration of Mitra's, `revert`, never `revert-layer`: written unlayered, it falls back to Mitra's own value.
 
 ## Recurrence & Routines
 - A recurring entry holds an RRULE (`Recurrence` value object, one `recurrence` column holding its RRULE through its own `Mapper`, and the same RRULE text on the wire both ways through `Recurrence.converter`) and expands on read from its own fields, never its stored .ics (the sync reads EXDATEs into `exdates`). An override (`RECURRENCE-ID`) is a row of its own (`recurringEntryId`, `recurrenceId`), read with its recurring entry as `entry.overrides`, never stored on it.

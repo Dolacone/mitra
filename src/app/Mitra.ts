@@ -52,8 +52,6 @@ import { RoutineDetails } from '#features/routines/client/RoutineDetails.js'
 import { DialogDissolveRoutine } from '#features/routines/client/DialogDissolveRoutine.js'
 import { RoutineField } from '#features/routines/client/RoutineField.js'
 import { ScrollDeviceController } from '#features/calendar/client/ScrollDeviceController.js'
-import { CustomCss } from '#features/customization/client/CustomCss.js'
-import { CustomCssEditor } from '#features/customization/client/CustomCssEditor.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
 import { session } from '#infrastructure/http/PageSession.js'
 import { LocalePreview } from '#infrastructure/i18n/LocalePreview.js'
@@ -90,8 +88,6 @@ export class Mitra extends Application {
 	protected override async initialized() {
 		Mitra.trackFocusModality()
 		await Promise.all([Calendars.fetch(), session.fetchUser(), session.fetchInstance()])
-		// Before the router renders the calendar, so the account's stylesheet is worn from its first paint.
-		CustomCss.wearStored()
 		// After the integrations, so a linked language switches the sample calendar too.
 		LocaleSetting.followAccount()
 		LocaleSetting.rememberLinkedLanguage()
@@ -220,7 +216,6 @@ export class Mitra extends Application {
 			${DialogKeyboardShortcuts.styles}
 			${DialogSettings.styles}
 			${SettingRow.styles}
-			${CustomCssEditor.styles}
 			${NotificationDevices.styles}
 			${DialogNewAccessToken.styles}
 			${DialogAccessToken.styles}

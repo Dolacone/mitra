@@ -13,14 +13,12 @@ describe('SaveInstanceSettings', () => {
 
 	it('refuses a member, keeping what holds for everyone', async () => {
 		await administering(false)
-		await assert.rejects(() => SaveInstanceSettings.call({ settings: { customCss: ':root { --color-accent: teal; }' } }))
+		await assert.rejects(() => SaveInstanceSettings.call({ settings: {} }))
 		assert.equal((await GetMeta.call()).settings, undefined)
 	})
 
-	it('keeps an administrator\'s stylesheet for everyone, without its imports, and answers it with the instance', async () => {
+	it('keeps only what a setting knows for an administrator', async () => {
 		await administering(true)
-		const settings = { customCss: '@import "x.css";\n:root { --color-accent: teal; }', customCssEnabled: false, unknown: 'dropped' }
-		assert.deepEqual({ ...await SaveInstanceSettings.call({ settings }) }, { customCss: '\n:root { --color-accent: teal; }', customCssEnabled: false })
-		assert.deepEqual({ ...(await GetMeta.call()).settings }, { customCss: '\n:root { --color-accent: teal; }', customCssEnabled: false })
+		assert.deepEqual({ ...await SaveInstanceSettings.call({ settings: { unknown: 'dropped' } }) }, {})
 	})
 })
