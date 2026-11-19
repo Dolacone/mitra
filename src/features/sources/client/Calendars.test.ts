@@ -2,7 +2,6 @@ import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { EntryType } from '#features/entries'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
-import { IcsSubscription } from '#integrations/ics/IcsSubscription.js'
 import { Calendars } from './Calendars.js'
 import { Source } from '../Source.js'
 
@@ -11,12 +10,12 @@ const source = (id: string, init: Partial<Source> = {}) =>
 
 describe('Calendars', () => {
 	let local: MitraCalendar
-	let feed: IcsSubscription
+	let feed: MitraCalendar
 
 	beforeEach(() => {
 		local = new MitraCalendar({ id: 'local', order: 1, uri: 'mitra://local' })
 		local.sources = [source('work', { integrationId: 'local', order: 2 }), source('home', { integrationId: 'local', order: 1 }), source('archive', { integrationId: 'local', enabled: false, order: 3 }), source('hidden', { integrationId: 'local', hidden: true, order: 4 })] as never
-		feed = new IcsSubscription({ id: 'feed', order: 0, uri: 'https://example.com/holidays.ics' })
+		feed = new MitraCalendar({ id: 'feed', order: 0, uri: 'mitra://feed' })
 		feed.sources = [source('holidays', { integrationId: 'feed', readOnly: true, entryTypes: [EntryType.Event] })] as never
 		Calendars.adopt([local, feed])
 	})

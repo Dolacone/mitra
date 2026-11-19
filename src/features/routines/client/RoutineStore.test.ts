@@ -6,7 +6,6 @@ import { EntryStore } from '#features/entries/client/EntryStore.js'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { Source } from '#features/sources'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
-import { IcsSubscription } from '#integrations/ics/IcsSubscription.js'
 import { GoogleCalendar } from '#integrations/google/GoogleCalendar.js'
 import { Routine } from '../Routine.js'
 import { RoutineCadence } from '../RoutineCadence.js'
@@ -57,7 +56,7 @@ describe('RoutineStore', () => {
 	it('offers the tick and Cancelled only where the calendar lets them be written', () => {
 		Calendars.adopt([
 			home(),
-			new IcsSubscription({ id: 'feed', sources: [new Source({ integrationId: 'feed', id: 'feed-source', uri: 'https://example.com/feed.ics', name: 'Feed', enabled: true, hidden: false })] }),
+			new MitraCalendar({ id: 'feed', sources: [new Source({ integrationId: 'feed', id: 'feed-source', uri: 'mitra://feed/feed', name: 'Feed', enabled: true, hidden: false, readOnly: true })] }),
 			new GoogleCalendar({ id: 'google', sources: [new Source({ integrationId: 'google', id: 'google-source', uri: 'https://apidata.googleusercontent.com/caldav/v2/someone/events/', name: 'Google', enabled: true, hidden: false })] }),
 		])
 		const of = (sourceId: string, type: EntryType) => adopt(routine(`${sourceId}-${type}`, { sourceId, type }))[0]!

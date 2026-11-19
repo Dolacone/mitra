@@ -14,7 +14,6 @@ import { synchronizer } from '#integrations/server/Synchronizer.js'
 import { eventsRouter } from '#infrastructure/realtime/events.js'
 import { staleTabs } from '#features/entries/server/staleTabs.js'
 import { googleConnectRouter } from '#integrations/google/server/googleConnect.js'
-import { notionRouter } from '#integrations/notion/server/notion.js'
 import { operationsRouter } from '#infrastructure/operations/server/operationsRouter.js'
 import { mcpRouter } from '#features/agents/server/mcp.js'
 import './operations.js'
@@ -87,7 +86,6 @@ app.use(authentication.middleware)
 app.use('/api/events', eventsRouter)
 app.use('/api/entries', staleTabs)
 app.use('/api/integrations/google', googleConnectRouter)
-app.use('/api/notion', notionRouter)
 // A calendar file arrives as itself, which `ImportIcs` and `PreviewIcsImport` read as the body.
 app.use('/api/sources', express.text({ type: 'text/calendar', limit: '25mb' }))
 app.use('/api/mcp', mcpRouter)

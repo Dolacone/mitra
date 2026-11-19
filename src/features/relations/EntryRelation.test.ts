@@ -9,7 +9,6 @@ import { Session } from '#features/identity/server/Session.js'
 import { Integration } from '#integrations'
 import { GoogleCalendar } from '#integrations/google/GoogleCalendar.js'
 import { CalDAV } from '#integrations/caldav/CalDAV.js'
-import { AppleCalendar } from '#integrations/apple/AppleCalendar.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { children } from '#infrastructure/model'
 import { RelationType } from './RelationType.js'
@@ -20,7 +19,7 @@ import { EntryRelation } from './EntryRelation.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, CalDAV, GoogleCalendar, AppleCalendar, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session],
+		entities: [User, Identity, Integration, CalDAV, GoogleCalendar, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session],
 		dbName: ':memory:',
 		forceUndefined: true,
 		namingStrategy: class extends UnderscoreNamingStrategy {

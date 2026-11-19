@@ -2,7 +2,7 @@ import { Marked, type Tokens } from 'marked'
 
 /**
  * The app's Markdown dialect: GFM, plus bare `scheme://` addresses of apps (`obsidian://…`), which GFM leaves
- * as text. Never the global `marked`: the Notion serializer lexes with that one.
+ * as text. Never the global `marked`.
  */
 export class MarkdownLinks {
 	/** Schemes that run code or reach into the device are never links. */

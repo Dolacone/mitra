@@ -15,8 +15,6 @@ import { NotificationSubscription } from '#features/reminders/NotificationSubscr
 import { Integration, registerEngine, type SourceSyncEngine } from '#integrations'
 import { CalDAV } from '#integrations/caldav/CalDAV.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
-import { Notion } from '#integrations/notion/Notion.js'
-import { Tempo } from '#integrations/tempo/Tempo.js'
 import { Availability } from './client/Availability.js'
 
 /** A one-off entry as the views get it. */
@@ -41,9 +39,6 @@ describe('the availability type', () => {
 		const source = new Source({ entryTypes: EntryTypes.of(EntryType.Event) })
 		assert.equal(new CalDAV().canHold(source, EntryType.Availability), true)
 		assert.equal(new MitraCalendar().canHold(source, EntryType.Availability), true)
-		assert.equal(new Notion().canHold(source, EntryType.Availability), false)
-		assert.equal(new Tempo().canHold(source, EntryType.Availability), false)
-		assert.equal(new Notion().canHold(source, EntryType.Event), true)
 	})
 
 	it('shows as free unless marked busy, where an event defaults to busy', () => {

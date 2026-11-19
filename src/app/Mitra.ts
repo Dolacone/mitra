@@ -65,13 +65,12 @@ import { hierarchy } from '#features/relations/client/Hierarchy.js'
 import { CustomCss } from '#features/customization/client/CustomCss.js'
 import { CustomCssEditor } from '#features/customization/client/CustomCssEditor.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
-import { IcsSubscription } from '#integrations/ics/IcsSubscription.js'
 import { session } from '#infrastructure/http/PageSession.js'
 import { LocalePreview } from '#infrastructure/i18n/LocalePreview.js'
 import { LocaleSetting } from '#infrastructure/i18n/LocaleSetting.js'
 import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 import { Sidebar } from './Sidebar.js'
-import { claimFileDrops, consumeSubscribeParameter, observeLaunches } from './launch.js'
+import { claimFileDrops } from './launch.js'
 import { syncThemeColor } from './pwa.js'
 
 EntryStore.resolveScope = (entry, intent) => hierarchy.resolveRecurrenceScope(entry, intent)
@@ -102,7 +101,6 @@ export class Mitra extends Application {
 	protected override async initialized() {
 		Mitra.trackFocusModality()
 		const pendingIntegrationId = Mitra.consumePendingIntegrationParameter()
-		const subscribeUrl = consumeSubscribeParameter()
 		await Promise.all([Calendars.fetch(), session.fetchUser(), session.fetchInstance()])
 		// Before the router renders the calendar, so the account's stylesheet is worn from its first paint.
 		CustomCss.wearStored()
@@ -122,28 +120,14 @@ export class Mitra extends Application {
 			DialogAbout.markSeen()
 		}
 		await super.initialized()
-		// Warm OS launches (focus-existing) arrive here even while another dialog is up.
-		observeLaunches({
-			subscribe: url => void Mitra.subscribe(url),
-		})
 		claimFileDrops()
 		if (pendingIntegrationId) {
 			await new DialogIntegration({ id: pendingIntegrationId, preselectSources: true }).confirm()
-		} else if (subscribeUrl) {
-			await Mitra.subscribe(subscribeUrl)
 		} else if (!Calendars.integrations.length) {
 			if (await new DialogWelcome().confirm()) {
 				await new DialogIntegration({}).confirm()
 			}
 		}
-	}
-
-	private static async subscribe(url: string) {
-		const normalized = IcsSubscription.normalizeUrl(url)
-		if (!normalized) {
-			return
-		}
-		await new DialogIntegration({ prefill: new IcsSubscription({ uri: normalized }) }).confirm()
 	}
 
 	protected override get documentTitle() {

@@ -22,13 +22,13 @@ export interface SyncEngine {
 	publishAvailability?(integration: Integration, em: EntityManager, entries: ReadonlyArray<Entry>, of?: ReadonlyArray<Entry>): Promise<boolean>
 }
 
-/** An engine whose provider tells its changes per calendar (a CalDAV sync token, a Notion watermark), read one calendar at a time. */
+/** An engine whose provider tells its changes per calendar (a CalDAV sync token), read one calendar at a time. */
 export interface SourceSyncEngine extends SyncEngine {
 	/** @returns whether any entry of the calendar changed. */
 	syncSourceEntries(integration: Integration, em: EntityManager, source: Source): Promise<boolean>
 }
 
-/** An engine whose provider tells its changes per account (Todoist's sync token), read for every enabled calendar at once. */
+/** An engine whose provider tells its changes per account (an account-wide sync token), read for every enabled calendar at once. */
 export interface AccountSyncEngine extends SyncEngine {
 	/** @returns whether any entry changed. */
 	syncAccountEntries(integration: Integration, em: EntityManager, sources: ReadonlyArray<Source>): Promise<boolean>
@@ -133,7 +133,7 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 	/** False when connecting finds nothing, so the first source is created instead. */
 	static readonly discoversSources: boolean = true
 
-	/** Its page of the documentation (`integrations/apple`), which the dialog connecting it links. */
+	/** Its page of the documentation (`integrations/mitra`), which the dialog connecting it links. */
 	static readonly docs: string | undefined = undefined
 
 	/** Returns effective capabilities for a specific source, masking write capabilities if read-only. */
@@ -182,14 +182,14 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 
 	/**
 	 * The account's remote sources as transient entities; callers use {@link getSources}, which reconciles them.
-	 * A subclass with no engine (Notion, Mitra) overrides this.
+	 * A subclass with no engine (Mitra) overrides this.
 	 */
 	protected fetchSources(existing?: ReadonlyArray<Source>): Promise<Array<Source>> {
 		return engineFor(this).fetchSources(this, existing)
 	}
 
 	/**
-	 * @returns whether any entry changed. A subclass with no engine (Notion, Mitra) overrides this. Reached only through
+	 * @returns whether any entry changed. A subclass with no engine (Mitra) overrides this. Reached only through
 	 * {@link syncSources}, which sends an account engine the other way.
 	 */
 	protected syncSourceEntries(em: EntityManager, source: Source): Promise<boolean> {

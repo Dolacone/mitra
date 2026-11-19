@@ -5,7 +5,7 @@ import { ReminderDefaults } from '#features/reminders/ReminderDefaults.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { Integration } from '#integrations'
 import { CalDAV } from '#integrations/caldav/CalDAV.js'
-import { IcsSubscription } from '#integrations/ics/IcsSubscription.js'
+import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { include } from '#infrastructure/model'
 import { revive, wireOf } from '#infrastructure/model/wire.testing.js'
 import { Source } from './Source.js'
@@ -115,15 +115,11 @@ describe('Source.readOnly narrows what may be written to one calendar', () => {
 		assert.equal(new CalDAV().capabilitiesFor(new Source({ uri: 'u', name: 'n', readOnly: undefined })).entries.edit, true)
 		assert.equal(new CalDAV().capabilitiesFor(undefined).entries.edit, true)
 	})
-
-	it('cannot promote a provider that already refuses writes', () => {
-		assert.equal(new IcsSubscription().capabilitiesFor(own).entries.edit, false)
-	})
 })
 
 describe('the integration of a source', () => {
-	const feed = new IcsSubscription({ id: 'feed', uri: 'https://example.com/holidays.ics' })
-	const holidays = () => new Source({ uri: 'https://example.com/holidays.ics', name: 'Holidays', integrationId: 'feed', entryTypes: [EntryType.Event] })
+	const feed = new MitraCalendar({ id: 'feed', uri: 'mitra://feed' })
+	const holidays = () => new Source({ uri: 'mitra://feed/holidays', name: 'Holidays', integrationId: 'feed', entryTypes: [EntryType.Event], readOnly: true })
 
 	it('is found by its id where the browser keeps integrations, and answers for the source', () => {
 		include.from(Integration, id => id === feed.id ? feed : undefined)

@@ -6,30 +6,19 @@ import { pressable } from '#design'
 import { docsPage } from '#features/about/client/website.js'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { integrationClasses, type Integration, type IntegrationClass } from '#integrations'
-import { Notion } from '#integrations/registerIntegrations.js'
 import mitraLogo from '#integrations/mitra/logo.svg'
 import caldavLogo from '#integrations/caldav/logo.svg'
 import googleLogo from '#integrations/google/logo.svg'
-import appleLogo from '#integrations/apple/logo.svg'
-import icsLogo from '#integrations/ics/logo.svg'
-import notionLogo from '#integrations/notion/logo.svg'
-import tempoLogo from '#integrations/tempo/logo.svg'
-import todoistLogo from '#integrations/todoist/logo.svg'
 import { connectGoogle } from '#infrastructure/http/Api.js'
 
 const logos: Record<string, string> = {
 	mitra: mitraLogo,
 	caldav: caldavLogo,
 	google: googleLogo,
-	apple: appleLogo,
-	ics: icsLogo,
-	notion: notionLogo,
-	todoist: todoistLogo,
-	tempo: tempoLogo,
 }
 
 @component('mitra-dialog-integration')
-export class DialogIntegration extends DialogComponent<{ readonly id?: string, readonly preselectSources?: boolean, readonly prefill?: Integration }, Integration> {
+export class DialogIntegration extends DialogComponent<{ readonly id?: string, readonly preselectSources?: boolean }, Integration> {
 	@state() private entity?: Integration
 	@state() private discovering = false
 	@state() private discoveryError?: string
@@ -72,13 +61,8 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 				return
 			}
 			if (!this.isEdit) {
-				const seenDataSources = new Set<string>()
 				for (const source of sources) {
-					const dataSourceId = source.uri?.startsWith(Notion.uriPrefix) ? Notion.idsOf(source).dataSourceId : undefined
-					source.enabled = !dataSourceId || !seenDataSources.has(dataSourceId)
-					if (dataSourceId) {
-						seenDataSources.add(dataSourceId)
-					}
+					source.enabled = true
 				}
 			}
 			entity.sources = sources
@@ -95,10 +79,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 
 	protected override connected() {
 		if (!this.isEdit) {
-			// A prefilled entity (e.g. a webcal: launch) opens straight on the provider panel for review.
-			if (this.parameters.prefill) {
-				this.entity = this.parameters.prefill
-			}
 			GetGoogleSetup.call()
 				.then(availability => this.googleAvailability = availability)
 				.catch((error: Error) => this.googleAvailability = { error: error.message })
@@ -319,11 +299,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 		switch (this.entity!.type) {
 			case 'mitra': return this.mitraTemplate
 			case 'google': return this.googleTemplate
-			case 'apple': return this.appleTemplate
-			case 'ics': return this.icsTemplate
-			case 'notion': return this.notionTemplate
-			case 'todoist': return this.todoistTemplate
-			case 'tempo': return this.tempoTemplate
 			default: return this.caldavTemplate
 		}
 	}
@@ -336,28 +311,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get mitraTemplate() {
 		return this.isEdit ? html.nothing : html`
 			<mitra-text-field label=${t('Calendar name')} placeholder=${t('Calendar')} ${bind(this, 'calendarName', { event: 'input' })}></mitra-text-field>
-		`
-	}
-
-	private get appleTemplate() {
-		const { bind } = this.binder
-		return html`
-			<mitra-text-field label=${t('Apple ID')} ${bind({ keyPath: 'credentials.username' })} ?readonly=${this.isEdit} placeholder="email@icloud.com"></mitra-text-field>
-			<mitra-text-field label=${t('App-Specific Password')} type="password" ${bind({ keyPath: 'credentials.password' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			${this.connectTemplate}
-		`
-	}
-
-	private get icsTemplate() {
-		const { bind } = this.binder
-		return html`
-			${!this.isEdit ? html`<p class="hint">${t('Ics.UrlHint')}</p>` : html`
-				<mitra-text-field label=${t('Calendar')} readonly .value=${this.entity!.credentials.username ?? ''}></mitra-text-field>
-			`}
-			<mitra-text-field label=${t('Calendar URL')} ${bind({ keyPath: 'uri' })} ?readonly=${this.isEdit} placeholder="https://example.com/calendar.ics"></mitra-text-field>
-			<mitra-text-field label=${t('Username (optional)')} ${bind({ keyPath: 'credentials.authUsername' })}></mitra-text-field>
-			<mitra-text-field label=${t('Password (optional)')} type="password" ${bind({ keyPath: 'credentials.password' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			${this.connectTemplate}
 		`
 	}
 
@@ -399,48 +352,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 				${t('Google.SharedCalendarsHint')}
 				<a href="https://calendar.google.com/calendar/syncselect" target="_blank" rel="noopener noreferrer">calendar.google.com/calendar/syncselect</a>
 			</p>
-		`
-	}
-
-	private get notionTemplate() {
-		const { bind } = this.binder
-		return html`
-			${this.isEdit ? html`
-				<mitra-text-field label=${t('Workspace')} readonly .value=${this.entity!.credentials.username ?? ''}></mitra-text-field>
-			` : html`
-				<p class="hint">${t('Notion.TokenHint')}</p>
-			`}
-			<mitra-text-field label=${t('Integration Token')} type="password" ${bind({ keyPath: 'credentials.token' })} placeholder=${this.isEdit ? t('unchanged') : 'ntn_…'}></mitra-text-field>
-			${this.connectTemplate}
-		`
-	}
-
-	private get todoistTemplate() {
-		const { bind } = this.binder
-		return html`
-			${this.isEdit ? html`
-				<mitra-text-field label=${t('Todoist account')} readonly .value=${this.entity!.credentials.username ?? ''}></mitra-text-field>
-			` : html`
-				<p class="hint">${t('Todoist.TokenHint')}</p>
-			`}
-			<mitra-text-field label=${t('Todoist API Token')} type="password" ${bind({ keyPath: 'credentials.token' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			${this.connectTemplate}
-		`
-	}
-
-	private get tempoTemplate() {
-		const { bind } = this.binder
-		return html`
-			${this.isEdit ? html`
-				<mitra-text-field label=${t('Atlassian Account')} readonly .value=${this.entity!.credentials.username ?? ''}></mitra-text-field>
-			` : html`
-				<p class="hint">${t('Tempo.TokenHint')}</p>
-			`}
-			<mitra-text-field label=${t('Site URL')} ${bind({ keyPath: 'credentials.site' })} ?readonly=${this.isEdit} placeholder="https://example.atlassian.net"></mitra-text-field>
-			<mitra-text-field label=${t('Tempo API Token')} type="password" ${bind({ keyPath: 'credentials.token' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			<mitra-text-field label=${t('Atlassian Account E-mail')} ${bind({ keyPath: 'credentials.jiraEmail' })} placeholder="email@example.com"></mitra-text-field>
-			<mitra-text-field label=${t('Atlassian API Token')} type="password" ${bind({ keyPath: 'credentials.jiraToken' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			${this.connectTemplate}
 		`
 	}
 

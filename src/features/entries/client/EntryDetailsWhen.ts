@@ -407,7 +407,7 @@ export class EntryDetailsWhen extends Component {
 	}
 
 	/** The end, which a task may go without: then it is a moment, and its row only offers one. */
-	/** Where the calendar holds no length (a free Todoist account), a timed entry is a moment and an all-day one a single day. */
+	/** Where the calendar holds no length, a timed entry is a moment and an all-day one a single day. */
 	private get endTemplate() {
 		const { entry } = this
 		if (!entry.holds('end')) {
