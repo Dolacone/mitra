@@ -1,7 +1,7 @@
 import { css } from '@a11d/lit'
 import { contrastColorOf } from './contrastColor.js'
 
-/** The palette every surface derives from. The website emits this block verbatim, so it holds no app behaviour. */
+/** The palette every surface derives from. It holds no app behaviour. */
 export const themeStyles = css`
 	:root {
 		color-scheme: light dark;

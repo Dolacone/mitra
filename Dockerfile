@@ -28,8 +28,6 @@ COPY tsconfig.json ./
 COPY assets ./assets
 COPY scripts ./scripts
 COPY src ./src
-# The website's address, which the app's documentation links are built from.
-COPY website/site.mjs ./website/site.mjs
 RUN npm run build
 
 # Strip dev dependencies. This leaves the runtime externals (better-sqlite3, tsdav, …).

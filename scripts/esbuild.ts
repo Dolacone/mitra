@@ -38,7 +38,6 @@ export const define = defineFor('server')
 
 export const inject = ['scripts/injectTemporalPolyfill.ts']
 
-// The app imports `website/site.mjs`, whose own tsconfig extends Astro's, which only the website's dependencies provide.
 export const tsconfig = 'tsconfig.json'
 
 /**

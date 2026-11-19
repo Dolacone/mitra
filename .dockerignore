@@ -15,10 +15,7 @@ data
 .github
 .vscode
 .idea
-website
 *.md
-# …except the site's address, which the app's documentation links are built from (website/site.mjs states it once).
-!website/site.mjs
 
 # Misc
 .DS_Store
