@@ -120,6 +120,8 @@ export class TickTick extends Integration<TickTickCredentials> {
 
 	override get syncInterval() { return 60_000 }
 
+	override get momentMinutes() { return 30 }
+
 	override merge(incoming: this) {
 		this.credentials = {
 			token: incoming.credentials?.token || this.credentials.token,

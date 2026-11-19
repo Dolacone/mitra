@@ -109,6 +109,9 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 	/** Minimum time between background sync polls in ms (0 = every cycle, Infinity = local only). */
 	get syncInterval() { return 0 }
 
+	/** Minutes a moment in its calendars spans on the time grid; none spans one snap step. */
+	get momentMinutes(): number | undefined { return undefined }
+
 	get capabilities() {
 		return new IntegrationCapabilities()
 	}

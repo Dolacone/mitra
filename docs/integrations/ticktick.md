@@ -22,7 +22,7 @@ You add the integration once. To show more lists later, edit the integration and
 Every open task of a ticked list comes in, the tasks completed in the last 90 days, and the won't-do tasks dated from then on. A task's dates become its schedule:
 
 - A task on a day, without a time, is an all-day task on that day.
-- A task at a time is a moment at that time.
+- A task at a time is a moment at that time, drawn 30 minutes long in the week view.
 - A task without a date waits under **Unscheduled** in [Planning](../planning.md).
 
 Its title, its text, its repeat and its status come along too. A checklist task's items become a checklist in its description, which you can tick in Mitra. A task is **To Do**, **Done** or **Cancelled**: TickTick's open, completed and won't-do.

@@ -40,7 +40,7 @@ export class EntrySegment {
 			const { end } = this.occurrence
 			const { length } = this.hours
 			const line = end ? Math.min(this.minuteOf(end), length) + 1 : undefined
-			this._endMinute = line !== undefined && line > this.startMinute ? line : Math.min(this.startMinute + SnapSetting.current, length + 1)
+			this._endMinute = line !== undefined && line > this.startMinute ? line : Math.min(this.startMinute + (this.entry.source?.integration.momentMinutes ?? SnapSetting.current), length + 1)
 		}
 		return this._endMinute
 	}

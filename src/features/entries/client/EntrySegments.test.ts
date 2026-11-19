@@ -1,6 +1,8 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
+import { Source } from '#features/sources'
+import { TickTick } from '#integrations/ticktick/TickTick.js'
 import { Entry } from '../Entry.js'
 import { EntrySegments } from './EntrySegments.js'
 import { DayHours } from './DayHours.js'
@@ -48,6 +50,12 @@ describe('EntrySegments', () => {
 			assert.equal(segment!.startMinute, 20 * 60 + 1)
 			assert.ok(segment!.endMinute > segment!.startMinute, 'end must fall below start, never invert')
 			assert.equal(segment!.endMinute, 20 * 60 + 1 + 15)
+		})
+
+		it('spans a moment as long as its calendar says a moment lasts, as TickTick keeps one time per task', () => {
+			const source = new Source({ integration: new TickTick() })
+			const [segment] = EntrySegments.for(new Entry({ start: base.add({ hours: 20 }), source }).occurrences.single)
+			assert.equal(segment!.endMinute, 20 * 60 + 1 + 30)
 		})
 
 		it('clamps the minimum slab to the grid bottom for a near-midnight start', () => {
