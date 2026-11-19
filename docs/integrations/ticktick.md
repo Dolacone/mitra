@@ -19,7 +19,7 @@ You add the integration once. To show more lists later, edit the integration and
 
 ## What comes into Mitra
 
-Every open task of a ticked list comes in, and the tasks completed in the last 90 days. A task's dates become its schedule:
+Every open task of a ticked list comes in, the tasks completed in the last 90 days, and the won't-do tasks dated from then on. A task's dates become its schedule:
 
 - A task on a day, without a time, is an all-day task on that day.
 - A task at a time is a moment at that time.

@@ -1,5 +1,5 @@
 import { createLogger } from '#infrastructure/logging/Logger.js'
-import { type TickTickProject, type TickTickTask, type TickTickTaskWrite } from '../TickTick.js'
+import { TickTick, type TickTickProject, type TickTickTask, type TickTickTaskWrite } from '../TickTick.js'
 
 const logger = createLogger('TickTick')
 
@@ -18,8 +18,8 @@ export interface TickTickProjectData {
 /** TickTick's Open API with a personal API token. */
 export class TickTickClient {
 	static readonly baseUrl = 'https://api.ticktick.com/open/v1/'
-	/** The most `task/completed` answers at once. */
-	static readonly completedLimit = 200
+	/** The most `task/completed` and `task/filter` answer at once. */
+	static readonly answerLimit = 200
 	private static readonly maxRetryAfterSeconds = 30
 
 	constructor(
@@ -43,15 +43,27 @@ export class TickTickClient {
 		return this.request<TickTickTask>('GET', `project/${encodeURIComponent(projectId)}/task/${encodeURIComponent(taskId)}`)
 	}
 
-	/** Tasks of `projectId` completed in `[since, until]`, the window halved until each part answers under the limit. */
-	async completedTasks(projectId: string, since: Date, until: Date): Promise<Array<TickTickTask>> {
-		const tasks = await this.request<Array<TickTickTask>>('POST', 'task/completed', { projectIds: [projectId], startDate: TickTickClient.formatOf(since), endDate: TickTickClient.formatOf(until) })
+	/** Tasks of `projectId` completed in `[since, until]`. */
+	completedTasks(projectId: string, since: Date, until: Date) {
+		return TickTickClient.windowed(since, until, (from, to) =>
+			this.request<Array<TickTickTask>>('POST', 'task/completed', { projectIds: [projectId], startDate: TickTickClient.formatOf(from), endDate: TickTickClient.formatOf(to) }))
+	}
+
+	/** Abandoned tasks of `projectId` starting in `[since, until]`; the other reads leave them out, and an undated one is in no window. */
+	abandonedTasks(projectId: string, since: Date, until: Date) {
+		return TickTickClient.windowed(since, until, (from, to) =>
+			this.request<Array<TickTickTask>>('POST', 'task/filter', { projectIds: [projectId], status: [TickTick.status.abandoned], startDate: TickTickClient.formatOf(from), endDate: TickTickClient.formatOf(to) }))
+	}
+
+	/** What `read` answers for `[since, until]`, the window halved until each part answers under the limit, each task once. */
+	private static async windowed(since: Date, until: Date, read: (since: Date, until: Date) => Promise<Array<TickTickTask> | undefined>): Promise<Array<TickTickTask>> {
+		const tasks = await read(since, until) ?? []
 		const span = until.getTime() - since.getTime()
-		if ((tasks ?? []).length < TickTickClient.completedLimit || span <= 60_000) {
-			return tasks ?? []
+		if (tasks.length < TickTickClient.answerLimit || span <= 60_000) {
+			return tasks
 		}
 		const middle = new Date(since.getTime() + Math.floor(span / 2))
-		const halves = [...await this.completedTasks(projectId, since, middle), ...await this.completedTasks(projectId, new Date(middle.getTime() + 1000), until)]
+		const halves = [...await TickTickClient.windowed(since, middle, read), ...await TickTickClient.windowed(new Date(middle.getTime() + 1000), until, read)]
 		return [...new Map(halves.map(task => [task.id, task])).values()]
 	}
 

@@ -15,11 +15,13 @@ interface TickTickSyncState {
 }
 
 /**
- * Every pass reads each enabled list whole: its undone tasks, and those completed in the last {@link completedWindow}.
- * A task in neither leaves Mitra; a row whose version did not change is left as it is.
+ * Every pass reads each enabled list whole: its undone tasks, those completed in the last {@link completedWindow}, and the
+ * abandoned ones starting from then up to {@link abandonedAhead}. A task in none leaves Mitra; a row whose version did not
+ * change is left as it is.
  */
 export class TickTickSyncEngine implements AccountSyncEngine {
 	static readonly completedWindow = { days: 90 }
+	static readonly abandonedAhead = { days: 3660 }
 
 	constructor(private readonly clientOf: (integration: TickTick) => TickTickClient = integration => new TickTickClient(integration.credentials.token)) { }
 
@@ -58,6 +60,7 @@ export class TickTickSyncEngine implements AccountSyncEngine {
 		const client = this.client(ticktick)
 		const until = Temporal.Now.instant()
 		const since = until.toZonedDateTimeISO('UTC').subtract(TickTickSyncEngine.completedWindow).toInstant()
+		const ahead = until.toZonedDateTimeISO('UTC').add(TickTickSyncEngine.abandonedAhead).toInstant()
 		const read = new Map<string, { task: TickTickTask, source: Source }>()
 		for (const source of sources) {
 			const data = await client.projectData(TickTick.projectIdOf(source))
@@ -67,8 +70,10 @@ export class TickTickSyncEngine implements AccountSyncEngine {
 					ticktick.syncState = { ...ticktick.syncState, inboxId } satisfies TickTickSyncState
 				}
 			}
-			const completed = await client.completedTasks(this.projectIdOf(ticktick, source), new Date(since.epochMilliseconds), new Date(until.epochMilliseconds))
-			for (const task of [...data?.tasks ?? [], ...completed]) {
+			const projectId = this.projectIdOf(ticktick, source)
+			const completed = await client.completedTasks(projectId, new Date(since.epochMilliseconds), new Date(until.epochMilliseconds))
+			const abandoned = await client.abandonedTasks(projectId, new Date(since.epochMilliseconds), new Date(ahead.epochMilliseconds))
+			for (const task of [...data?.tasks ?? [], ...completed, ...abandoned]) {
 				read.set(task.id, { task, source })
 			}
 		}

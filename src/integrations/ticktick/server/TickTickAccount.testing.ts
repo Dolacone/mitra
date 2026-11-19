@@ -62,6 +62,8 @@ export class TickTickAccount {
 		projects: () => this.refusal ? Promise.reject(this.refusal) : Promise.resolve(this.projects),
 		projectData: (projectId: string) => Promise.resolve({ tasks: this.in(projectId, TickTick.status.open) }),
 		completedTasks: (projectId: string) => Promise.resolve(this.in(projectId, TickTick.status.completed)),
+		// Like `task/filter`, which windows by start date: no undated abandoned task.
+		abandonedTasks: (projectId: string) => Promise.resolve(this.in(projectId, TickTick.status.abandoned).filter(task => task.startDate)),
 		task: (_projectId: string, id: string) => TickTickAccount.answer(() => structuredClone(this.found(id))),
 		createTask: (task: TickTickTaskWrite) => TickTickAccount.answer(() => {
 			this.written.push(task)

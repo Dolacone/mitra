@@ -54,6 +54,16 @@ describe('TickTickClient', () => {
 		assert.deepEqual(completed.map(task => task.id), tasks(249).map(task => task.id))
 	})
 
+	it('reads abandoned tasks through the filter by their start, as the other reads leave them out', async () => {
+		const { sent, client } = server(() => Response.json([{ id: 'gave-up', projectId: 'p1', status: -1 }]))
+		const abandoned = await client.abandonedTasks('p1', new Date('2026-01-01T00:00:00Z'), new Date('2036-01-01T00:00:00Z'))
+		assert.deepEqual(sent, [{
+			method: 'POST', url: 'https://api.ticktick.com/open/v1/task/filter', authorization: 'Bearer secret',
+			body: { projectIds: ['p1'], status: [-1], startDate: '2026-01-01T00:00:00+0000', endDate: '2036-01-01T00:00:00+0000' },
+		}])
+		assert.deepEqual(abandoned.map(task => task.id), ['gave-up'])
+	})
+
 	it('refuses with TickTick\'s status and answer, never what it sent', async () => {
 		const { client } = server(() => new Response('{"errorMessage":"unauthorized"}', { status: 401 }))
 		const refusal = await client.projects().catch((error: unknown) => error)

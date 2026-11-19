@@ -92,6 +92,25 @@ describe('TickTickSyncEngine', () => {
 		})
 	}))
 
+	it('keeps a cancelled task, read through the filter, and removes one gone from every read', () => connected(async context => {
+		const { account } = context
+		account.add(
+			task({ id: 'dropped', projectId: 'p1', status: -1, startDate: '2026-12-16T00:00:00+0800', dueDate: '2026-12-16T00:00:00+0800', isAllDay: true }),
+			task({ id: 'open', projectId: 'p1' }),
+		)
+		await synced(context)
+		assert.deepEqual(await context.rows(), {
+			dropped: ['Work', 'dropped', EntryStatus.Cancelled],
+			open: ['Work', 'open', EntryStatus.ToDo],
+		})
+
+		account.change('open', { status: -1, startDate: null, dueDate: null })
+		await synced(context)
+		assert.deepEqual(await context.rows(), {
+			dropped: ['Work', 'dropped', EntryStatus.Cancelled],
+		})
+	}))
+
 	describe('writing', () => {
 		const at = (iso: string) => new Date(iso) as never
 
