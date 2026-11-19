@@ -3,7 +3,7 @@ title: Attachments
 description: "Add files to an event or task. Mitra keeps them on your server and saves them with the entry, so other calendar apps see them too."
 ---
 
-An entry can carry **attachments**: files such as a ticket, a photo of a whiteboard or a recipe. Mitra keeps the file on your server and saves it with the entry in the standard calendar format, so other apps using the same calendar, such as Nextcloud or Apple Calendar, show the same file on the same event.
+An entry can carry **attachments**: files such as a ticket, a photo of a whiteboard or a recipe. Mitra keeps the file on your server with the entry.
 
 ## Add a file
 
@@ -35,11 +35,6 @@ A file that no entry uses any more is deleted about a day after it was added. Un
 
 ## Which calendars support this
 
-Calendars from a [CalDAV server](integrations/caldav.md) and [Apple Calendar](integrations/apple.md) hold attachments, and so do [Mitra calendars](integrations/mitra.md). In a [calendar subscription](integrations/subscriptions.md), you see the attachments the feed carries but can't change them.
+[Mitra calendars](integrations/mitra.md) hold attachments.
 
 A file can also appear in the description: the picture or link button on its row adds it at the end of the text, as a picture for images and a link for the rest. Removing the attachment removes that too.
-
-In a [Google calendar](integrations/google.md), the attachments are the Google Drive files attached in Google Calendar: Mitra shows them but can't add or remove any. [Notion](integrations/notion.md), [Todoist](integrations/todoist.md) and [Tempo](integrations/tempo.md) calendars have no attachments row. Moving an entry with attachments into any of these drops its files, and Mitra tells you before anything moves.
-
-> [!NOTE]
-> Attachments that other apps added show up in Mitra too, including files your calendar server stores itself, which open with that server's own address. Mitra leaves the attachments it doesn't recognize exactly as they are, so editing an entry in Mitra never changes another app's attachments.

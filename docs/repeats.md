@@ -64,9 +64,3 @@ Each occurrence of a repeating task is a task of its own to mark done. A task ca
 ## How repeats show
 
 Something that repeats often, like a daily workout, shows as a [routine](routines.md) in the month and year views: a line of small marks instead of a bar for each day. The [timeline](views/timeline.md) shows only the occurrences of a repeating task that are due, so a daily task doesn't fill it.
-
-## Which calendars can repeat
-
-[Calendars stored in Mitra](integrations/mitra.md) and [calendar servers](integrations/caldav.md), Google and Apple included, hold repeating entries. [Notion](integrations/notion.md), [Todoist](integrations/todoist.md) and [Tempo](integrations/tempo.md) calendars can't, so their editor has no **Repeat** row, and a series' editor doesn't offer them as its calendar. A task that repeats in Todoist shows at its next date: completing it moves it on to the date after, as Todoist does, and its rule stays Todoist's to change.
-
-[Availability](availability.md) is a repeating entry too, and starts out weekly. For the same reason, it can't live in Notion, Todoist or Tempo calendars.

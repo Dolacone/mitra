@@ -32,7 +32,6 @@ describe('Integrations and calendars over the wire', () => {
 
 	before(async () => {
 		const { orm } = await import('#infrastructure/database/orm.js')
-		await import('#integrations/server/registerEngines.js')
 		const { operationsRouter } = await import('#infrastructure/operations/server/operationsRouter.js')
 		await import('#app/operations.js')
 

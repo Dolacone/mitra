@@ -5,19 +5,19 @@ import { join } from 'node:path'
 import { Source } from '#features/sources'
 import { integrationClasses } from '#integrations'
 import '#integrations/registerIntegrations.js'
-import { CalDAV } from './caldav/CalDAV.js'
+import { MitraCalendar } from './mitra/MitraCalendar.js'
 
 describe('Integration', () => {
 	describe('clone', () => {
 		it('is the same provider class, keeping the identity and the credentials as held', () => {
-			const copy = new CalDAV({ uri: 'https://dav/', credentials: { username: 'u', password: '' }, sources: [] }).clone()
-			assert.ok(copy instanceof CalDAV)
+			const copy = new MitraCalendar({ uri: 'https://dav/', credentials: { username: 'u', password: '' }, sources: [] }).clone()
+			assert.ok(copy instanceof MitraCalendar)
 			assert.equal(copy.uri, 'https://dav/')
 			assert.deepEqual(copy.credentials, { username: 'u', password: '' })
 		})
 
 		it('holds nothing the listed one holds: editing its credentials and calendars changes nothing listed', () => {
-			const held = new CalDAV({ id: 'i', uri: 'https://dav/', credentials: { username: 'u', password: '' }, sources: [new Source({ uri: 'https://dav/cal/', name: 'Home', enabled: true })] })
+			const held = new MitraCalendar({ id: 'i', uri: 'https://dav/', credentials: { username: 'u', password: '' }, sources: [new Source({ uri: 'https://dav/cal/', name: 'Home', enabled: true })] })
 			const copy = held.clone()
 			assert.equal(copy.is(held), true)
 			copy.credentials.password = 'typed'

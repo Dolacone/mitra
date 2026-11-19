@@ -1,11 +1,9 @@
 import { describe, it } from 'node:test'
 import { DateTimeRange } from '@3mo/date-time'
-import ICAL from 'ical.js'
 import assert from 'node:assert/strict'
 import { EntryType, Entry, EntryRank, EntryFiles } from '#features/entries'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
 import { TimeZone } from '#features/time/TimeZone.js'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
 import { Recurrence } from './Recurrence.js'
 import { RecurrenceFrequency } from './RecurrenceFrequency.js'
 import { EntryOccurrences } from './EntryOccurrences.js'
@@ -212,116 +210,5 @@ describe('a repeating task with a due', () => {
 		})
 		const [occurrence] = master.occurrences.within(new DateTimeRange(new Date('2026-06-12T00:00:00Z'), new Date('2026-06-12T23:59:59Z')))
 		assert.equal(occurrence!.end?.toISOString(), '2026-06-12T13:30:00.000Z')
-	})
-})
-
-describe('EntryOccurrences of a synced entry', () => {
-	describe('an .ics recurring entry, read as the sync reads it', () => {
-		const calendar = (lines: Array<string>) => ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//test//EN', ...lines, 'END:VCALENDAR'].join('\r\n')
-		const vevent = (props: Array<string>) => calendar(['BEGIN:VEVENT', 'UID:e1', 'DTSTAMP:20260101T000000Z', ...props, 'END:VEVENT'])
-		const at = (iso: string) => new Date(iso)
-		const read = (raw: string) => {
-			const components = new ICAL.Component(ICAL.parse(raw)).getAllSubcomponents().filter(component => component.name === 'vevent' || component.name === 'vtodo')
-			const entry = new Entry({ id: 'e', sourceId: 's' })
-			CalDAV.applyComponent(entry, components.find(component => !component.getFirstProperty('recurrence-id'))!, new CalDAV())
-			return entry
-		}
-
-		it('expands a daily event in the window, carrying its duration', () => {
-			const raw = vevent(['DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z', 'RRULE:FREQ=DAILY'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-05T23:59:59Z')))
-			assert.equal(occ.length, 5)
-			assert.equal(occ[0]!.start!.toISOString(), '2026-06-01T09:00:00.000Z')
-			assert.equal(occ[0]!.end!.toISOString(), '2026-06-01T09:30:00.000Z')
-			assert.equal(occ[4]!.start!.toISOString(), '2026-06-05T09:00:00.000Z')
-		})
-
-		it('skips EXDATEs', () => {
-			const raw = vevent(['DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z', 'RRULE:FREQ=DAILY', 'EXDATE:20260602T090000Z'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-05T23:59:59Z')))
-			assert.equal(occ.length, 4)
-			assert.ok(!occ.some(o => o.start!.toISOString() === '2026-06-02T09:00:00.000Z'))
-		})
-
-		it('returns only the in-window occurrences of a long-running series', () => {
-			const raw = vevent(['DTSTART:20200101T090000Z', 'DTEND:20200101T100000Z', 'RRULE:FREQ=DAILY'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-03T23:59:59Z')))
-			assert.equal(occ.length, 3)
-			assert.equal(occ[0]!.start!.toISOString(), '2026-06-01T09:00:00.000Z')
-		})
-
-		it('respects COUNT: no occurrences after the series ends', () => {
-			const raw = vevent(['DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z', 'RRULE:FREQ=DAILY;COUNT=3'])
-			assert.equal(read(raw).occurrences.within(new DateTimeRange(at('2026-06-10T00:00:00Z'), at('2026-06-20T00:00:00Z'))).length, 0)
-			assert.equal(read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-30T00:00:00Z'))).length, 3)
-		})
-
-		it('expands a recurring VTODO, anchored on DTSTART with its ESTIMATED-DURATION', () => {
-			const raw = calendar(['BEGIN:VTODO', 'UID:t1', 'DTSTAMP:20260101T000000Z', 'DTSTART:20260601T090000Z', 'ESTIMATED-DURATION:PT1H', 'RRULE:FREQ=DAILY', 'END:VTODO'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-03T23:59:59Z')))
-			assert.equal(occ.length, 3)
-			assert.equal(occ[0]!.end!.getTime() - occ[0]!.start!.getTime(), 60 * 60 * 1000)
-		})
-
-		it('expands an all-day (date-only) series with day-long occurrences', () => {
-			const raw = vevent(['DTSTART;VALUE=DATE:20260601', 'DTEND;VALUE=DATE:20260602', 'RRULE:FREQ=WEEKLY'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T12:00:00Z'), at('2026-06-21T12:00:00Z')))
-			assert.ok(occ.length >= 2)
-			assert.equal(occ[0]!.end!.getTime() - occ[0]!.start!.getTime(), 24 * 60 * 60 * 1000)
-		})
-
-		it('reaches a far-future window for an unbounded dense series (iteration budget)', () => {
-			// ~30 years of daily occurrences (>10k iterations) must still resolve in the future window.
-			const raw = vevent(['DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z', 'RRULE:FREQ=DAILY'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2056-06-01T00:00:00Z'), at('2056-06-03T23:59:59Z')))
-			assert.equal(occ.length, 3)
-		})
-
-		it('yields a one-off component once', () => {
-			const raw = vevent(['DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z'])
-			assert.equal(read(raw).occurrences.recurring, false)
-		})
-
-		it('expands off the MASTER even when a bundled override precedes it in document order', () => {
-			// A resource bundles the master with its RECURRENCE-ID overrides in no guaranteed order:
-			// read the first VEVENT blindly and an override-first resource loses its RRULE (and EXDATEs):
-			// the whole series silently stops expanding.
-			const raw = calendar([
-				'BEGIN:VEVENT', 'UID:e1', 'DTSTAMP:20260101T000000Z',
-				'RECURRENCE-ID:20260602T090000Z', 'DTSTART:20260602T120000Z', 'DTEND:20260602T123000Z',
-				'END:VEVENT',
-				'BEGIN:VEVENT', 'UID:e1', 'DTSTAMP:20260101T000000Z',
-				'DTSTART:20260601T090000Z', 'DTEND:20260601T093000Z', 'RRULE:FREQ=DAILY', 'EXDATE:20260603T090000Z',
-				'END:VEVENT',
-			])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-01T00:00:00Z'), at('2026-06-05T23:59:59Z')))
-			assert.deepEqual(occ.map(o => o.start!.toISOString()), [
-				'2026-06-01T09:00:00.000Z',
-				'2026-06-02T09:00:00.000Z', // the rule instance, the override row replaces it at render time
-				'2026-06-04T09:00:00.000Z', // Jun 3 is EXDATE'd on the master
-				'2026-06-05T09:00:00.000Z',
-			])
-		})
-
-		it('excludes a DATE exdate of an all-day series at its UTC midnight, where its occurrences are', () => {
-			const raw = vevent(['DTSTART;VALUE=DATE:20260601', 'DTEND;VALUE=DATE:20260602', 'RRULE:FREQ=DAILY', 'EXDATE;VALUE=DATE:20260608'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2026-06-07T12:00:00Z'), at('2026-06-09T12:00:00Z')))
-			assert.deepEqual(occ.map(o => o.start!.toISOString()), ['2026-06-07T00:00:00.000Z', '2026-06-09T00:00:00.000Z'])
-		})
-
-		it('keeps the parts of a rule Mitra doesn\'t edit: the last weekday of each month', () => {
-			const raw = vevent(['DTSTART:20260630T090000Z', 'DTEND:20260630T093000Z', 'RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1'])
-			const entry = read(raw)
-			assert.equal(entry.recurrence?.rest, 'BYSETPOS=-1')
-			assert.equal(entry.recurrence?.toRRule(), 'FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1')
-			const occ = entry.occurrences.within(new DateTimeRange(at('2026-07-01T00:00:00Z'), at('2026-10-01T00:00:00Z')))
-			assert.deepEqual(occ.map(o => o.start!.toISOString().slice(0, 10)), ['2026-07-31', '2026-08-31', '2026-09-30'])
-		})
-
-		it('keeps the month of a yearly rule: the second Sunday of May', () => {
-			const raw = vevent(['DTSTART;VALUE=DATE:20260510', 'DTEND;VALUE=DATE:20260511', 'RRULE:FREQ=YEARLY;BYMONTH=5;BYDAY=2SU'])
-			const occ = read(raw).occurrences.within(new DateTimeRange(at('2027-01-01T00:00:00Z'), at('2028-12-31T00:00:00Z')))
-			assert.deepEqual(occ.map(o => o.start!.toISOString().slice(0, 10)), ['2027-05-09', '2028-05-14'])
-		})
 	})
 })

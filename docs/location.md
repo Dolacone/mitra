@@ -18,8 +18,6 @@ Suggestions favour places near you. The first time you click into the field, you
 
 Photon names places in English, German or French when Mitra is set to one of them, and in the local language otherwise.
 
-[Notion](integrations/notion.md), [Todoist](integrations/todoist.md) and [Tempo](integrations/tempo.md) calendars have no location, so their entries have no location field.
-
 ## Privacy
 
 Your browser never contacts Photon. Searches go to your Mitra server, which asks Photon and passes the answers back, so Photon only ever sees your server's address, not yours. It does see what you type and, if you allowed it, your position.

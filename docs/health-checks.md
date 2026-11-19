@@ -18,7 +18,7 @@ It checks the one thing Mitra can't run without, its database:
 
 The answer is deliberately bare. It carries no version or build details that would tell a stranger what you run, and it's never cached, so every check sees the current state.
 
-Connected services, such as a CalDAV server, Notion, Google, your sign-in provider or the geocoder, aren't part of the check. A short outage at one of them shouldn't mark Mitra itself as unhealthy.
+Connected services, such as your sign-in provider or the geocoder, aren't part of the check. A short outage at one of them shouldn't mark Mitra itself as unhealthy.
 
 ## Docker
 

@@ -46,7 +46,3 @@ export async function uploadFile(file: globalThis.File) {
 	}
 	return EntryFile.from(await response.json())!
 }
-
-export function connectGoogle() {
-	location.assign('/api/integrations/google/connect')
-}

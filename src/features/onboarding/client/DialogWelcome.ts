@@ -5,8 +5,7 @@ import { session } from '#infrastructure/http/PageSession.js'
 /**
  * The first-run welcome: a calendar with no integrations is an empty grid, so this dialog greets the
  * user and walks the path from nothing to a working calendar in three quiet steps. Opened by the
- * application boot alone, only while there are zero integrations, and never over the OAuth-callback
- * flow (which already lands in an open source picker). Confirming with the CTA resolves `true` and the
+ * application boot alone, only while there are zero integrations. Confirming with the CTA resolves `true` and the
  * boot chains straight into the Add-integration dialog; dismissing resolves `undefined` and leaves the
  * empty calendar be. The sidebar's own "Add Integration" stays as the way back in.
  */
@@ -14,9 +13,9 @@ import { session } from '#infrastructure/http/PageSession.js'
 export class DialogWelcome extends DialogComponent<void, boolean | undefined> {
 	private static get steps() {
 		return [
-			{ icon: 'cable', title: t('Connect an account'), description: t('CalDAV, Google, Apple or Notion, synced in both directions. Or start fresh with calendars stored in Mitra itself.') },
-			{ icon: 'list-checks', title: t('Choose your sources'), description: t('Pick the calendars and task lists to show. Recolor, rename or hide them in the sidebar anytime.') },
-			{ icon: 'calendar-days', title: t('Plan your days'), description: t('Create and move entries right on the grid. Every change syncs back to its source.') },
+			{ icon: 'cable', title: t('Create a calendar'), description: t('Calendars are stored in Mitra itself, on your server.') },
+			{ icon: 'list-checks', title: t('Organize your calendars'), description: t('Recolor, rename or hide them in the sidebar anytime.') },
+			{ icon: 'calendar-days', title: t('Plan your days'), description: t('Create and move entries right on the grid.') },
 		]
 	}
 

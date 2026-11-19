@@ -28,15 +28,15 @@ An entry wears its calendar's color. To give one entry a color of its own, click
 
 ### Move an entry to another calendar
 
-Next to the dot is the name of the entry's calendar. Click it and pick another calendar to move the entry there. The list leaves out calendars that couldn't keep something the entry has, such as a repeat or a **Cancelled** status. See [Move a single entry](calendars.md#move-a-single-entry).
+Next to the dot is the name of the entry's calendar. Click it and pick another calendar to move the entry there. The list leaves out calendars that couldn't keep something the entry has, such as a repeat or a **Cancelled** status. See [Move an entry to another calendar](calendars.md#move-an-entry-to-another-calendar).
 
 ### Change an entry's type
 
-Further along, the header shows the entry's type: **Event**, **Task** or **Availability**. Click it and pick another. Calendar servers keep events and tasks apart, so Mitra saves the entry anew as the other type and deletes the old one. The editor stays open on the result.
+Further along, the header shows the entry's type: **Event**, **Task** or **Availability**. Click it and pick another. Mitra saves the entry anew as the other type and deletes the old one. The editor stays open on the result.
 
 Whatever the new type can't hold is dropped. A task that becomes an event loses its status, progress, due date and estimate. An event that becomes a task loses busy or free. Availability has no participants or reminders.
 
-The type can't change on a repeating entry, or in a calendar that holds only one type, such as a Notion calendar. **Availability** is only offered where the calendar can hold it.
+The type can't change on a repeating entry, or in a calendar that holds only one type. **Availability** is only offered where the calendar can hold it.
 
 ### The ⋯ menu
 
@@ -45,8 +45,6 @@ The type can't change on a repeating entry, or in a calendar that holds only one
 **Duplicate to other days…** puts a copy on several days at once, for work that falls on days no repeat could name, such as the 1st, 3rd and 17th. Click each day you want on the calendar it shows, then **Duplicate to 3 days**. Each copy keeps the entry's time of day and is an entry of its own. To choose a run of days, hold <kbd>Shift</kbd> while you click the last one. The days the entry already takes up have a dot and can't be chosen.
 
 **Delete** removes the entry. While the editor is open, <kbd>Delete</kbd> or <kbd>Backspace</kbd> does too, as long as you're not typing in a field. If the entry repeats or has subtasks, Mitra asks which ones you mean.
-
-An entry from Notion, Todoist or Tempo also offers **Open in Notion**, **Open in Todoist** or **Open in Jira**, which opens it where it came from.
 
 ## Title and time
 
@@ -58,13 +56,11 @@ A task also has a due date and, while it's unscheduled, an estimate. See [Planni
 
 A task has a checkbox before its title, and one of four statuses: **To Do**, **Doing**, **Done** or **Cancelled**. Click the checkbox to mark the task done, and click it again to open it back up. To pick any status, right-click the checkbox or <kbd>Alt</kbd>-click it. This works on the calendar too.
 
-Done and cancelled tasks are struck through. A calendar without a cancelled status, like Notion, leaves **Cancelled** out of the menu. A task with subtasks or a checklist shows its progress in the checkbox; see [Subtasks](subtasks.md#progress).
+Done and cancelled tasks are struck through. A task with subtasks or a checklist shows its progress in the checkbox; see [Subtasks](subtasks.md#progress).
 
 ## Event status
 
 An event has a status glyph before its title, in the editor and on the calendar: **Confirmed**, **Maybe** or **Cancelled**. Click it to pick one. A cancelled event stays on your calendar, called off instead of deleted: it is struck through in every view and keeps its place, and **Confirmed** brings it back. If it repeats, Mitra asks whether you mean this occurrence, the following ones or all of them.
-
-Other calendar apps read the cancellation too. Apple Calendar, Thunderbird and Nextcloud strike the event through, and an event cancelled in one of them shows struck through in Mitra. Mitra calendars and CalDAV calendars keep it, and a subscription shows what its feed cancelled. Google, Notion and Tempo calendars don't hold it, so they don't offer it.
 
 ## Busy or free and visibility
 
@@ -93,7 +89,3 @@ Lines that start with `- [ ]` become a checklist, which you can tick without ope
 ## Relationships from other apps
 
 Other calendar apps can link entries in ways Mitra doesn't create itself. Mitra shows these links in a section of their own: **Related to** for entries that belong together, and a section named after the link's type for kinds it doesn't know. You can remove such a link with its **✕**, but not add one.
-
-## Which calendars support this
-
-Each calendar stores different things, and Mitra hides the rows a calendar can't store, so nothing you type disappears on the next sync. A Notion calendar holds only tasks, for example, and a Google calendar has no relationships. See [Integrations](integrations/README.md#what-each-one-holds) for what each one holds.

@@ -28,7 +28,7 @@ Before you rely on it, [back up](backups.md) `~/mitra` and [put it behind HTTPS]
 
 ## Get a calendar
 
-Mitra offers to add one when you first open it: a [Mitra calendar](integrations/mitra.md) kept on your server, or an account you already have, such as [CalDAV](integrations/caldav.md) or [Google Calendar](integrations/google.md).
+Mitra offers to add one when you first open it: a [Mitra calendar](integrations/mitra.md) kept on your server.
 
 ## Things to try
 

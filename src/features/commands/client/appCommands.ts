@@ -30,6 +30,7 @@ export class AddIntegration extends Command {
 	keywords = t('AddIntegration.Keywords')
 	group = undefined
 	keys = []
+	override get available() { return DialogIntegration.offeredClasses.length > 0 }
 	execute() { return new DialogIntegration({}).confirm() }
 }
 

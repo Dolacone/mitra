@@ -10,7 +10,6 @@ import { EntryType } from '#features/entries'
 import { staleTabs } from '#features/entries/server/staleTabs.js'
 import { holdLocalIn } from '#features/time/TimeZone.testing.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
-import '#integrations/server/registerEngines.js'
 import { errorHandler } from '#infrastructure/http/errorHandler.js'
 // The browser's client, whose error an operation's call throws.
 import '#infrastructure/http/Api.js'

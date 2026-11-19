@@ -100,7 +100,6 @@ export class Mitra extends Application {
 
 	protected override async initialized() {
 		Mitra.trackFocusModality()
-		const pendingIntegrationId = Mitra.consumePendingIntegrationParameter()
 		await Promise.all([Calendars.fetch(), session.fetchUser(), session.fetchInstance()])
 		// Before the router renders the calendar, so the account's stylesheet is worn from its first paint.
 		CustomCss.wearStored()
@@ -121,9 +120,7 @@ export class Mitra extends Application {
 		}
 		await super.initialized()
 		claimFileDrops()
-		if (pendingIntegrationId) {
-			await new DialogIntegration({ id: pendingIntegrationId, preselectSources: true }).confirm()
-		} else if (!Calendars.integrations.length) {
+		if (!Calendars.integrations.length) {
 			if (await new DialogWelcome().confirm()) {
 				await new DialogIntegration({}).confirm()
 			}
@@ -150,17 +147,6 @@ export class Mitra extends Application {
 			|| (target instanceof HTMLElement && target.isContentEditable)
 			|| (target instanceof HTMLInputElement
 				&& !['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'color', 'file', 'image'].includes(target.type))
-	}
-
-	/** The integration an OAuth redirect returns to, taken out of the address. */
-	private static consumePendingIntegrationParameter(): string | null {
-		const parameters = new URLSearchParams(location.search)
-		const id = parameters.get('integration')
-		if (id) {
-			parameters.delete('integration')
-			history.replaceState(null, '', `${location.pathname}${parameters.size ? `?${parameters}` : ''}`)
-		}
-		return id
 	}
 
 	/** In the document, Mitra's rules sit in one cascade layer, so a custom stylesheet, unlayered, wins whatever its selector. */

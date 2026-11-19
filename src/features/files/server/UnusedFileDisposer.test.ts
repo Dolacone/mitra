@@ -9,7 +9,7 @@ import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { EntryType, Entry, EntryFile, EntryFiles } from '#features/entries'
 import { Integration } from '#integrations'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
+import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { ormConfig } from '#infrastructure/database/ormConfig.js'
 import { migrate } from '#infrastructure/database/migrations/migrate.js'
 import { UnusedFileDisposer } from './UnusedFileDisposer.js'
@@ -55,8 +55,8 @@ describe('files on entries', () => {
 		await em.nativeDelete(User, {})
 		await rm(root, { recursive: true, force: true })
 		user = new User({ username: 'owner' })
-		const integration = new CalDAV({ userId: user.id, uri: 'https://example.com/dav/', credentials: { username: 'u', password: 'p' } })
-		source = new Source({ integrationId: integration.id, uri: 'https://example.com/dav/cal/', name: 'Cal', entryTypes: [EntryType.Event], enabled: true })
+		const integration = new MitraCalendar({ userId: user.id, uri: MitraCalendar.uri })
+		source = new Source({ integrationId: integration.id, uri: MitraCalendar.sourceUri('cal'), name: 'Cal', entryTypes: [EntryType.Event], enabled: true })
 		em.persist([user, integration, source])
 		await em.flush()
 	})

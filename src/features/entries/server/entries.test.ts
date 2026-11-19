@@ -10,8 +10,6 @@ import { TimeZone } from '#features/time/TimeZone.js'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
 import { Session } from '#features/identity/server/Session.js'
 import { Integration } from '#integrations'
-import { GoogleCalendar } from '#integrations/google/GoogleCalendar.js'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { EntryType } from '../EntryType.js'
 import { Entry } from '../Entry.js'
@@ -19,7 +17,7 @@ import { EntryStatus } from '../EntryStatus.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, CalDAV, GoogleCalendar, MitraCalendar, Source, Entry, NotificationSubscription, Session],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, NotificationSubscription, Session],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

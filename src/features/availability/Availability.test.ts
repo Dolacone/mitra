@@ -6,14 +6,12 @@ import { DateTime } from '@3mo/date-time'
 import { User, Identity } from '#features/identity'
 import { Session } from '#features/identity/server/Session.js'
 import { Source } from '#features/sources'
-import { Recurrence, RecurrenceFrequency } from '#features/recurrence'
 import { Entry, EntryStatus, Transparency, EntryType, EntryTypes } from '#features/entries'
 import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { EntryRelation, EntryRelations, RelationGraph, RelationType } from '#features/relations'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Integration, registerEngine, type SourceSyncEngine } from '#integrations'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
+import { Integration } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { Availability } from './client/Availability.js'
 
@@ -37,7 +35,6 @@ describe('the availability type', () => {
 
 	it('lives wherever the provider takes part', () => {
 		const source = new Source({ entryTypes: EntryTypes.of(EntryType.Event) })
-		assert.equal(new CalDAV().canHold(source, EntryType.Availability), true)
 		assert.equal(new MitraCalendar().canHold(source, EntryType.Availability), true)
 	})
 
@@ -147,7 +144,7 @@ describe('converting an entry to availability', () => {
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, CalDAV, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,
@@ -165,88 +162,6 @@ async function inMemoryOrm() {
 	await orm.schema.update()
 	return orm
 }
-
-const written = new Array<string>()
-const recorder: SourceSyncEngine = {
-	fetchSources: () => Promise.resolve([]),
-	syncSourceEntries: () => Promise.resolve(false),
-	createEntry: (_integration, _em, entry) => { written.push(`create ${entry.heading}`); return Promise.resolve(entry) },
-	updateEntry: (_integration, _em, existing) => { written.push(`update ${existing.heading}`); return Promise.resolve() },
-	deleteEntry: (_integration, _em, entry) => { written.push(`delete ${entry.heading}`); return Promise.resolve() },
-	excludeOccurrence: (_integration, _em, master) => { written.push(`exclude ${master.heading}`); return Promise.resolve() },
-}
-registerEngine('caldav', recorder)
-
-describe('availability in a provider\'s calendar', () => {
-	let orm: MikroORM
-	let em: EntityManager
-	let account: CalDAV
-	let work: Source
-	let hidden: Source
-
-	before(async () => { orm = await inMemoryOrm() })
-	after(async () => { await orm.close(true) })
-
-	beforeEach(async () => {
-		await orm.schema.clear()
-		written.length = 0
-		em = orm.em.fork()
-		const user = new User({ username: 'me' })
-		em.persist(user)
-		account = new CalDAV({ userId: user.id, uri: 'https://dav.example.com' })
-		em.persist(account)
-		work = new Source({ integrationId: account.id, uri: 'https://dav.example.com/calendars/me/work/', name: 'Work', enabled: true })
-		hidden = new Source({ integrationId: account.id, uri: 'https://dav.example.com/calendars/me/old/', name: 'Old', enabled: false })
-		em.persist([work, hidden])
-		await em.flush()
-	})
-
-	const entry = (init: Partial<Entry>) => new Entry({ id: crypto.randomUUID(), uid: crypto.randomUUID(), sourceId: work.id, ...init })
-
-	it('is stored in Mitra and never written to the provider', async () => {
-		const hours = await account.createEntry(em, entry({ type: EntryType.Availability, heading: 'Working hours', recurrence: new Recurrence({ freq: RecurrenceFrequency.Weekly }) }))
-		await em.flush()
-		await account.updateEntry(em, hours, entry({ type: EntryType.Availability, heading: 'Office hours' }))
-		await account.excludeOccurrence(em, hours, new Date('2026-10-05T07:00:00Z'))
-		await em.flush()
-
-		assert.equal(hours.heading, 'Office hours')
-		assert.equal(hours.exdates?.length, 1)
-		await account.deleteEntry(em, hours)
-		await em.flush()
-		assert.deepEqual(written, [])
-		assert.equal(await em.count(Entry, {}), 0)
-	})
-
-	it('leaves the provider writing everything else', async () => {
-		await account.createEntry(em, entry({ type: EntryType.Event, heading: 'Standup' }))
-		assert.deepEqual(written, ['create Standup'])
-	})
-
-	it('is out of what syncs read, so a sync or re-import never deletes it', async () => {
-		em.persist([entry({ type: EntryType.Availability, heading: 'Working hours' }), entry({ type: EntryType.Event, heading: 'Standup' })])
-		await em.flush()
-
-		assert.deepEqual((await account.syncedEntries(em, work)).map(synced => synced.heading), ['Standup'])
-
-		await account.reimportSource(em, work)
-		assert.deepEqual((await em.find(Entry, { sourceId: work.id })).map(kept => kept.heading), ['Working hours'])
-	})
-
-	it('is handed to the engine as masters and single windows of enabled calendars', async () => {
-		const series = entry({ type: EntryType.Availability, heading: 'Working hours', recurrence: new Recurrence({ freq: RecurrenceFrequency.Weekly }) })
-		em.persist([
-			series,
-			entry({ type: EntryType.Availability, heading: 'Moved Monday', recurringEntryId: series.id, recurrenceId: new DateTime('2026-10-05T07:00:00Z') }),
-			entry({ type: EntryType.Availability, heading: 'Retreat' }),
-			entry({ type: EntryType.Availability, heading: 'Old hours', sourceId: hidden.id }),
-			entry({ type: EntryType.Event, heading: 'Standup' }),
-		])
-		await em.flush()
-
-		assert.deepEqual((await account.availability(em)).map(found => found.heading).sort(), ['Retreat', 'Working hours'])
-	})
-})
 
 describe('availability and relations', () => {
 	let orm: MikroORM

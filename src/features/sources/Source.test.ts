@@ -4,7 +4,6 @@ import { EntryType } from '#features/entries'
 import { ReminderDefaults } from '#features/reminders/ReminderDefaults.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { Integration } from '#integrations'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { include } from '#infrastructure/model'
 import { revive, wireOf } from '#infrastructure/model/wire.testing.js'
@@ -99,21 +98,21 @@ describe('Source.readOnly narrows what may be written to one calendar', () => {
 	const own = new Source({ uri: 'https://dav/mine/', name: 'Mine' })
 
 	it('takes every write away from a read-only calendar, and nothing else', () => {
-		const capabilities = new CalDAV().capabilitiesFor(shared)
+		const capabilities = new MitraCalendar().capabilitiesFor(shared)
 
 		assert.deepEqual(
 			[capabilities.entries.create, capabilities.entries.edit, capabilities.entries.delete, capabilities.entries.rename],
 			[false, false, false, false],
 		)
 		for (const field of ['recurrence', 'reminders', 'location', 'participants', 'timeZone', 'relations'] as const) {
-			assert.equal(new CalDAV().ownership.holds(field), true, `${field} should be unaffected`)
+			assert.equal(new MitraCalendar().ownership.holds(field), true, `${field} should be unaffected`)
 		}
 	})
 
 	it('leaves a calendar of your own exactly as the provider left it', () => {
-		assert.equal(new CalDAV().capabilitiesFor(own).entries.edit, true)
-		assert.equal(new CalDAV().capabilitiesFor(new Source({ uri: 'u', name: 'n', readOnly: undefined })).entries.edit, true)
-		assert.equal(new CalDAV().capabilitiesFor(undefined).entries.edit, true)
+		assert.equal(new MitraCalendar().capabilitiesFor(own).entries.edit, true)
+		assert.equal(new MitraCalendar().capabilitiesFor(new Source({ uri: 'u', name: 'n', readOnly: undefined })).entries.edit, true)
+		assert.equal(new MitraCalendar().capabilitiesFor(undefined).entries.edit, true)
 	})
 })
 
@@ -149,7 +148,7 @@ describe('the integration of a source', () => {
 })
 
 describe('a new entry in a source', () => {
-	const home = (init?: Partial<Source>) => Object.assign(new Source({ id: 'home', uri: 'home', name: 'Home', integrationId: 'dav', enabled: true, entryTypes: [EntryType.Event, EntryType.Task], ...init }), { integration: new CalDAV({ id: 'dav' }) })
+	const home = (init?: Partial<Source>) => Object.assign(new Source({ id: 'home', uri: 'home', name: 'Home', integrationId: 'dav', enabled: true, entryTypes: [EntryType.Event, EntryType.Task], ...init }), { integration: new MitraCalendar({ id: 'dav' }) })
 	const start = new Date('2026-11-02T09:00:00Z') as never
 
 	it('is writable where it is enabled and its integration creates, never where it is read-only', () => {

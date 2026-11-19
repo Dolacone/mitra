@@ -24,9 +24,9 @@ docker compose up -d
 
 ## What needs setting up on the server
 
-Almost nothing. People add [Mitra calendars](integrations/mitra.md), [CalDAV](integrations/caldav.md), [Apple Calendar](integrations/apple.md), [calendar subscriptions](integrations/subscriptions.md), [Notion](integrations/notion.md), [Todoist](integrations/todoist.md) and [Tempo](integrations/tempo.md) themselves, in the app.
+Almost nothing. People add [Mitra calendars](integrations/mitra.md) themselves, in the app.
 
-Two things need credentials you register with someone else first: [Google Calendar](integrations/google.md) (`MITRA_GOOGLE_*`) and [sign-in](sso.md) (`MITRA_OIDC_*`).
+[Sign-in](sso.md) (`MITRA_OIDC_*`) needs credentials you register with someone else first.
 
 ## Put it behind HTTPS
 
@@ -34,7 +34,6 @@ Once Mitra is reachable from anywhere but your own machine, put it behind a reve
 
 - Browsers only allow [reminders](reminders.md) and [installing the app](install-app.md) on `https://` addresses (and on `http://localhost`).
 - [Sign-in](sso.md) cookies are only marked secure on `https://`, and most identity providers insist on an `https://` redirect address.
-- [Google Calendar](integrations/google.md) requires an `https://` redirect address.
 
 Then set [`MITRA_URL`](#set-the-public-url) to the public address.
 
@@ -72,7 +71,7 @@ environment:
   MITRA_URL: 'https://mitra.example.com'
 ```
 
-Mitra builds the return addresses for Google Calendar and sign-in from it, and marks its cookies secure when it starts with `https://`. You can leave it out while you try Mitra on `http://localhost`. Set it as soon as Mitra has a real address, and you must set it to turn on sign-in.
+Mitra builds the return address for sign-in from it, and marks its cookies secure when it starts with `https://`. You can leave it out while you try Mitra on `http://localhost`. Set it as soon as Mitra has a real address, and you must set it to turn on sign-in.
 
 ## Name your instance
 
@@ -91,7 +90,7 @@ Clicking the name opens the **About** dialog, which shows the version and commit
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MITRA_URL` | *(unset)* | The [public address](#set-the-public-url) people reach Mitra at, such as `https://mitra.example.com`. Return addresses for sign-in and Google Calendar, and whether cookies are secure, come from it. Optional while you try Mitra on localhost, required for [sign-in](sso.md), and recommended for [Google Calendar](integrations/google.md) and any public server. |
+| `MITRA_URL` | *(unset)* | The [public address](#set-the-public-url) people reach Mitra at, such as `https://mitra.example.com`. The return address for sign-in, and whether cookies are secure, come from it. Optional while you try Mitra on localhost, required for [sign-in](sso.md), and recommended for any public server. |
 | `MITRA_NAME` | *(Mitra, in each person's language)* | The [name](#name-your-instance) shown in the sidebar, the browser tab and the installed app. |
 | `MITRA_PORT` | `3000` | The port the server listens on. With Docker, change the host side of the port mapping instead; set this only when the process itself must listen elsewhere. The built-in health check follows it. |
 | `MITRA_LOG_LEVEL` | `info` | [How much Mitra logs](logging.md): `error`, `warn`, `info`, `debug` or `trace`. Each level includes everything quieter than it. |
@@ -118,15 +117,6 @@ Clicking the name opens the **About** dialog, which shows the version and commit
 | `MITRA_FILE_MAX_SIZE` | `25M` | The largest file a person can [attach](attachments.md) to an entry, in bytes or with a `k`, `M` or `G` suffix. Set it to `0` to turn adding files off. |
 | `MITRA_FILE_QUOTA` | *(unset)* | How much each person can store in attached files altogether, written the same way. Without it, there's no limit. |
 
-### Google Calendar
-
-Set both to let people connect [Google Calendar](integrations/google.md). Setting only the ID stops Mitra from starting.
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `MITRA_GOOGLE_CLIENT_ID` | *(unset)* | The OAuth client ID from the Google Cloud console. |
-| `MITRA_GOOGLE_CLIENT_SECRET` | *(unset)* | The OAuth client secret. Required whenever `MITRA_GOOGLE_CLIENT_ID` is set. |
-
 ### Single sign-on
 
 Setting `MITRA_OIDC_ISSUER` turns on [sign-in](sso.md). If the variables it needs are missing, Mitra refuses to start.
@@ -151,7 +141,7 @@ You don't set these on a server. The build or the image sets them, or they're fo
 
 ### Example
 
-A server with sign-in, Google Calendar and its own geocoder:
+A server with sign-in and its own geocoder:
 
 ```yaml
 services:
@@ -170,10 +160,6 @@ services:
       MITRA_OIDC_ISSUER: 'https://auth.example.com'
       MITRA_OIDC_CLIENT_ID: 'mitra'
       MITRA_OIDC_CLIENT_SECRET: '…'
-
-      # Google Calendar
-      MITRA_GOOGLE_CLIENT_ID: '….apps.googleusercontent.com'
-      MITRA_GOOGLE_CLIENT_SECRET: '…'
 
       # Your own geocoder
       MITRA_PHOTON_URL: 'https://photon.internal.example.com'

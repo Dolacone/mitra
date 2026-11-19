@@ -122,12 +122,3 @@ Repeating tasks are never overdue.
 A **moment** is a scheduled task with a start and no end, for something you do at one point in time rather than over a stretch of it, such as taking your morning medication at 7:30. In the week view it shows as a slim, one-line entry at its start time.
 
 To turn a task into a moment, open it and press the **✕** beside its end date. To give it an end again, press **End date**.
-
-## Which calendars support this
-
-Every change is saved straight to the calendar the task belongs to.
-
-- **Calendars stored in Mitra** support everything on this page.
-- **[Calendar servers](integrations/caldav.md)** support everything too. Other apps using the same calendar see the task's start and due date.
-- **[Notion](integrations/notion.md)** supports schedules, but no constraints, because a Notion database holds a single date for each task.
-- **[Todoist](integrations/todoist.md)** supports everything: a task's date is its schedule, its duration the estimate and its deadline the due date. Todoist keeps deadlines only on its Pro and Business plans, and only their day.

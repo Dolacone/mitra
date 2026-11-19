@@ -19,12 +19,10 @@ In the year view, where every day is small, routines are what you see most: each
 
 ## What becomes a routine
 
-Entries form a routine when they're in the same calendar and have the same title. Mitra recognizes a routine as entries are saved or synced, and keeps it.
+Entries form a routine when they're in the same calendar and have the same title. Mitra recognizes a routine as entries are saved, and keeps it.
 
 - A repeating entry is a routine from the start, however often it repeats, as long as it has at least four dates.
 - Entries that don't repeat become one once there are at least four of them and they keep a regular rhythm, such as every few days, weekly or once a year. So separate entries called "Run" make a routine just as a daily series does, while a few close together and then a long gap, like the flights of two trips, don't.
-
-Calendars you can only read, such as subscriptions, form no routines.
 
 Once an entry belongs to a routine, it stays there: when you rename it, tick it off, move one of its occurrences or move it to another calendar. Later entries with the same title join it, however far apart they come. A copy in another calendar becomes part of that calendar's routine with its title. An entry without a title never joins others; a repeating one is a routine by itself.
 

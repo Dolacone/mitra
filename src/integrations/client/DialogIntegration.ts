@@ -1,32 +1,22 @@
-import { component, html, css, state, Binder, bind, unsafeHTML, ifDefined, live } from '@a11d/lit'
+import { component, html, css, state, bind, unsafeHTML, ifDefined, live } from '@a11d/lit'
 import { DialogComponent } from '@a11d/lit-application'
-import { CreateSource, DiscoverSources, ConnectIntegration, UpdateIntegration, GetGoogleSetup } from '#operations'
+import { CreateSource, ConnectIntegration, UpdateIntegration } from '#operations'
 import '#design/TextField.js'
 import { pressable } from '#design'
 import { docsPage } from '#features/about/client/website.js'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { integrationClasses, type Integration, type IntegrationClass } from '#integrations'
 import mitraLogo from '#integrations/mitra/logo.svg'
-import caldavLogo from '#integrations/caldav/logo.svg'
-import googleLogo from '#integrations/google/logo.svg'
-import { connectGoogle } from '#infrastructure/http/Api.js'
 
 const logos: Record<string, string> = {
 	mitra: mitraLogo,
-	caldav: caldavLogo,
-	google: googleLogo,
 }
 
 @component('mitra-dialog-integration')
-export class DialogIntegration extends DialogComponent<{ readonly id?: string, readonly preselectSources?: boolean }, Integration> {
+export class DialogIntegration extends DialogComponent<{ readonly id?: string }, Integration> {
 	@state() private entity?: Integration
-	@state() private discovering = false
-	@state() private discoveryError?: string
-	@state() private googleAvailability?: { configured: boolean } | { error: string }
 	/** The first calendar's name, for integrations that don't discover sources. */
 	@state() calendarName = ''
-
-	private readonly binder = new Binder(this, 'entity')
 
 	protected override createRenderRoot() { return this }
 
@@ -38,7 +28,8 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 		return integrationClasses().find(integrationClass => integrationClass.type === this.entity?.type)
 	}
 
-	private get offeredClasses(): Array<IntegrationClass> {
+	/** What can still be added: an integration one per account only until it is connected. */
+	static get offeredClasses(): Array<IntegrationClass> {
 		const connected = new Set(Calendars.integrations.map(integration => integration.type))
 		return integrationClasses().filter(integrationClass =>
 			!(integrationClass.onePerUser && connected.has(integrationClass.type)))
@@ -47,50 +38,16 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private selectType(integrationClass: IntegrationClass) {
 		this.entity = new integrationClass({ sources: [] })
 		this.calendarName = ''
-		this.discovering = false
-		this.discoveryError = undefined
-	}
-
-	private async discover() {
-		const entity = this.entity!
-		this.discovering = true
-		this.discoveryError = undefined
-		try {
-			const sources = await DiscoverSources.call({ integration: entity })
-			if (this.entity !== entity) {
-				return
-			}
-			if (!this.isEdit) {
-				for (const source of sources) {
-					source.enabled = true
-				}
-			}
-			entity.sources = sources
-		} catch (error) {
-			if (this.entity === entity) {
-				this.discoveryError = error instanceof Error ? error.message : String(error)
-			}
-		} finally {
-			if (this.entity === entity) {
-				this.discovering = false
-			}
-		}
 	}
 
 	protected override connected() {
 		if (!this.isEdit) {
-			GetGoogleSetup.call()
-				.then(availability => this.googleAvailability = availability)
-				.catch((error: Error) => this.googleAvailability = { error: error.message })
 			return
 		}
 		const integration = Calendars.integrations.find(integration => integration.id === this.parameters.id)
 		if (integration) {
 			// A clone holds nothing the listed one holds, so editing here changes nothing listed.
 			this.entity = integration.clone()
-			if (this.parameters.preselectSources) {
-				this.entity.sources.forEach(source => source.enabled = true)
-			}
 		}
 	}
 
@@ -217,9 +174,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	}
 
 	private get saveDisabled() {
-		if (this.discovering) {
-			return true
-		}
 		return (this.discoversSources || this.isEdit) && !this.entity?.sources.length
 	}
 
@@ -247,7 +201,7 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get typesTemplate() {
 		return html`
 			<div class="types">
-				${this.offeredClasses.map(integrationClass => html`
+				${DialogIntegration.offeredClasses.map(integrationClass => html`
 					<button class="type" @click=${() => this.selectType(integrationClass)}>
 						<span class="logo">${unsafeHTML(logos[integrationClass.logo] ?? '')}</span>
 						<span class="name">${t(integrationClass.label)}</span>
@@ -298,8 +252,7 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get panelTemplate() {
 		switch (this.entity!.type) {
 			case 'mitra': return this.mitraTemplate
-			case 'google': return this.googleTemplate
-			default: return this.caldavTemplate
+			default: return html.nothing
 		}
 	}
 
@@ -311,62 +264,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get mitraTemplate() {
 		return this.isEdit ? html.nothing : html`
 			<mitra-text-field label=${t('Calendar name')} placeholder=${t('Calendar')} ${bind(this, 'calendarName', { event: 'input' })}></mitra-text-field>
-		`
-	}
-
-	private get caldavTemplate() {
-		const { bind } = this.binder
-		return html`
-			<mitra-text-field label=${t('Server URL')} ${bind({ keyPath: 'uri' })} ?readonly=${this.isEdit} placeholder="https://caldav.example.com"></mitra-text-field>
-			<mitra-text-field label=${t('Username')} ${bind({ keyPath: 'credentials.username' })} ?readonly=${this.isEdit}></mitra-text-field>
-			<mitra-text-field label=${t('Password')} type="password" ${bind({ keyPath: 'credentials.password' })} placeholder=${this.isEdit ? t('unchanged') : ''}></mitra-text-field>
-			${this.connectTemplate}
-		`
-	}
-
-	private get googleTemplate() {
-		if (this.isEdit) {
-			return html`
-				<mitra-text-field label=${t('Google account')} readonly .value=${this.entity!.credentials.username}></mitra-text-field>
-				${this.sharedCalendarsHint}
-				${this.connectTemplate}
-			`
-		}
-		const availability = this.googleAvailability
-		return !availability ? html`
-			<mitra-button class="connect" disabled>${t('Continue with Google')}</mitra-button>
-		` : 'error' in availability ? html`
-			<p class="error">${availability.error}</p>
-		` : !availability.configured ? html`
-			<p class="hint">${t('Google.ConfigurationHint')}</p>
-		` : html`
-			<p class="hint">${t('Google.ConsentHint')}</p>
-			${this.sharedCalendarsHint}
-			<mitra-button class="connect" @click=${() => connectGoogle()}>${t('Continue with Google')}</mitra-button>
-		`
-	}
-
-	private get sharedCalendarsHint() {
-		return html`
-			<p class="hint">
-				${t('Google.SharedCalendarsHint')}
-				<a href="https://calendar.google.com/calendar/syncselect" target="_blank" rel="noopener noreferrer">calendar.google.com/calendar/syncselect</a>
-			</p>
-		`
-	}
-
-	private get connectDisabled(): boolean {
-		return !this.isEdit && !this.entity!.canConnect
-	}
-
-	private get connectTemplate() {
-		return this.discovering ? html`
-			<mitra-button class="connect" disabled>${t('Connecting…')}</mitra-button>
-		` : html`
-			<mitra-button class="connect" @click=${() => this.discover()} ?disabled=${this.connectDisabled}>
-				${this.entity!.sources.length ? t('Refresh') : t('Connect')}
-			</mitra-button>
-			${!this.discoveryError ? html.nothing : html`<p class="error">${this.discoveryError}</p>`}
 		`
 	}
 

@@ -24,8 +24,8 @@ Each level includes everything quieter than it:
 | --- | --- |
 | `error` | Failures only. |
 | `warn` | Also problems Mitra worked around, such as a reminder that couldn't be delivered, a geocoder that didn't answer, or a sign-in provider it couldn't reach. |
-| `info` *(default)* | Also what matters day to day: starting up, sign-ins, accounts connected, changes synced from providers and reminders sent. |
-| `debug` | Also every request with its status and time, each sync, when syncing speeds up or slows down as people open and close Mitra, sessions, entry edits and the conversations with CalDAV servers. |
+| `info` *(default)* | Also what matters day to day: starting up, sign-ins and reminders sent. |
+| `debug` | Also every request with its status and time, sessions and entry edits. |
 | `trace` | Also every database query and the raw calendar data. There's a lot of it. |
 
 Mitra logs the level it runs at when it starts.
@@ -35,7 +35,6 @@ Mitra logs the level it runs at when it starts.
 
 ## Which level to use
 
-- When a calendar isn't syncing, `debug` shows each sync and the requests to CalDAV and Notion.
 - When reminders don't arrive, `info` already logs each reminder as it goes out, and `debug` adds each delivery attempt and devices that were dropped.
 - When you see an error page, `error` has it with a stack trace, and the default `info` includes it.
-- When you need to see exactly what a provider sent, `trace` adds the raw data and the database queries. Only leave it on briefly.
+- When you need to see exactly what was stored, `trace` adds the raw data and the database queries. Only leave it on briefly.

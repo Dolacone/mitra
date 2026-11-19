@@ -6,7 +6,6 @@ import { EntryStore } from '#features/entries/client/EntryStore.js'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { Source } from '#features/sources'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
-import { GoogleCalendar } from '#integrations/google/GoogleCalendar.js'
 import { Routine } from '../Routine.js'
 import { RoutineCadence } from '../RoutineCadence.js'
 import { Recurrence } from '#features/recurrence'
@@ -57,11 +56,10 @@ describe('RoutineStore', () => {
 		Calendars.adopt([
 			home(),
 			new MitraCalendar({ id: 'feed', sources: [new Source({ integrationId: 'feed', id: 'feed-source', uri: 'mitra://feed/feed', name: 'Feed', enabled: true, hidden: false, readOnly: true })] }),
-			new GoogleCalendar({ id: 'google', sources: [new Source({ integrationId: 'google', id: 'google-source', uri: 'https://apidata.googleusercontent.com/caldav/v2/someone/events/', name: 'Google', enabled: true, hidden: false })] }),
 		])
 		const of = (sourceId: string, type: EntryType) => adopt(routine(`${sourceId}-${type}`, { sourceId, type }))[0]!
 		assert.deepEqual([RoutineStore.ticks(of('home', EntryType.Task)), RoutineStore.ticks(of('home', EntryType.Event)), RoutineStore.ticks(of('feed-source', EntryType.Task))], [true, false, false])
-		assert.deepEqual([RoutineStore.cancels(of('home', EntryType.Event)), RoutineStore.cancels(of('feed-source', EntryType.Event)), RoutineStore.cancels(of('google-source', EntryType.Event)), RoutineStore.cancels(of('home', EntryType.Task))], [true, false, false, true])
+		assert.deepEqual([RoutineStore.cancels(of('home', EntryType.Event)), RoutineStore.cancels(of('feed-source', EntryType.Event)), RoutineStore.cancels(of('home', EntryType.Task))], [true, false, true])
 	})
 
 	it('lists the routines with a date today first, by its time, then the rest by their next date', () => {

@@ -28,8 +28,6 @@ export class Environment {
 	readonly files: { readonly maxSize?: number, readonly quota?: number }
 	/** Sign-in through OpenID Connect (`MITRA_OIDC_*`). */
 	readonly oidc?: { readonly issuer: string, readonly clientId: string, readonly clientSecret?: string, readonly scope: string }
-	/** The OAuth client Google Calendar connects with (`MITRA_GOOGLE_CLIENT_ID`, `MITRA_GOOGLE_CLIENT_SECRET`). */
-	readonly google?: { readonly clientId: string, readonly clientSecret: string }
 
 	constructor(variables: Variables) {
 		this.port = Number(variables.MITRA_PORT) || 3000
@@ -43,7 +41,6 @@ export class Environment {
 		this.discordWebhook = Environment.urlOf(variables.MITRA_DISCORD_WEBHOOK_URL)
 		this.files = { maxSize: Environment.bytesOf(variables.MITRA_FILE_MAX_SIZE), quota: Environment.bytesOf(variables.MITRA_FILE_QUOTA) }
 		this.oidc = this.oidcOf(variables)
-		this.google = Environment.googleOf(variables)
 	}
 
 	/** Whether people sign in, so an agent needs an access token. */
@@ -87,18 +84,6 @@ export class Environment {
 			throw new Error('MITRA_OIDC_ISSUER is set but MITRA_URL (the app\'s external URL, e.g. https://mitra.example.com) is missing or no URL')
 		}
 		return { issuer, clientId, clientSecret: variables.MITRA_OIDC_CLIENT_SECRET || undefined, scope: variables.MITRA_OIDC_SCOPES || 'openid profile email' }
-	}
-
-	private static googleOf(variables: Variables) {
-		const clientId = variables.MITRA_GOOGLE_CLIENT_ID
-		if (!clientId) {
-			return undefined
-		}
-		const clientSecret = variables.MITRA_GOOGLE_CLIENT_SECRET
-		if (!clientSecret) {
-			throw new Error('MITRA_GOOGLE_CLIENT_ID is set but MITRA_GOOGLE_CLIENT_SECRET is missing')
-		}
-		return { clientId, clientSecret }
 	}
 }
 

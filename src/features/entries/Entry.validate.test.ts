@@ -5,7 +5,7 @@ import { Source } from '#features/sources'
 import { Recurrence, RecurrenceFrequency, EntryOccurrenceChangeScope } from '#features/recurrence'
 import { Participants } from '#features/participants/Participant.js'
 import { IntegrationCapabilities, type OwnedField } from '#integrations'
-import { CalDAV } from '#integrations/caldav/CalDAV.js'
+import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import type { ValidationError } from '#infrastructure/validation'
 import { Entry } from './Entry.js'
 import { EntryPatch } from './EntryPatch.js'
@@ -17,7 +17,7 @@ import { EntryFiles } from './EntryFiles.js'
 
 /** A calendar holding `types`, whose integration holds every field but `lacking` and may not do `cannot`. */
 const calendar = (init: { id?: string, types?: Array<EntryType>, lacking?: Array<OwnedField>, cannot?: Partial<IntegrationCapabilities['entries']> } = {}) => {
-	const integration = new class extends CalDAV {
+	const integration = new class extends MitraCalendar {
 		override get capabilities() { return new IntegrationCapabilities({ entries: init.cannot }) }
 		override get ownership() { return super.ownership.without(...init.lacking ?? []) }
 	}()

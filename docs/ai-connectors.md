@@ -5,7 +5,7 @@ description: Connect AI tools such as Claude or Cursor to Mitra, so they can rea
 
 Mitra speaks the Model Context Protocol (MCP), so AI tools can work with your calendars: look at your week, find an entry, plan a task, move a meeting. Each tool connects to the same address, `https://<your Mitra>/api/mcp`, which **Settings → AI** shows under **AI connectors**. Claude calls such a connection a connector, Cursor and others an MCP server.
 
-A connected tool sees and changes exactly what you do in Mitra, across all your connected calendars, and a change it makes reaches the provider as yours would.
+A connected tool sees and changes exactly what you do in Mitra, across all your calendars.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../assets/screenshots/ai-connectors-detail-dark.webp">
@@ -71,9 +71,9 @@ A connected tool works with your calendars as you would in Mitra. It can:
 - find entries and read them in full
 - see how your [routines](routines.md) are going: how many of their last occurrences you kept, cancelled or missed, and the weekday they slip on, so you can ask "How is the gym going?"
 - create, change, complete and delete entries, one occurrence of a repeating entry or all of them
-- invite people where the calendar holds [participants](participants.md); whether they're told depends on the provider
+- record the people taking part as [participants](participants.md)
 - relate entries as [dependencies](dependencies.md) and [subtasks](subtasks.md)
-- create and delete calendars where the provider allows it
+- create and delete calendars
 
 It reads all your calendars, including the ones you've hidden in the sidebar, and knows your time zone and the language and region you chose in **Settings → General**, so it can speak your dates the way you write them.
 

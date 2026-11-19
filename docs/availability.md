@@ -47,15 +47,10 @@ A calendar's eye in the sidebar hides its availability along with its events and
 
 ## Where availability can live
 
-Any calendar you can add entries to can hold availability, including [Mitra](integrations/mitra.md) calendars. These can't:
-
-- [Notion](integrations/notion.md), [Todoist](integrations/todoist.md) and [Tempo](integrations/tempo.md) calendars, since their entries can't repeat.
-- Read-only calendars, such as [calendar subscriptions](integrations/subscriptions.md).
-
-Availability stays with its calendar. Deleting the calendar, or disconnecting the account it belongs to, deletes its availability too.
+Every [Mitra calendar](integrations/mitra.md) can hold availability. Availability stays with its calendar. Deleting the calendar deletes its availability too.
 
 ## Busy or free
 
 Availability has the same **Show as busy or free** choice as an event. It starts as **Free**, which suits working hours: you're happy to be booked then. Choose **Busy** for time others shouldn't take, like focus time.
 
-Inside Mitra, both look the same. The difference is what other people see. Free availability is never written to any of your accounts. Busy availability in a [CalDAV, Google or Apple calendar](integrations/caldav.md#busy-availability) is added to that calendar as busy events, with its name and place, so it shows on your phone and people who invite you see the time as taken.
+Inside Mitra, both look the same.

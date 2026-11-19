@@ -10,7 +10,7 @@ import { File } from '#features/files/File.js'
 import { Routine } from '#features/routines/Routine.js'
 import { RoutineSubscriber } from '#features/routines/server/RoutineSubscriber.js'
 import { Integration } from '#integrations'
-import { MitraCalendar, CalDAV, GoogleCalendar } from '#integrations/registerIntegrations.js'
+import { MitraCalendar } from '#integrations/registerIntegrations.js'
 import { children } from '#infrastructure/model'
 import { State } from './State.js'
 import { migrations, nameOf } from './migrations/index.js'
@@ -18,7 +18,7 @@ import { migrations, nameOf } from './migrations/index.js'
 /** ORM configuration shared between runtime (orm.ts) and migration CLI. */
 export function ormConfig(dbName: string) {
 	return defineConfig({
-		entities: [User, Identity, Integration, MitraCalendar, CalDAV, GoogleCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session, AccessToken, File, EntryFile, Routine, State],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation, NotificationSubscription, Session, AccessToken, File, EntryFile, Routine, State],
 		subscribers: [children.subscriber, RoutineSubscriber],
 		dbName,
 		extensions: [Migrator],

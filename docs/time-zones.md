@@ -36,14 +36,6 @@ Some entries come from other apps without any time zone, and show **Same time ev
 
 Picking a zone for such an entry gives it that zone and keeps its clock times. On a calendar that keeps such times, any entry can have one: pick **Same time everywhere** at the top of the list, and its clock times stay too.
 
-### Which calendars support this
-
-- **Calendars stored in Mitra**, [calendar servers](integrations/caldav.md) and [Google Calendar](integrations/google.md) keep each entry's time zone, and other apps see it. Mitra and calendar servers also keep times that are the same everywhere; Google Calendar has none, so moving such an entry there fixes it to a zone.
-- **[Notion](integrations/notion.md)** has no time zones. Its times show in yours, and the editor has no time zone row.
-- **[Todoist](integrations/todoist.md)** keeps each task's time zone, or [the same time everywhere](#same-time-everywhere) for what Todoist calls a floating time.
-- **[Tempo](integrations/tempo.md)** reads worklogs in the time zone of your Jira profile, and the editor has no time zone row either.
-- **[Subscriptions](integrations/subscriptions.md)** are read-only: you can see an entry's zone and switch between the two times, but not change it.
-
 ## Time zones in the week view
 
 The [week view](views/week.md) can show the hours of other time zones in columns beside yours, so you see what time it is there at every hour of your day.
