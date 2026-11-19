@@ -1,17 +1,19 @@
 import { Component, component, html, css, repeat, unsafeCSS, eventListener } from '@a11d/lit'
+import type { DateTime } from '@3mo/date-time'
 import { ReorderabilityController, ReorderabilityState } from '@3mo/reorderability'
 import { EntryType, Entry, EntryRank } from '#features/entries'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
 import { EntryEditorIntent } from '#features/entries/client/EntryEditorIntent.js'
 import { EntrySegments } from '#features/entries/client/EntrySegments.js'
+import { DayHours } from '#features/entries/client/DayHours.js'
 import { EntryGestureController } from '#features/entries/client/gestures/EntryGestureController.js'
 import type { EntryOccurrence } from '#features/recurrence'
 import type { EntrySegmentComponent } from '#features/entries/client/EventSegment.js'
 
 /**
- * The two lists of tasks awaiting a decision: the ones whose day has passed, and the ones that never
- * got a day. Neither is bounded by the window the calendar is showing.
+ * The tasks to act on: the ones whose day has passed, the ones planned for today, and the ones that never
+ * got a day. None is bounded by the window the calendar is showing.
  */
 @component('mitra-planning')
 export class Planning extends Component {
@@ -30,6 +32,25 @@ export class Planning extends Component {
 		return EntryStore.shown
 			.filter(occurrence => occurrence.overdue && !EntryStore.pending.previewing(occurrence.entry))
 			.sort((a, b) => a.lastDay!.valueOf() - b.lastDay!.valueOf())
+	}
+
+	/** Open tasks planned for today, all-day ones first, then by time. */
+	static get today(): ReadonlyArray<EntryOccurrence> {
+		const today = DayHours.today
+		return EntryStore.shown
+			.filter(occurrence => Planning.plannedOn(occurrence, today) && !EntryStore.pending.previewing(occurrence.entry))
+			.sort((a, b) => Number(!a.allDay) - Number(!b.allDay)
+				|| a.start!.valueOf() - b.start!.valueOf()
+				|| (a.entry.heading || '').localeCompare(b.entry.heading || ''))
+	}
+
+	/** Whether `occurrence` is an open task starting on `day`, a timed one by the week view's hours. */
+	static plannedOn(occurrence: EntryOccurrence, day: DateTime) {
+		const { entry, start } = occurrence
+		if (!entry.type?.isTask || !entry.open || !start) {
+			return false
+		}
+		return (occurrence.allDay ? start.dayStart : DayHours.week.dayOf(start)).equals(day)
 	}
 
 	/** Visible unscheduled tasks matching current lens filters: open before finished, in the manual order,
@@ -141,7 +162,7 @@ export class Planning extends Component {
 
 				/* The backlog never takes the whole column: the list below is also the unschedule
 				   drop target, which has to stay worth aiming at. */
-				> .overdue {
+				> .overdue, > .today {
 					flex: 0 1 auto;
 					max-block-size: 50%;
 				}
@@ -252,22 +273,11 @@ export class Planning extends Component {
 
 	protected override get template() {
 		const overdue = Planning.overdue
+		const today = Planning.today
 		const unscheduled = Planning.unscheduled
 		return html`
-			${!overdue.length ? html.nothing : html`
-				<section class="overdue">
-					${this.headerTemplate(t('Overdue'), overdue.length)}
-					<div class="entries" @pointerdown=${this.handlePointerDown}>
-						<ul>
-							${repeat(overdue, occurrence => EntryStore.identityOf(occurrence), occurrence => html`
-								<li>
-									<mitra-entry-segment dated .segment=${EntrySegments.for(occurrence)[0]}></mitra-entry-segment>
-								</li>
-							`)}
-						</ul>
-					</div>
-				</section>
-			`}
+			${this.scheduledTemplate('overdue', t('Overdue'), overdue, true)}
+			${this.scheduledTemplate('today', t('Today'), today, false)}
 			<section class="unscheduled">
 				${this.headerTemplate(t('Unscheduled'), unscheduled.length)}
 				${!unscheduled.length ? html`
@@ -286,6 +296,23 @@ export class Planning extends Component {
 						</ul>
 					</div>
 				`}
+			</section>
+		`
+	}
+
+	private scheduledTemplate(name: string, heading: string, occurrences: ReadonlyArray<EntryOccurrence>, dated: boolean) {
+		return !occurrences.length ? html.nothing : html`
+			<section class=${name}>
+				${this.headerTemplate(heading, occurrences.length)}
+				<div class="entries" @pointerdown=${this.handlePointerDown}>
+					<ul>
+						${repeat(occurrences, occurrence => EntryStore.identityOf(occurrence), occurrence => html`
+							<li>
+								<mitra-entry-segment ?dated=${dated} .segment=${EntrySegments.for(occurrence)[0]}></mitra-entry-segment>
+							</li>
+						`)}
+					</ul>
+				</div>
 			</section>
 		`
 	}

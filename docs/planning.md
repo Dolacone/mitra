@@ -34,12 +34,13 @@ For example, a presentation is due when Wednesday's planning meeting starts at 1
 
 The sidebar's **Planning** tab is where you plan: your unscheduled tasks wait there until you schedule them. Open the sidebar and switch to **Planning**. You can also swipe sideways from **Calendars**, with two fingers on a trackpad or one finger on a touch screen.
 
-The tab has two lists:
+The tab has three lists. **Overdue** and **Today** show only while they hold a task:
 
-- **Unscheduled** holds every unscheduled task. Until you [put them in order](#put-tasks-in-order), tasks with a due date come first, the soonest at the top. The rest follow in alphabetical order, and finished tasks move to the bottom.
 - **Overdue** holds the tasks you've fallen behind on. See [overdue tasks](#overdue-tasks).
+- **Today** holds the unfinished tasks planned for today: all-day ones first, then the rest by time. Today lasts until 01:00, as in the week view.
+- **Unscheduled** holds every unscheduled task. Until you [put them in order](#put-tasks-in-order), tasks with a due date come first, the soonest at the top. The rest follow in alphabetical order, and finished tasks move to the bottom.
 
-The number on the tab counts both lists, so you can see how much is waiting from the **Calendars** tab too. Click a task to open it, as you would in the views.
+The number on the tab counts the overdue and unscheduled tasks, so you can see how much is waiting from the **Calendars** tab too. Click a task to open it, as you would in the views.
 
 To note down a task for later, press **Add Task** at the bottom of the tab. It only asks for a title. The task goes to your [default calendar](calendars.md#where-new-entries-land), or to the first calendar that can hold tasks if your default can't.
 
