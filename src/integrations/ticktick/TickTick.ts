@@ -109,7 +109,7 @@ export class TickTick extends Integration<TickTickCredentials> {
 
 	override get ownership() {
 		return new IntegrationOwnership({
-			description: 'upstream', allDay: 'upstream', timeZone: 'upstream', end: 'upstream', recurrence: 'upstream',
+			description: 'upstream', allDay: 'upstream', timeZone: 'upstream', recurrence: 'upstream',
 			rank: 'mitra',
 		})
 	}
@@ -250,22 +250,20 @@ export class TickTick extends Integration<TickTickCredentials> {
 		return `${zoned.toPlainDateTime().toString({ smallestUnit: 'second' })}${zoned.offset.replace(':', '')}`
 	}
 
-	/** The dates `entry`'s schedule stands for, in the zone the task keeps unless the entry names another. */
-	static datesFrom(entry: Pick<Entry, 'start' | 'end' | 'allDay' | 'timeZone'>, stored: Pick<TickTickTask, 'timeZone'> | undefined, zone: TimeZone) {
+	/** The one date `entry`'s schedule starts on, as equal start and due, in the zone the task keeps unless the entry names another. */
+	static datesFrom(entry: Pick<Entry, 'start' | 'allDay' | 'timeZone'>, stored: Pick<TickTickTask, 'timeZone'> | undefined, zone: TimeZone) {
 		const start = entry.start as Date | undefined
-		const end = entry.end as Date | undefined
 		const kept = TimeZone.parse(stored?.timeZone) ?? zone
 		if (!start) {
 			return { startDate: null, dueDate: null, isAllDay: false, timeZone: kept.id }
 		}
 		if (entry.allDay) {
-			const first = TimeZone.UTC.dayOf(start)
-			const days = end ? first.until(TimeZone.UTC.dayOf(end)).days : 1
-			const startDate = TickTick.formatOf(kept.midnightOf(first), kept)
-			return { startDate, dueDate: days > 1 ? TickTick.formatOf(kept.midnightOf(first.add({ days })), kept) : startDate, isAllDay: true, timeZone: kept.id }
+			const startDate = TickTick.formatOf(kept.midnightOf(TimeZone.UTC.dayOf(start)), kept)
+			return { startDate, dueDate: startDate, isAllDay: true, timeZone: kept.id }
 		}
 		const clock = !entry.timeZone || entry.timeZone.floating ? kept : entry.timeZone.clock
-		return { startDate: TickTick.formatOf(start, clock), dueDate: TickTick.formatOf(end ?? start, clock), isAllDay: false, timeZone: clock.id }
+		const startDate = TickTick.formatOf(start, clock)
+		return { startDate, dueDate: startDate, isAllDay: false, timeZone: clock.id }
 	}
 
 	/** The task's text: a checklist's items from the description's task lines, each keeping the id of the item at its place. */

@@ -74,14 +74,15 @@ describe('TickTick', () => {
 			assert.deepEqual(dates, { startDate: '2026-12-16T00:00:00+0800', dueDate: '2026-12-16T00:00:00+0800', isAllDay: true, timeZone: 'Asia/Taipei' })
 		})
 
-		it('writes days as a due on the midnight after the last one', () => {
+		it('writes days as their first day alone, as TickTick keeps one date', () => {
 			const dates = TickTick.datesFrom(task({ allDay: true, start: instant('2026-12-01T00:00:00Z'), end: instant('2026-12-04T00:00:00Z') }), { timeZone: 'Asia/Taipei' }, TimeZone.UTC)
-			assert.equal(dates.dueDate, '2026-12-04T00:00:00+0800')
+			assert.deepEqual([dates.startDate, dates.dueDate], ['2026-12-01T00:00:00+0800', '2026-12-01T00:00:00+0800'])
 		})
 
-		it('writes a moment as equal times and a span as its end, in the account\'s zone where the entry names none', () => {
+		it('writes a moment, and a span as its start alone, as equal times in the account\'s zone where the entry names none', () => {
 			assert.deepEqual(TickTick.datesFrom(task({ start: instant('2027-04-01T02:00:00Z') }), undefined, taipei), { startDate: '2027-04-01T10:00:00+0800', dueDate: '2027-04-01T10:00:00+0800', isAllDay: false, timeZone: 'Asia/Taipei' })
-			assert.equal(TickTick.datesFrom(task({ start: instant('2027-04-01T02:00:00Z'), end: instant('2027-04-01T03:30:00Z') }), undefined, taipei).dueDate, '2027-04-01T11:30:00+0800')
+			const span = TickTick.datesFrom(task({ start: instant('2027-04-01T02:00:00Z'), end: instant('2027-04-01T03:30:00Z') }), undefined, taipei)
+			assert.deepEqual([span.startDate, span.dueDate], ['2027-04-01T10:00:00+0800', '2027-04-01T10:00:00+0800'])
 		})
 
 		it('writes an entry\'s own zone over the account\'s', () => {
@@ -94,10 +95,14 @@ describe('TickTick', () => {
 		})
 
 		it('reads back what it writes', () => {
-			const written = task({ start: instant('2027-04-01T02:00:00Z'), end: instant('2027-04-01T03:30:00Z'), timeZone: EntryTimeZone.parse('Asia/Taipei') })
+			const written = task({ start: instant('2027-04-01T02:00:00Z'), timeZone: EntryTimeZone.parse('Asia/Taipei') })
 			const read = new Entry({ id: 'e1' })
 			TickTick.applyTask(read, { id: 't1', projectId: 'p1', ...TickTick.datesFrom(written, undefined, taipei) }, taipei)
-			assert.deepEqual([read.start, read.end, read.allDay], [written.start, written.end, false])
+			assert.deepEqual([read.start, read.end, read.allDay], [written.start, undefined, false])
+		})
+
+		it('holds no end, so Mitra fits its entries to one date or time', () => {
+			assert.equal(new TickTick().ownership.holds('end'), false)
 		})
 
 		it('writes a checklist\'s task lines back as its items, each keeping the id of the item at its place', () => {
