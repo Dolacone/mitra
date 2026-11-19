@@ -4,7 +4,6 @@ import { createLogger } from '#infrastructure/logging/Logger.js'
 import { orm } from '#infrastructure/database/orm.js'
 import type { Environment } from '#infrastructure/server/Environment.js'
 import { User } from '../User.js'
-import type { AccessToken } from '../AccessToken.js'
 import { OidcClient } from './OidcClient.js'
 import { Session } from './Session.js'
 import { Cookie } from './Cookie.js'
@@ -14,8 +13,6 @@ declare global {
 		interface Request {
 			/** The signed-in user, attached by {@link Authentication.middleware} before any route runs. */
 			user: User
-			/** The access token an agent signed in with (`accessTokenMiddleware`), which bounds what it may do. */
-			accessToken?: AccessToken
 		}
 	}
 }
@@ -30,7 +27,7 @@ interface Transit {
 }
 
 /**
- * How the instance signs a request in, by its mode: the one local account, or a session the identity provider began. An agent's access token signs it in before any of them (`accessTokenMiddleware`).
+ * How the instance signs a request in, by its mode: the one local account, or a session the identity provider began.
  */
 export abstract class Authentication {
 	/** The instance's mode: a provider's sessions, else the one local account, which a developer keeps beside a provider. */
@@ -67,7 +64,7 @@ export abstract class Authentication {
 		return Session.cookieFor(this.environment)
 	}
 
-	readonly middleware: RequestHandler = (req, res, next) => req.accessToken ? next() : this.authenticate(req, res, next)
+	readonly middleware: RequestHandler = (req, res, next) => this.authenticate(req, res, next)
 
 	protected abstract authenticate(req: Request, res: Response, next: NextFunction): unknown
 

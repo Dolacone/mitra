@@ -1,5 +1,5 @@
 import { session } from '#infrastructure/http/PageSession.js'
-import { mcpAddress } from './accessTokens.js'
+import { mcpAddress } from './mcpAddress.js'
 
 /** What WebMCP asks of a tool (`document.modelContext`, a Chromium origin trial). */
 interface WebMcpTool {

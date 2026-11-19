@@ -14,22 +14,14 @@ A connected tool sees and changes exactly what you do in Mitra, across all your 
 
 ## Connect a tool
 
-Where people [sign in](sso.md), a tool needs an access token:
+Without sign-in, Mitra is for one person and asks for no token: the address is enough. Anyone who can reach that address can then use it, so keep such a server private. Where people [sign in](sso.md), a tool outside the browser can't connect.
 
-1. Open **Settings → AI** and choose **New token** under **Access tokens**.
-2. Name it after what it is for, such as the laptop or Claude, and choose **Read only** or **Read and write**.
-3. Copy the token. Mitra keeps only a fingerprint of it, so it is shown this once.
-
-A token stands for you until you revoke it in the same list, which also shows when each was last used. A read-only token offers the tool only what reads.
-
-Without sign-in, Mitra is for one person and asks for no token: the address is enough. Anyone who can reach that address can then use it, so keep such a server private.
-
-Many tools can also set themselves up: tell Claude Code or Cursor to connect to the address with the token, and it writes its own configuration. The examples below do the same by hand, and leave out the `Authorization` header where no token is needed.
+Many tools can also set themselves up: tell Claude Code or Cursor to connect to the address, and it writes its own configuration. The examples below do the same by hand.
 
 ### Claude Code
 
 ```sh
-claude mcp add --transport http mitra https://mitra.example.com/api/mcp --header "Authorization: Bearer mitra_…"
+claude mcp add --transport http mitra https://mitra.example.com/api/mcp
 ```
 
 ### Cursor
@@ -40,8 +32,7 @@ Add Mitra to `.cursor/mcp.json` in a project, or `~/.cursor/mcp.json` for all of
 {
   "mcpServers": {
     "mitra": {
-      "url": "https://mitra.example.com/api/mcp",
-      "headers": { "Authorization": "Bearer mitra_…" }
+      "url": "https://mitra.example.com/api/mcp"
     }
   }
 }
@@ -49,15 +40,14 @@ Add Mitra to `.cursor/mcp.json` in a project, or `~/.cursor/mcp.json` for all of
 
 ### Claude Desktop
 
-Claude Desktop reaches an address with a token through `mcp-remote`, which needs Node.js. Add it to `claude_desktop_config.json`:
+Claude Desktop reaches an address through `mcp-remote`, which needs Node.js. Add it to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "mitra": {
       "command": "npx",
-      "args": ["mcp-remote", "https://mitra.example.com/api/mcp", "--header", "Authorization:${MITRA_TOKEN}"],
-      "env": { "MITRA_TOKEN": "Bearer mitra_…" }
+      "args": ["mcp-remote", "https://mitra.example.com/api/mcp"]
     }
   }
 }
@@ -76,7 +66,7 @@ A connected tool works with your calendars as you would in Mitra. It can:
 It reads all your calendars, including the ones you've hidden in the sidebar, and knows your time zone and the language and region you chose in **Settings → General**, so it can speak your dates the way you write them.
 
 > [!CAUTION]
-> Entries come from calendars other people can write to, such as a shared calendar or an invitation. Their text reaches the tool like anything else it reads, so give a token that writes only to a tool you'd trust with a stranger's note in front of it.
+> Entries come from calendars other people can write to, such as a shared calendar or an invitation. Their text reaches the tool like anything else it reads, so connect only a tool you'd trust with a stranger's note in front of it.
 
 ## In the browser
 

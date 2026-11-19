@@ -12,7 +12,7 @@ export class Instance {
 	development?: boolean
 	/** The largest file in bytes (0 takes no uploads), and each account's total. */
 	files?: { readonly maxSize: number, readonly quota?: number }
-	/** Whether people sign in, so an agent needs an access token. */
+	/** Whether people sign in. */
 	signIn?: boolean
 	/** Whether agents may connect over MCP (`MITRA_MCP`). */
 	mcp?: boolean

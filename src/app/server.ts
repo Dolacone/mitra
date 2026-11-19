@@ -8,7 +8,6 @@ import { orm } from '#infrastructure/database/orm.js'
 import { environment } from '#infrastructure/server/Environment.js'
 import { Session } from '#features/identity/server/Session.js'
 import { Authentication } from '#features/identity/server/Authentication.js'
-import { accessTokenMiddleware } from '#features/identity/server/accessTokenMiddleware.js'
 import { synchronizer } from '#integrations/server/Synchronizer.js'
 import { eventsRouter } from '#infrastructure/realtime/events.js'
 import { staleTabs } from '#features/entries/server/staleTabs.js'
@@ -75,8 +74,6 @@ if (router) {
 
 // Unauthenticated health check endpoint for orchestrators.
 app.use('/api/health', healthRouter)
-// Agents sign in by their access token, and only to their endpoint.
-app.use('/api/mcp', accessTokenMiddleware)
 app.use(authentication.middleware)
 
 app.use('/api/events', eventsRouter)

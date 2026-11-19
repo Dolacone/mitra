@@ -1,8 +1,6 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client'
-import { AccessTokenScope } from '#features/identity'
-import { CreateAccessToken } from '#features/identity/server/CreateAccessToken.js'
 import { OperationServer } from '#infrastructure/operations/OperationServer.testing.js'
 
 /** The tools' names, as a set: the protocol gives their order no meaning. */
@@ -57,26 +55,5 @@ describe('The MCP endpoint', () => {
 			body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
 		})
 		assert.equal(response.status, 403)
-	})
-
-	it('offers an agent whose token only reads the tools that only read, and notes when a token was last used', async () => {
-		const { token } = await CreateAccessToken.call({ name: 'Laptop', scope: AccessTokenScope.Read })
-		const reader = new Client({ name: 'reader', version: '1.0.0' })
-		await reader.connect(new StreamableHTTPClientTransport(new URL(`${server.url}/mcp`), { requestInit: { headers: { authorization: `Bearer ${token}` } } }))
-		const { tools } = await reader.listTools()
-		await reader.close()
-		assert.deepEqual(names(tools), new Set(['get_context', 'get_overview', 'get_routines', 'search_entries', 'get_entry']))
-		const [row] = await server.query<{ last_used_at: unknown }>('select last_used_at from access_token')
-		assert.ok(row?.last_used_at)
-	})
-
-	it('refuses a token that is not one, rather than reading it as no token', async () => {
-		const response = await fetch(`${server.url}/mcp`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: 'Bearer mitra_forged' },
-			body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
-		})
-		assert.equal(response.status, 401)
-		assert.match(response.headers.get('www-authenticate') ?? '', /invalid_token/)
 	})
 })

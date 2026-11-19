@@ -126,15 +126,6 @@ describe('Authentication', () => {
 			assert.ok(renewed.expiresAt.getTime() > Date.now() + Session.lifetime * 0.9)
 		})
 
-		it('leaves a request an access token signed in to alone', async () => {
-			const { user } = await signedIn()
-			const request = await serve(await Authentication.of(orm.em.fork(), new Environment(provider)), req => {
-				req.user = user
-				req.accessToken = {} as typeof req.accessToken
-			})
-			assert.equal(await userOf(await request('/api/mcp')), user.id)
-		})
-
 		describe('signing in', () => {
 			const begin = () => mock.method(OidcClient.prototype, 'authorization', () => Promise.resolve({ url: new URL('https://idp.example.com/authorize?client_id=mitra'), verifier: 'the-verifier', state: 'the-state' }))
 			const transitOf = (response: Response) => JSON.parse(Buffer.from(valueOf(cookiesOf(response).get('Mitra.Auth'))!, 'base64url').toString())

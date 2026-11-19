@@ -12,7 +12,6 @@ import { Routine } from '#features/routines/Routine.js'
 import { Integration } from '#integrations'
 import { model, entity, primaryKey, property, manyToOne, embedded, unique } from '#infrastructure/model'
 import { ValidationError } from '#infrastructure/validation'
-import { AccessToken } from './AccessToken.js'
 import { Identity, type IdentityClaims } from './Identity.js'
 
 /** What a person may do on the instance: an administrator also looks after it, saying what holds for everyone on it. */
@@ -263,15 +262,6 @@ export class User {
 
 	getDevice(em: EntityManager, id: string) {
 		return em.findOneOrFail(NotificationSubscription, { id, userId: this.id }, { failHandler: () => new NotFoundError('No such device') })
-	}
-
-	getAccessTokens(em: EntityManager) {
-		return this.filterAccessTokens(em, {})
-	}
-
-	/** The user's access tokens `where` names, the newest first. */
-	filterAccessTokens(em: EntityManager, where: FilterQuery<AccessToken>) {
-		return em.find(AccessToken, { $and: [where, { userId: this.id }] }, { orderBy: { createdAt: 'desc' } })
 	}
 
 	/** Keeps a query of entries to the user's calendars `sources` names, joined through their integration rather than listed by id. */

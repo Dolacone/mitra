@@ -1,7 +1,7 @@
 import { Component, component, html, state } from '@a11d/lit'
 import { docsPage } from '#infrastructure/http/website.js'
 import { session } from '#infrastructure/http/PageSession.js'
-import { mcpAddress } from './accessTokens.js'
+import { mcpAddress } from './mcpAddress.js'
 
 /** Where agents connect, laid out as its setting's list, and where the documentation says how each client does. */
 @component('mitra-mcp-connection')

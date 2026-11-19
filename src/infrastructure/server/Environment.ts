@@ -40,7 +40,7 @@ export class Environment {
 		this.oidc = this.oidcOf(variables)
 	}
 
-	/** Whether people sign in, so an agent needs an access token. */
+	/** Whether people sign in. */
 	get signedIn() {
 		return !!this.oidc
 	}

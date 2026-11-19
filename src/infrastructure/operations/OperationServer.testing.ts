@@ -49,7 +49,6 @@ export class OperationServer {
 		const { orm } = await import('#infrastructure/database/orm.js')
 		const { operationsRouter } = await import('./server/operationsRouter.js')
 		const { mcpRouter } = await import('#features/agents/server/mcp.js')
-		const { accessTokenMiddleware } = await import('#features/identity/server/accessTokenMiddleware.js')
 		await import('#app/operations.js')
 
 		const em = orm.em.fork()
@@ -75,7 +74,7 @@ export class OperationServer {
 		app.use(express.json({ reviver: (_key, value) => models.shallConstruct(value) ? models.construct(value) : value }))
 		app.use('/api/entries', staleTabs)
 		app.use('/api/sources', express.text({ type: 'text/calendar', limit: '25mb' }))
-		app.use('/api/mcp', accessTokenMiddleware, mcpRouter)
+		app.use('/api/mcp', mcpRouter)
 		app.use('/api', operationsRouter(() => orm.em.fork()))
 		app.use(errorHandler)
 		const server = await new Promise<Server>(resolve => {

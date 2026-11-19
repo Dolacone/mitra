@@ -2,7 +2,6 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { ValidationError } from '#infrastructure/validation'
 import { Source } from '#features/sources'
-import { AccessToken } from '#features/identity'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
 import { revive, wireOf } from './wire.testing.js'
 import { instant } from './instant.js'
@@ -29,9 +28,8 @@ describe('instant', () => {
 	it('gives every plain date field a date across the wire', () => {
 		const at = new Date('2026-10-14T16:30:00.000Z')
 		const source = revive<Source>(wireOf(new Source({ uri: 'mitra://local', name: 'Personal', importedAt: at })))
-		const token = revive<AccessToken>(wireOf(Object.assign(new AccessToken(), { createdAt: at, lastUsedAt: at })))
 		const device = revive<NotificationSubscription>(wireOf(Object.assign(new NotificationSubscription(), { lastSeenAt: at })))
-		for (const value of [source.importedAt, token.createdAt, token.lastUsedAt, device.lastSeenAt]) {
+		for (const value of [source.importedAt, device.lastSeenAt]) {
 			assert.ok(value instanceof Date, String(value))
 			assert.equal(value.toISOString(), at.toISOString())
 		}

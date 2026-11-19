@@ -3,7 +3,7 @@ import { Setting, setting, type SettingStorage } from '#features/settings/client
 import { session } from '#infrastructure/http/PageSession.js'
 import './McpConnection.js'
 
-/** Where AI tools connect to the calendars (MCP), and the access tokens they connect with. Nothing here is a preference. */
+/** Where AI tools connect to the calendars (MCP). Nothing here is a preference. */
 @setting()
 export class McpSetting extends Setting<undefined> {
 	readonly heading = t('AI connectors')

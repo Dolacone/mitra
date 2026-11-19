@@ -28,6 +28,7 @@ import { Migration20261115000828_SourceRoutinesDisabled } from './Migration20261
 import { Migration20261119015002_RemoveRelations } from './Migration20261119015002_RemoveRelations.js'
 import { Migration20261119020059_RemoveParticipants } from './Migration20261119020059_RemoveParticipants.js'
 import { Migration20261119020926_RemoveLastSeenVersion } from './Migration20261119020926_RemoveLastSeenVersion.js'
+import { Migration20261119021445_RemoveAccessTokens } from './Migration20261119021445_RemoveAccessTokens.js'
 /** A migration's name as its file spells it, which keys the log: esbuild renames a class that refers to itself (`_Migration…`). */
 export const nameOf = (migration: Constructor<Migration>) => migration.name.replace(/^_/, '')
 
@@ -64,4 +65,5 @@ export const migrations: Array<Constructor<Migration>> = [
 	Migration20261119015002_RemoveRelations,
 	Migration20261119020059_RemoveParticipants,
 	Migration20261119020926_RemoveLastSeenVersion,
+	Migration20261119021445_RemoveAccessTokens,
 ]

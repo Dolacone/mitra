@@ -24,8 +24,6 @@ import { DialogKeyboardShortcuts } from '#features/commands/client/DialogKeyboar
 import { DialogSettings } from '#features/settings/client/DialogSettings.js'
 import { SettingRow } from '#features/settings/client/SettingRow.js'
 import { NotificationDevices } from '#features/reminders/client/NotificationDevices.js'
-import { DialogNewAccessToken } from '#features/agents/client/DialogNewAccessToken.js'
-import { DialogAccessToken } from '#features/agents/client/DialogAccessToken.js'
 import { offerToolsToBrowserAgents } from '#features/agents/client/webMcp.js'
 import { EntryStatusComponent } from '#features/entries/client/EntryStatus.js'
 import { SourceIcon } from '#features/sources/client/SourceIcon.js'
@@ -210,8 +208,6 @@ export class Mitra extends Application {
 			${DialogSettings.styles}
 			${SettingRow.styles}
 			${NotificationDevices.styles}
-			${DialogNewAccessToken.styles}
-			${DialogAccessToken.styles}
 			${LocalePreview.styles}
 			${DialogEntryScope.styles}
 			${DialogDeleteEntries.styles}
