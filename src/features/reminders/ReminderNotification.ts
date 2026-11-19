@@ -1,10 +1,11 @@
 /**
- * Rendered on the server per device, in its locale and zone; the service worker only shows the result. The body states
+ * Rendered on the server per device, in its zone and the app's locale; the service worker only shows the result. The body states
  * the entry's time, never a countdown: a shown notification is never re-rendered, and Android counts down from `timestamp`.
  */
 
 import { TimeZone } from '#features/time/TimeZone.js'
-import { localizeIn } from '#infrastructure/i18n/dictionaries.js'
+import { localize } from '#infrastructure/i18n/dictionaries.js'
+import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 
 const MINUTE = 60_000
 
@@ -56,12 +57,10 @@ export interface PushPayload {
 
 /** The device a notification is rendered for. */
 export interface Reader {
-	/** A BCP 47 tag: its language picks the words, the whole tag the clock and the date order. */
-	locale?: string
 	timeZone?: TimeZone
 }
 
-type Localize = ReturnType<typeof localizeIn>
+type Localize = typeof localize
 
 export class ReminderNotification {
 	/** How long after the start a reminder is still worth delivering. */
@@ -116,7 +115,7 @@ export class ReminderNotification {
 
 	/** The notification as `reader` shows it. */
 	for(reader: Reader, now: number): PushPayload {
-		const t = localizeIn(reader.locale)
+		const t = localize
 		const { facts } = this
 		const title = facts.rehearsal
 			? facts.kind === 'task' ? t('Test task') : t('Test event')
@@ -141,12 +140,11 @@ export class ReminderNotification {
 		if (!when || at === undefined) {
 			return ''
 		}
-		const locale = reader.locale ?? undefined
 		const readerZone = reader.timeZone
 		// All-day and floating values encode wall-clock time as UTC; only the reader's "today" is read in their zone.
 		const zone = when.allDay || when.floating ? TimeZone.UTC : readerZone
-		const day = this.dayPhrase(at, now, zone, readerZone, locale, t)
-		const clock = when.allDay ? t('All day') : this.clockPhrase(when, zone, locale)
+		const day = this.dayPhrase(at, now, zone, readerZone, t)
+		const clock = when.allDay ? t('All day') : this.clockPhrase(when, zone)
 		// An all-day task due today reads "Due Today"; a timed one just "Due 10:00".
 		const timing = when.due
 			? t('Due ${when}', { when: (when.allDay ? [day || t('Today')] : [day, clock]).filter(Boolean).join(' ') })
@@ -175,7 +173,7 @@ export class ReminderNotification {
 	}
 
 	/** Empty for today, else "Tomorrow", "Yesterday" or the date. */
-	private dayPhrase(at: number, now: number, zone: TimeZone | undefined, readerZone: TimeZone | undefined, locale: string | undefined, t: Localize): string {
+	private dayPhrase(at: number, now: number, zone: TimeZone | undefined, readerZone: TimeZone | undefined, t: Localize): string {
 		const target = (zone ?? TimeZone.device).dayOf(new Date(at))
 		const today = (readerZone ?? TimeZone.device).dayOf(new Date(now))
 		if (target.equals(today)) {
@@ -187,11 +185,11 @@ export class ReminderNotification {
 		if (target.equals(today.subtract({ days: 1 }))) {
 			return t('Yesterday')
 		}
-		return new Intl.DateTimeFormat(locale, { timeZone: zone?.id, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(at))
+		return new Intl.DateTimeFormat(AppLocale.tag, { timeZone: zone?.id, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(at))
 	}
 
-	private clockPhrase(when: PushWhen, zone: TimeZone | undefined, locale: string | undefined): string {
-		const format = new Intl.DateTimeFormat(locale, { timeZone: zone?.id, timeStyle: 'short' })
+	private clockPhrase(when: PushWhen, zone: TimeZone | undefined): string {
+		const format = new Intl.DateTimeFormat(AppLocale.tag, { timeZone: zone?.id, timeStyle: 'short' })
 		return when.start !== undefined && when.end !== undefined && when.end > when.start
 			? format.formatRange(new Date(when.start), new Date(when.end))
 			: format.format(new Date(ReminderNotification.anchorOf(when)!))

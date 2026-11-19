@@ -12,7 +12,7 @@ const maximumLength = 2000
 
 /**
  * Posts every notification, whoever it is for, to the one webhook the operator set (`MITRA_DISCORD_WEBHOOK_URL`), read in
- * the locale and zone of the user's last seen device, else in their home zone.
+ * the zone of the user's last seen device, else in their home zone.
  */
 export class Discord {
 	constructor(private readonly environment: Environment) { }
@@ -37,7 +37,7 @@ export class Discord {
 			return
 		}
 		const [device] = await user.getDevices(orm.em.fork())
-		const reader: Reader = { locale: device?.locale, timeZone: device?.timeZone ?? user.timeZones?.home?.zone ?? TimeZone.default }
+		const reader: Reader = { timeZone: device?.timeZone ?? user.timeZones?.home?.zone ?? TimeZone.default }
 		try {
 			const response = await fetch(webhook, {
 				method: 'POST',

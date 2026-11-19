@@ -16,7 +16,7 @@ Click into the location field to see places used recently in your calendars. As 
 
 Suggestions favour places near you. The first time you click into the field, your browser may ask whether Mitra may use your location. If you allow it, your position goes along with each search, so nearby places come first. If you don't, suggestions still work, without that preference.
 
-Photon names places in English, German or French when Mitra is set to one of them, and in the local language otherwise.
+Photon names places in English.
 
 ## Privacy
 
@@ -38,5 +38,3 @@ After a restart, searches go to your server. Nothing changes in the app. See [Co
 ## Troubleshooting
 
 If only recent places show up, Photon didn't answer within five seconds or refused the search, which happens when the public server is busy or limiting requests. Mitra writes a warning to its [log](logging.md). The field still takes anything you type, and [your own Photon server](#use-your-own-photon-server) avoids the problem.
-
-If places are named in an unexpected language, that's Photon's limit: it only knows English, German and French, and uses each place's local name for any other language.

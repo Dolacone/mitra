@@ -109,7 +109,7 @@ describe('migrate', () => {
 			await connection.execute('insert into `user` (`id`, `username`) values (\'u\', \'legacy\')')
 			await connection.execute('insert into `notification_subscription` (`id`, `endpoint`, `keys`, `user_id`, `language`) values (\'s\', \'e\', \'{}\', \'u\', \'en-GB\')')
 
-			await orm.migrator.up()
+			await orm.migrator.up({ to: 'Migration20261013165004_NotificationSubscriptionLocale' })
 
 			const columns = await connection.execute<Array<{ name: string }>>('select name from pragma_table_info(\'notification_subscription\')')
 			assert.ok(!columns.some(column => column.name === 'language'))

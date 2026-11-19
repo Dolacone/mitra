@@ -1,6 +1,5 @@
 import { Component, component, html, property, css, repeat, type PropertyValues, eventListener, queryAsync, styleMap } from '@a11d/lit'
 import { DateTime } from '@3mo/date-time'
-import { Localizer } from '@3mo/localization'
 import { observeResize } from '@3mo/resize-observer'
 import { type TimeZone } from '#features/time/TimeZone.js'
 import { type UserTimeZone } from '#features/time/UserTimeZones.js'
@@ -575,14 +574,8 @@ export class Days extends Component {
 		// Past midnight the week's hours go on counting: 24:06, not 00:06.
 		const pastMidnight = (minute: number) => minute < 1440 ? undefined : `${Math.floor(minute / 60)}:${String(minute % 60).padStart(2, '0')}`
 		const currentTimeString = pastMidnight(hours.from + currentMinute) ?? today.format({ timeStyle: 'short' })
-		// A 12-hour clock names a whole hour alone ("4 PM"); a 24-hour one keeps its minutes, as its hour alone reads "16 Uhr".
-		const hourStyle: Intl.DateTimeFormatOptions = new Intl.DateTimeFormat(Localizer.locales.current, { hour: 'numeric' }).resolvedOptions().hour12 ? { hour: 'numeric' } : { timeStyle: 'short' }
-		const here = TimeZones.here
-		// A zone a half or three quarters of an hour off here (India, Nepal) lands between hours, so it keeps its minutes.
-		const styleIn = (zone: TimeZone): Intl.DateTimeFormatOptions => ({
-			...(zone.offsetAt(reference) - here.offsetAt(reference)) % 60 === 0 ? hourStyle : { timeStyle: 'short' },
-			timeZone: zone.id,
-		})
+		const hourStyle: Intl.DateTimeFormatOptions = { timeStyle: 'short' }
+		const styleIn = (zone: TimeZone): Intl.DateTimeFormatOptions => ({ ...hourStyle, timeZone: zone.id })
 		const zones = this.timeZoneColumns
 
 		return html`

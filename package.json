@@ -30,7 +30,6 @@
 		"db:migration:down": "node ./scripts/db.ts down",
 		"screenshots": "node ./scripts/screenshots.ts",
 		"i18n:generate": "node ./scripts/i18n.ts",
-		"i18n:analyze": "node ./scripts/i18n.ts --analyze",
 		"zones:generate": "node ./scripts/goldenZones.ts",
 		"changelog": "node ./scripts/changelog.ts"
 	},

@@ -63,7 +63,7 @@ A connected tool works with your calendars as you would in Mitra. It can:
 - create, change, complete and delete entries, one occurrence of a repeating entry or all of them
 - create and delete calendars
 
-It reads all your calendars, including the ones you've hidden in the sidebar, and knows your time zone and the language and region you chose in **Settings → General**, so it can speak your dates the way you write them.
+It reads all your calendars, including the ones you've hidden in the sidebar, and knows your time zone and how Mitra writes dates, so it can speak your dates the way Mitra shows them.
 
 > [!CAUTION]
 > Entries come from calendars other people can write to, such as a shared calendar or an invitation. Their text reaches the tool like anything else it reads, so connect only a tool you'd trust with a stranger's note in front of it.

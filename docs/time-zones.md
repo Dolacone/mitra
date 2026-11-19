@@ -20,7 +20,7 @@ Open an entry to see its zone in the row with the globe, below its dates, writte
 
 ### Change an entry's time zone
 
-Click the zone and pick another one. The list starts with the zones of the country your [language](settings.md#general) is set for, then every zone, and marks your home with a house where it stands, and your current zone with a pin while you're away. Zones that keep the same name and clock all year share one row, which stands for one of their cities, your own zone's or your country's where it has one, such as Central European Time for Berlin in Germany. The arrow at the end of the row unfolds the other cities, such as Paris and Amsterdam, and a search unfolds the rows it finds something in. Type a city, a country, a zone's name or an offset to find one.
+Click the zone and pick another one. The list starts with the zones of the United States, then every zone, and marks your home with a house where it stands, and your current zone with a pin while you're away. Zones that keep the same name and clock all year share one row, which stands for one of their cities, your own zone's or your country's where it has one, such as Central European Time for Berlin in Germany. The arrow at the end of the row unfolds the other cities, such as Paris and Amsterdam, and a search unfolds the rows it finds something in. Type a city, a country, a zone's name or an offset to find one.
 
 The entry keeps its clock times in the new zone: a meeting at 9:00 in Berlin becomes a meeting at 9:00 in New York. If only the zone was wrong and the meeting itself didn't move, change its times afterwards.
 
@@ -49,7 +49,7 @@ The [week view](views/week.md) can show the hours of other time zones in columns
 
 Point at the top of the time column and press **＋** (**Add time zone**). The list ticks the zones you already have, with a house on your home and a pin on your current zone while you're away. Pick a zone to add its column, or a ticked one to take its column away. The list stays open for more. Your current zone stays the column next to the days, and your home stays too.
 
-Each column is headed by a short name: the abbreviation people use for the zone, such as "PDT" or "BST", or where none is in use, its place, such as "Iran". The abbreviation follows your [language](settings.md#general): Berlin reads "CEST" in English and "MESZ" in German, and where your region has none for a zone, the zone's own region lends its. Point at a name to see the full one.
+Each column is headed by a short name: the abbreviation people use for the zone, such as "PDT" or "BST", or where none is in use, its place, such as "Iran". Where English as written in the United States has no abbreviation for a zone, the zone's own region lends its. Point at a name to see the full one.
 
 ### Rename or remove a time zone
 

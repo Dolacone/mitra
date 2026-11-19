@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { SettleHomeTimeZone } from '#features/time/server/SettleHomeTimeZone.js'
 import { SetDefaultCalendar } from '#features/identity/server/SetDefaultCalendar.js'
-import { SaveSettings } from '#features/identity/server/SaveSettings.js'
 import { CreateSource } from '#features/sources/server/CreateSource.js'
 import { OperationServer } from '#infrastructure/operations/OperationServer.testing.js'
 
@@ -36,11 +35,9 @@ describe('GetContext', () => {
 		])
 	})
 
-	it('says how the user reads dates, by the language and region chosen in the settings', async () => {
-		await SaveSettings.call({ settings: { locale: 'fa-IR' } })
+	it('says how the user reads dates, in the app\'s one locale', async () => {
 		const context = await server.tool<Context>('get_context')
-		assert.deepEqual([context.locale, context.calendar, context.weekStart, context.weekend], ['fa-IR', 'persian', 'saturday', ['friday']])
+		assert.deepEqual([context.locale, context.calendar, context.weekStart, context.weekend], ['en-US-u-hc-h23', 'gregory', 'sunday', ['saturday', 'sunday']])
 		assert.match(context.today.date, /^\d{4}-\d{2}-\d{2}$/)
-		assert.match(context.today.label, /[۰-۹]/)
 	})
 })

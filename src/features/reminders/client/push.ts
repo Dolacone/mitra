@@ -24,7 +24,6 @@ async function subscribe(): Promise<PushSubscription> {
 		endpoint: endpoint!,
 		keys: { p256dh: keys!.p256dh!, auth: keys!.auth! },
 		timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		locale: String(Localizer.locales.current),
 		...DeviceFacts.current(),
 	})
 	return subscription
@@ -46,9 +45,6 @@ export function syncPushSubscription() {
 		subscribe().catch(() => void 0)
 	}
 }
-
-// Notifications are written in the locale the device last registered with.
-Localizer.locales.change.subscribe(() => syncPushSubscription())
 
 export async function currentEndpoint(): Promise<string | undefined> {
 	if (!pushSupported() || Notification.permission !== 'granted') {

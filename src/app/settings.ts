@@ -1,7 +1,6 @@
 // Side-effect imports registering settings in row display order.
 // ThemeSetting executes at module evaluation to apply data-theme before first paint.
 import './ThemeSetting.js'
-import '#infrastructure/i18n/LocaleSetting.js'
 import '#features/calendar/client/DefaultViewSetting.js'
 import '#features/entries/client/HideDoneTasksSetting.js'
 import '#features/entries/client/HideCancelledSetting.js'

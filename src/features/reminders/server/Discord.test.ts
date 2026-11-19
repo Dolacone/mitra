@@ -18,7 +18,7 @@ const notification = (heading: string) => new ReminderNotification({
 	entry: { id: 'standup' },
 })
 
-const reader = { locale: 'en', timeZone: TimeZone.of('Europe/Berlin') }
+const reader = { timeZone: TimeZone.of('Europe/Berlin') }
 
 /** Intl's thin and narrow spaces, as plain ones. */
 const plain = (text: string) => text.replace(/[\u2009\u202f\u00a0]/g, ' ')
@@ -35,12 +35,12 @@ describe('Discord', () => {
 	it('posts the reminder as its reader reads it, with a link to the entry on the instance', () => {
 		const discord = new Discord(new Environment({ MITRA_DISCORD_WEBHOOK_URL: webhook, MITRA_URL: 'https://mitra.example.com' }))
 		const { content } = discord.message(notification('Standup'), reader, start - 30 * 60_000)
-		assert.equal(plain(content), '**Standup**\n10:00 \u2013 11:00 AM\nhttps://mitra.example.com/?date=2026-09-08&selected=standup')
+		assert.equal(plain(content), '**Standup**\n10:00 \u2013 11:00\nhttps://mitra.example.com/?date=2026-09-08&selected=standup')
 	})
 
 	it('leaves the link out where the instance has no address', () => {
 		const discord = new Discord(new Environment({ MITRA_DISCORD_WEBHOOK_URL: webhook }))
-		assert.equal(plain(discord.message(notification('Standup'), reader, start - 30 * 60_000).content), '**Standup**\n10:00 \u2013 11:00 AM')
+		assert.equal(plain(discord.message(notification('Standup'), reader, start - 30 * 60_000).content), '**Standup**\n10:00 \u2013 11:00')
 	})
 
 	it('pings no one, whatever a heading says', () => {

@@ -3,7 +3,7 @@ import { User } from '#features/identity'
 import { TimeZone } from '#features/time/TimeZone.js'
 import '#features/time/TimeSpan.time.js'
 import { createLogger } from '#infrastructure/logging/Logger.js'
-import { localizeIn } from '#infrastructure/i18n/dictionaries.js'
+import { localize } from '#infrastructure/i18n/dictionaries.js'
 import { State } from '#infrastructure/database/State.js'
 import { BackgroundJob } from '#infrastructure/server/BackgroundJob.js'
 import { DueReminder } from '../Reminders.js'
@@ -89,7 +89,7 @@ export class ReminderScheduler {
 		const { occurrence: { entry }, minutes, fireAt } = reminder
 		const notification = reminder.notification()
 		const send = () => {
-			this.logger.info(`Reminder: "${entry.heading}" ${minutes ? `in ${TimeSpan.fromMinutes(minutes).formatAsWholeUnit(localizeIn('en'))}` : 'now'}`)
+			this.logger.info(`Reminder: "${entry.heading}" ${minutes ? `in ${TimeSpan.fromMinutes(minutes).formatAsWholeUnit(localize)}` : 'now'}`)
 			notifier.send(user, notification).catch(error => this.logger.warn('Reminder delivery failed:', error instanceof Error ? error.message : error))
 		}
 		const delay = fireAt - now

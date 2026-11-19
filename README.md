@@ -36,7 +36,7 @@ Most tools make you choose between a calendar for your time and a to-do app for 
 - Planning: tasks without a date wait in the Planning tab with a due date and an estimate, until you drag them into your week.
 - Availability, checklists, files attached to entries, reminders as push notifications, guest lists with replies, and a command palette for the keyboard.
 - AI connectors: Claude, Cursor and other AI tools can read and plan your calendars over the Model Context Protocol (MCP).
-- Thirteen languages, right to left included, light and dark themes, and a color for every calendar.
+- Light and dark themes, and a color for every calendar.
 - One small container with a database you own, and no telemetry.
 
 ## Get started

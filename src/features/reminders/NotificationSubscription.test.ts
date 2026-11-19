@@ -17,21 +17,6 @@ describe('NotificationSubscription', () => {
 			assert.ok(registered.lastSeenAt instanceof Date)
 		})
 
-		it('keeps the locale when a registration cannot tell it', () => {
-			const registered = subscription()
-			registered.register('u', { keys, locale: 'de' })
-			registered.register('u', { keys })
-			assert.equal(registered.locale, 'de')
-		})
-
-		it('keeps only a locale Intl takes, written its canonical way', () => {
-			const registered = subscription()
-			registered.register('u', { keys, locale: 'en-gb' })
-			assert.equal(registered.locale, 'en-GB')
-			registered.register('u', { keys, locale: 'de-u-ca-' })
-			assert.equal(registered.locale, 'en-GB')
-		})
-
 		it('forgets the name the previous user gave the device once another user registers it', () => {
 			const registered = subscription()
 			registered.register('someone-else', { keys })
@@ -48,12 +33,11 @@ describe('NotificationSubscription', () => {
 		})
 	})
 
-	it('keeps the name and locale of the subscription the browser rotated away from', () => {
+	it('keeps the name of the subscription the browser rotated away from', () => {
 		const rotated = new NotificationSubscription({ id: 'r', endpoint: 'https://push.example.com/new' })
 		rotated.register('u', { keys })
-		rotated.succeed(new NotificationSubscription({ ...subscription(), locale: 'de' }))
+		rotated.succeed(subscription())
 		assert.equal(rotated.name, 'Phone')
-		assert.equal(rotated.locale, 'de')
 	})
 
 	it('falls back to the reported name when renamed to nothing', () => {

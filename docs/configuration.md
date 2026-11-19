@@ -88,7 +88,7 @@ The [installed app](install-app.md) keeps the name and icon "Mitra", because tho
 | Variable | Default | Description |
 | --- | --- | --- |
 | `MITRA_URL` | *(unset)* | The [public address](#set-the-public-url) people reach Mitra at, such as `https://mitra.example.com`. Links in Discord notifications point to it. Optional while you try Mitra on localhost, and recommended for any public server. |
-| `MITRA_NAME` | *(Mitra, in each person's language)* | The [name](#name-your-instance) shown in the sidebar, the browser tab and the installed app. |
+| `MITRA_NAME` | *(Mitra)* | The [name](#name-your-instance) shown in the sidebar, the browser tab and the installed app. |
 | `MITRA_PORT` | `3000` | The port the server listens on. With Docker, change the host side of the port mapping instead; set this only when the process itself must listen elsewhere. The built-in health check follows it. |
 | `MITRA_LOG_LEVEL` | `info` | [How much Mitra logs](logging.md): `error`, `warn`, `info`, `debug` or `trace`. Each level includes everything quieter than it. |
 | `MITRA_MCP` | *(on)* | Set to `off` (or `false`, `0`, `no`) to close the [address AI tools connect to](ai-connectors.md). |

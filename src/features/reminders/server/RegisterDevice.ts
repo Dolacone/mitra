@@ -22,14 +22,6 @@ class Registration {
 	readonly timeZone?: string
 
 	@validation(z.string().nullish())
-	@description('The locale its reminders are worded in.')
-	readonly locale?: string
-
-	@validation(z.string().nullish())
-	@description('What a page loaded before locales sends until it reloads.')
-	readonly language?: string
-
-	@validation(z.string().nullish())
 	@description('The device\'s platform, which names it.')
 	readonly platform?: string
 
@@ -44,17 +36,16 @@ class Registration {
 
 @operation(Registration)
 @label('Register a device')
-@description('Registers a browser\'s push subscription for reminders, with the locale and zone they are worded in; a rotated subscription takes over its predecessor\'s name.')
+@description('Registers a browser\'s push subscription for reminders, with the zone they are worded in; a rotated subscription takes over its predecessor\'s name.')
 @http({ method: 'POST', path: '/push/subscription' })
 export class RegisterDevice extends Operation<Registration, NotificationSubscription> {
 	async run({ em, user }: OperationContext) {
-		const { endpoint, previousEndpoint, keys, timeZone, locale, language, platform, browser, mobile } = this.parameters
+		const { endpoint, previousEndpoint, keys, timeZone, platform, browser, mobile } = this.parameters
 		const existing = await NotificationSubscription.at(em, endpoint)
 		const subscription = existing ?? new NotificationSubscription({ id: crypto.randomUUID(), endpoint })
 		subscription.register(user.id, {
 			keys: { p256dh: keys.p256dh, auth: keys.auth },
 			timeZone: timeZone ?? undefined,
-			locale: locale ?? language ?? undefined,
 			platform: platform ?? undefined,
 			browser: browser ?? undefined,
 			mobile: mobile ?? undefined,

@@ -24,7 +24,7 @@ A repeating entry reminds you for each occurrence. Tasks you've marked done or c
 
 ## When a reminder goes off
 
-The notification shows the entry's title, when it is, and its location, in the language and time zone of the device. It stays until you dismiss it, and tapping it opens the entry. **Snooze 10 min** brings it back later, and on a task, **Done** marks the task done without opening Mitra. Safari and Firefox don't show these buttons.
+The notification shows the entry's title, when it is, and its location, in the time zone of the device. It stays until you dismiss it, and tapping it opens the entry. **Snooze 10 min** brings it back later, and on a task, **Done** marks the task done without opening Mitra. Safari and Firefox don't show these buttons.
 
 A device that was offline when a reminder went out drops it five minutes after the entry's start, rather than showing it late.
 

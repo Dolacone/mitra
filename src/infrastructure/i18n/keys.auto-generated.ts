@@ -7,138 +7,55 @@ export {}
 
 declare global {
 	interface LocalizableStringKeys {
-		"\"${heading}\" could not be added: ${message}": unknown
-		"\"${heading}\" could not be copied: ${message}": unknown
-		"\"${heading}\" is closed, but ${count:pluralityNumber} of its subtasks are still open.": unknown
 		"\"${name}\" leaves the Routines tab, and entries with its title are no longer gathered into a routine. Its entries stay on your calendar.": unknown
 		"${browser} on ${platform}": unknown
 		"${count:number} in a row": unknown
-		"${count:number} more": unknown
 		"${count:number} of ${total:number}": unknown
 		"${count:number} of ${total:number} kept": unknown
-		"${count:pluralityNumber} are availability": unknown
-		"${count:pluralityNumber} are marked as free": unknown
-		"${count:pluralityNumber} are now in both calendars": unknown
-		"${count:pluralityNumber} arrive with everything they carry": unknown
-		"${count:pluralityNumber} awaiting": unknown
-		"${count:pluralityNumber} become ${type}": unknown
-		"${count:pluralityNumber} belong to a series with edited occurrences": unknown
-		"${count:pluralityNumber} carry a progress percentage": unknown
-		"${count:pluralityNumber} carry a visibility": unknown
-		"${count:pluralityNumber} copies could not be taken back and are now in both calendars.": unknown
-		"${count:pluralityNumber} documentation changes": unknown
 		"${count:pluralityNumber} entries": unknown
-		"${count:pluralityNumber} entries added to ${name}": unknown
-		"${count:pluralityNumber} entries arrive, the flattened series included": unknown
-		"${count:pluralityNumber} entries copied to ${name}": unknown
-		"${count:pluralityNumber} entries moved to ${name}": unknown
-		"${count:pluralityNumber} features": unknown
-		"${count:pluralityNumber} get a fixed time zone": unknown
-		"${count:pluralityNumber} go back to To Do": unknown
-		"${count:pluralityNumber} have participants": unknown
-		"${count:pluralityNumber} improvements": unknown
-		"${count:pluralityNumber} landed anyway and could not be taken back. Delete them in ${name} by hand.": unknown
-		"${count:pluralityNumber} lose their attachments": unknown
-		"${count:pluralityNumber} lose their cancelled status": unknown
-		"${count:pluralityNumber} lose their description": unknown
-		"${count:pluralityNumber} lose their due date": unknown
-		"${count:pluralityNumber} lose their end date": unknown
-		"${count:pluralityNumber} lose their estimate": unknown
-		"${count:pluralityNumber} lose their location": unknown
-		"${count:pluralityNumber} lose their reminders": unknown
-		"${count:pluralityNumber} lose their time zone": unknown
-		"${count:pluralityNumber} maintenance changes": unknown
-		"${count:pluralityNumber} maybe": unknown
-		"${count:pluralityNumber} no": unknown
-		"${count:pluralityNumber} of ${total:number} entries are added": unknown
-		"${count:pluralityNumber} of ${total:number} entries are copied": unknown
-		"${count:pluralityNumber} of ${total:number} entries move": unknown
-		"${count:pluralityNumber} other changes": unknown
-		"${count:pluralityNumber} participants": unknown
-		"${count:pluralityNumber} refactors": unknown
-		"${count:pluralityNumber} repeat": unknown
 		"${count:pluralityNumber} repeating entries: every occurrence goes too.": unknown
 		"${count:pluralityNumber} selected": unknown
-		"${count:pluralityNumber} stayed in ${name}": unknown
-		"${count:pluralityNumber} stop being all-day": unknown
-		"${count:pluralityNumber} were left out": unknown
-		"${count:pluralityNumber} yes": unknown
 		"${done:number} of ${total:pluralityNumber} checklist items done": unknown
-		"${done:number} of ${total:pluralityNumber} steps done": unknown
-		"${done:number} of ${total:pluralityNumber} subtasks done": unknown
 		"${frequency} ${on}": unknown
-		"${from} to ${to}": unknown
 		"${n:number}nd": unknown
 		"${n:number}rd": unknown
 		"${n:number}st": unknown
 		"${n:number}th": unknown
 		"${name} is larger than the ${limit} limit": unknown
-		"${names} and ${count:pluralityNumber} more": unknown
 		"${percent} complete": unknown
-		"${reason}, kept here": unknown
-		"${reason}, left out": unknown
 		"${rule} until ${date}": unknown
 		"${rule}, ${count:pluralityNumber} times": unknown
 		"${setting}: ${value}": unknown
 		"${span} before": unknown
 		"${status}. Click for options": unknown
 		"${status}. Click to toggle, Alt-click for options": unknown
-		"About": unknown
 		"About every ${count:pluralityNumber} days": unknown
 		"About every ${count:pluralityNumber} weeks": unknown
-		"About.Keywords": unknown
-		"Access": unknown
-		"Access tokens": unknown
-		"Account": unknown
-		"Account options": unknown
-		"Add ${count:pluralityNumber} entries": unknown
-		"Add ${name} to a calendar": unknown
 		"Add attachment": unknown
 		"Add Availability": unknown
 		"Add integration": unknown
 		"Add Integration": unknown
-		"Add participant": unknown
-		"Add participants": unknown
-		"Add relationship": unknown
 		"Add reminder": unknown
 		"Add Task": unknown
 		"Add time zone": unknown
-		"Add to ${name}": unknown
 		"Add your first integration": unknown
-		"Added to ${name}": unknown
-		"Adding ${count:pluralityNumber} entries…": unknown
 		"AddIntegration.Keywords": unknown
-		"Address": unknown
-		"Administration": unknown
 		"After": unknown
 		"AI": unknown
 		"AI connectors": unknown
 		"All day": unknown
 		"All entries": unknown
 		"All entries in this calendar will be deleted too. This can't be undone.": unknown
-		"All subtasks done": unknown
 		"All time zones": unknown
 		"Allow": unknown
 		"Allowed": unknown
 		"Alt+click to show only this one": unknown
 		"Alt+click to show the previously visible ones": unknown
 		"Amount": unknown
-		"Any CalDAV server, like Nextcloud, Fastmail or Radicale": unknown
-		"Any calendar link (webcal:// or .ics)": unknown
-		"App-Specific Password": unknown
-		"Apple Calendar": unknown
-		"Apple ID": unknown
-		"Apply to subtasks too?": unknown
-		"Ask everyone to attend": unknown
-		"Ask this participant to attend": unknown
 		"At start": unknown
 		"At start of event": unknown
 		"At the time of the task": unknown
-		"Atlassian Account": unknown
-		"Atlassian Account E-mail": unknown
-		"Atlassian API Token": unknown
 		"Attachments": unknown
-		"Automatic (${region})": unknown
 		"Availability": unknown
 		"Availability leaves the week view. It stays in its calendars, and busy availability still shows as busy to others.": unknown
 		"Back": unknown
@@ -148,31 +65,21 @@ declare global {
 		"best ${count:number}": unknown
 		"best ${count:number} in a row": unknown
 		"Blocked": unknown
-		"Blocked by": unknown
-		"Blocks": unknown
 		"Busy": unknown
-		"CalDAV": unknown
-		"CalDAV, Google, Apple or Notion, synced in both directions. Or start fresh with calendars stored in Mitra itself.": unknown
 		"Calendar": unknown
 		"Calendar name": unknown
 		"Calendar options": unknown
-		"Calendar Subscription": unknown
-		"Calendar URL": unknown
 		"Calendars": unknown
+		"Calendars are stored in Mitra itself, on your server.": unknown
 		"Calendars stored in Mitra itself, no account needed": unknown
 		"Cancel or delete?": unknown
 		"Cancelled": unknown
 		"Cancelled tasks and events leave the calendar. Search still finds them, and a cancelled task still counts towards progress.": unknown
 		"Change ${name}…": unknown
-		"Checking what the calendar can take…": unknown
-		"Checking what would be copied…": unknown
-		"Checking what would move…": unknown
 		"Choose a date": unknown
 		"Choose a length": unknown
 		"Choose a task status": unknown
 		"Choose a time": unknown
-		"Choose the calendar the entries of this file are added to. The ones it cannot take are left out. The file itself stays untouched.": unknown
-		"Choose your sources": unknown
 		"Claude, Cursor and other AI tools can read and change your calendars through this address, over the Model Context Protocol (MCP).": unknown
 		"Clear custom progress": unknown
 		"Clear filter": unknown
@@ -180,59 +87,29 @@ declare global {
 		"click": unknown
 		"close": unknown
 		"Close": unknown
-		"Close out the subtasks that are still open": unknown
 		"Collapse": unknown
 		"Color": unknown
 		"Columns": unknown
 		"Commands": unknown
-		"Commit": unknown
 		"Confidential": unknown
 		"Confirmed": unknown
-		"Connect": unknown
-		"Connect an account": unknown
-		"Connecting…": unknown
-		"Connector lines in the month view": unknown
-		"Connector lines in the timeline": unknown
-		"Connector lines in the week view": unknown
-		"ConnectorLines.Keywords": unknown
-		"Continue with Google": unknown
-		"Contributors": unknown
-		"Copied to ${name}": unknown
-		"Copy": unknown
-		"Copy ${count:pluralityNumber} entries": unknown
-		"Copy entries from ${name}…": unknown
-		"Copy entries to another calendar": unknown
-		"Copy entries to…": unknown
-		"Copy every entry into another calendar": unknown
-		"Copy instead": unknown
-		"Copy participants' emails": unknown
 		"Copy the address": unknown
-		"Copy the token": unknown
-		"Copy this token now: it is shown only once.": unknown
-		"Copy to ${name}": unknown
 		"Copy Version": unknown
-		"Copying ${count:pluralityNumber} entries…": unknown
 		"CopyVersion.Keywords": unknown
-		"Could not load your access tokens.": unknown
 		"Could not load your devices.": unknown
 		"Create": unknown
-		"Create and move entries right on the grid. Every change syncs back to its source.": unknown
+		"Create a calendar": unknown
+		"Create and move entries right on the grid.": unknown
 		"Create Entry": unknown
 		"CreateAvailability.Keywords": unknown
-		"created ${date}": unknown
 		"CreateEntry.Keywords": unknown
 		"Ctrl": unknown
 		"Current time zone": unknown
 		"Current time zone. Switch to ${city} time to change the zone": unknown
 		"Custom color": unknown
-		"Custom CSS": unknown
-		"Custom CSS for everyone": unknown
-		"Custom CSS is off for this load.": unknown
 		"Custom range": unknown
 		"Custom…": unknown
-		"CustomCssSetting.Keywords": unknown
 		"Dark": unknown
-		"Date": unknown
 		"days": unknown
 		"Default Calendar": unknown
 		"Default Duration": unknown
@@ -255,15 +132,10 @@ declare global {
 		"Delete entry": unknown
 		"Delete just this entry of a series": unknown
 		"Delete repeating entry": unknown
-		"Delete subtasks too?": unknown
 		"Delete the open entry": unknown
 		"Delete this calendar and every entry in it": unknown
-		"Demo": unknown
-		"Demo.Hint": unknown
 		"Description": unknown
 		"Devices": unknown
-		"Docs: ${page}": unknown
-		"Documentation": unknown
 		"Does not repeat": unknown
 		"Doing": unknown
 		"Done": unknown
@@ -272,7 +144,6 @@ declare global {
 		"Double-click to rename": unknown
 		"Draft": unknown
 		"drag": unknown
-		"Drag onto another entry to make it wait for this one": unknown
 		"Due ${date}": unknown
 		"Due ${date}, before its scheduled end": unknown
 		"Due ${when}": unknown
@@ -287,13 +158,11 @@ declare global {
 		"Edit entry": unknown
 		"Edit integration": unknown
 		"Edit repeating entry": unknown
-		"Email participants": unknown
 		"End date": unknown
 		"Ended": unknown
 		"Ends": unknown
 		"Entries": unknown
 		"Estimate": unknown
-		"Europe": unknown
 		"Event": unknown
 		"Events": unknown
 		"Every": unknown
@@ -301,18 +170,8 @@ declare global {
 		"Every ${count:pluralityNumber} months": unknown
 		"Every ${count:pluralityNumber} weeks": unknown
 		"Every ${count:pluralityNumber} years": unknown
-		"Every entry in ${name} is copied. The ones the chosen calendar cannot take are left out. ${name} itself is read-only and stays exactly as it is.": unknown
-		"Every entry in ${name} moves. The ones the chosen calendar cannot take stay here.": unknown
-		"Every entry is still in ${name}. Nothing was deleted.": unknown
-		"Every subtask of \"${heading}\" is done, which completes ${count:pluralityNumber} more tasks above it. Mark them all as done?": unknown
-		"Every subtask of \"${heading}\" is done. Mark it as done too?": unknown
 		"Every weekday": unknown
-		"Everything in ${version}": unknown
-		"Everything travels intact": unknown
 		"Expand": unknown
-		"Features": unknown
-		"Flatten into single entries": unknown
-		"Flattening writes out a year of occurrences as separate entries. They stop repeating, and links pointing at the series are left behind.": unknown
 		"Forward": unknown
 		"Free": unknown
 		"Frequency": unknown
@@ -322,11 +181,6 @@ declare global {
 		"Go to Date…": unknown
 		"Go to entry": unknown
 		"Go to Today": unknown
-		"Google account": unknown
-		"Google Calendar": unknown
-		"Google.ConfigurationHint": unknown
-		"Google.ConsentHint": unknown
-		"Google.SharedCalendarsHint": unknown
 		"GoToDate.Keywords": unknown
 		"GoToToday.Keywords": unknown
 		"Guide": unknown
@@ -346,46 +200,24 @@ declare global {
 		"Home": unknown
 		"hours": unknown
 		"How to connect": unknown
-		"How to restyle Mitra": unknown
-		"Ics.UrlHint": unknown
-		"If a rule hides the way back, add ?css=off to the address.": unknown
 		"Importing entries…": unknown
-		"Improvements": unknown
-		"In progress": unknown
 		"Install as an App": unknown
 		"Install mitra as an app. It gets its own window, and notifications appear under its own name and icon": unknown
-		"InstanceCssSetting.Keywords": unknown
 		"Integration options": unknown
-		"Integration Token": unknown
 		"Interval": unknown
 		"Its routine counts it as not kept": unknown
 		"Join ${service}": unknown
 		"Keep": unknown
 		"Keep it": unknown
 		"Keep the calendar": unknown
-		"Keep the chain intact": unknown
 		"Kept": unknown
 		"Keyboard Shortcuts": unknown
 		"KeyboardShortcuts.Keywords": unknown
-		"Language": unknown
 		"last seen ${when}": unknown
-		"last used ${date}": unknown
-		"Latest": unknown
-		"Latin America": unknown
-		"Leave the originals here and add a copy over there": unknown
-		"Leave them here": unknown
 		"Light": unknown
-		"LocaleSetting.Keywords": unknown
 		"Location": unknown
-		"Make attendance optional": unknown
-		"Make attendance optional for everyone": unknown
 		"Make home": unknown
 		"Make it a routine again": unknown
-		"Mark all as done": unknown
-		"Mark all optional": unknown
-		"Mark all required": unknown
-		"Mark as cancelled": unknown
-		"Mark as done": unknown
 		"Mark it cancelled": unknown
 		"Match the system": unknown
 		"Maybe": unknown
@@ -395,42 +227,24 @@ declare global {
 		"Missed": unknown
 		"Mitra": unknown
 		"Mitra.Hint": unknown
-		"modified": unknown
 		"Month": unknown
 		"Month View": unknown
 		"MonthView.Keywords": unknown
-		"Move ${count:pluralityNumber} entries": unknown
-		"Move dependent entries too?": unknown
 		"Move down": unknown
-		"Move entries first…": unknown
-		"Move entries from ${name}…": unknown
-		"Move entries to another calendar": unknown
-		"Move entries to…": unknown
 		"Move entry": unknown
-		"Move or copy every entry into another calendar": unknown
 		"Move or resize just this entry of a series": unknown
 		"Move repeating entry": unknown
-		"Move subtasks too?": unknown
-		"Move them all by the same amount": unknown
-		"Move to ${name}": unknown
 		"Move to…": unknown
 		"Move up": unknown
-		"Moved to ${name}": unknown
-		"MoveSourceEntries.Keywords": unknown
-		"Moving ${count:pluralityNumber} entries…": unknown
 		"Name": unknown
 		"Name after its entries": unknown
 		"navigate": unknown
 		"Navigation": unknown
 		"never": unknown
 		"Never": unknown
-		"never used": unknown
 		"New calendar": unknown
-		"New dev build: ${count:pluralityNumber} commits ahead": unknown
 		"New routine": unknown
 		"New task": unknown
-		"New token": unknown
-		"Next": unknown
 		"Next 12 months": unknown
 		"Next 30 days": unknown
 		"Next 7 days": unknown
@@ -439,31 +253,20 @@ declare global {
 		"Next Week": unknown
 		"Next Year": unknown
 		"NextPeriod.Keywords": unknown
-		"No access tokens yet.": unknown
 		"No date": unknown
 		"No device is registered for reminders yet.": unknown
 		"No entries in this period": unknown
 		"No entries match the filters": unknown
 		"No matches": unknown
-		"No matching entries": unknown
-		"No release notes available": unknown
 		"No routine": unknown
 		"None": unknown
 		"Not a routine": unknown
 		"Not a routine?": unknown
 		"Not routines": unknown
 		"Nothing ahead": unknown
-		"Nothing from the file was added.": unknown
-		"Nothing is deleted here until its copy has landed": unknown
 		"Nothing planned yet. Draw a task on the row below": unknown
-		"Nothing was added": unknown
-		"Nothing was copied": unknown
-		"Nothing was moved": unknown
 		"Notifications": unknown
 		"NotificationsSetting.Keywords": unknown
-		"Notion": unknown
-		"Notion.TokenHint": unknown
-		"Numbers": unknown
 		"Occurrences": unknown
 		"of event at ${time}": unknown
 		"Off and on": unknown
@@ -475,36 +278,23 @@ declare global {
 		"on the last ${weekday}": unknown
 		"On track": unknown
 		"One calendar to plan your events and tasks": unknown
-		"One for each connection, so you can revoke each on its own": unknown
 		"Ongoing": unknown
 		"Only Show ${name}": unknown
 		"Only show this calendar": unknown
-		"Only the organizer can change participants": unknown
-		"Only this entry": unknown
 		"Open in ${provider}": unknown
 		"Open in Google Maps": unknown
 		"Open link": unknown
 		"OpenSettings.Keywords": unknown
-		"Optional": unknown
 		"Options": unknown
 		"or": unknown
-		"Organizer": unknown
-		"Other": unknown
+		"Organize your calendars": unknown
 		"Overdue": unknown
-		"Participant options": unknown
-		"Participants": unknown
-		"Password": unknown
-		"Password (optional)": unknown
 		"Past": unknown
 		"Past 30 days": unknown
 		"Past year": unknown
-		"Patches": unknown
 		"People do not sign in to this Mitra, so connectors need no token. Anyone who can reach this address can use it.": unknown
-		"Pick the calendars and task lists to show. Recolor, rename or hide them in the sidebar anytime.": unknown
 		"Plan your days": unknown
-		"Planned": unknown
 		"Planning": unknown
-		"Plus ${link} on GitHub: tests, builds and chores.": unknown
 		"Previous month": unknown
 		"Previous Month": unknown
 		"Previous Week": unknown
@@ -514,27 +304,16 @@ declare global {
 		"Progress": unknown
 		"Public": unknown
 		"Re-import entries": unknown
-		"Read and write": unknown
 		"Read every enabled calendar of this account again from the start": unknown
-		"Read on mitracal.com": unknown
-		"Read only": unknown
 		"Read this calendar again from the start": unknown
 		"read-only": unknown
-		"Refactors": unknown
-		"Refresh": unknown
-		"Related to": unknown
-		"Releases": unknown
-		"Reload to finish updating": unknown
+		"Recolor, rename or hide them in the sidebar anytime.": unknown
 		"Reminder": unknown
 		"Reminder notifications": unknown
 		"Reminders": unknown
 		"Reminders you add are always saved; this decides whether this browser may also alert you.": unknown
 		"Remove": unknown
-		"Remove all": unknown
 		"Remove attachment": unknown
-		"Remove every participant": unknown
-		"Remove participant": unknown
-		"Remove relationship": unknown
 		"Remove reminder": unknown
 		"Remove the date": unknown
 		"Remove the date. The task moves to Unscheduled": unknown
@@ -546,24 +325,17 @@ declare global {
 		"Rename…": unknown
 		"Repeat": unknown
 		"Repeating": unknown
-		"Repeating entries cannot repeat in ${name}": unknown
 		"Repeats": unknown
-		"Repository": unknown
 		"Reset columns": unknown
 		"Reset to calendar color": unknown
 		"Reset to default color": unknown
-		"Restyle Mitra for everyone on this server. Each person's own CSS comes after it, so theirs wins.": unknown
-		"Restyle Mitra with your own CSS, on every device you sign in on. An update can change what your rules target.": unknown
-		"Revoke this token": unknown
 		"Routine": unknown
 		"Routines": unknown
 		"Same time everywhere": unknown
-		"Sample calendars filled with generated data, rebuilt daily": unknown
 		"Save": unknown
 		"scroll": unknown
 		"Search entries or run a command…": unknown
 		"Search entries…": unknown
-		"Search for an event or task to link": unknown
 		"Search or run a command (${hotkey})": unknown
 		"Search or run a command…": unknown
 		"Search settings…": unknown
@@ -572,14 +344,11 @@ declare global {
 		"Select all": unknown
 		"Sent a test event reminder to your devices.": unknown
 		"Sent a test task reminder to your devices.": unknown
-		"Server URL": unknown
 		"Set as the default for new entries": unknown
 		"Settings": unknown
-		"Share on GitHub": unknown
 		"Show all calendars": unknown
 		"Show as busy or free": unknown
 		"Show calendar": unknown
-		"Show fewer participants": unknown
 		"Show in calendar": unknown
 		"Show in description": unknown
 		"Show its routines": unknown
@@ -593,10 +362,8 @@ declare global {
 		"ShowOnlySource.Keywords": unknown
 		"ShowPreviouslyVisibleSources.Keywords": unknown
 		"ShowRoutines.Keywords": unknown
-		"Sign out": unknown
 		"since ${date}": unknown
 		"Since ${date}": unknown
-		"Site URL": unknown
 		"Slipping": unknown
 		"Slips most on": unknown
 		"Snap to": unknown
@@ -610,9 +377,6 @@ declare global {
 		"Status": unknown
 		"Still open": unknown
 		"Stop notifying this device": unknown
-		"Subtask of": unknown
-		"Subtasks": unknown
-		"Subtasks still open": unknown
 		"Table": unknown
 		"Table View": unknown
 		"TableView.Keywords": unknown
@@ -620,41 +384,22 @@ declare global {
 		"Tasks": unknown
 		"Tasks with a time only": unknown
 		"Tasks without a date land here. Drag one onto the calendar to schedule it": unknown
-		"Tempo": unknown
-		"Tempo API Token": unknown
-		"Tempo.TokenHint": unknown
 		"Test event": unknown
 		"Test task": unknown
-		"Tests": unknown
 		"the ${ordinal}": unknown
 		"the ${ordinal} ${weekday}": unknown
-		"The calendars of your Google account": unknown
-		"The calendars of your iCloud account": unknown
-		"The file stays exactly as it is": unknown
-		"The hours you book on Jira issues": unknown
 		"the last ${weekday}": unknown
-		"The originals stay exactly where they are": unknown
 		"The step dragging and resizing land on": unknown
 		"The streak ended": unknown
-		"The task databases of your workspace": unknown
-		"The tasks of your Todoist projects": unknown
-		"Their copies landed but the originals could not be deleted. Delete them here by hand.": unknown
 		"Theme": unknown
 		"ThemeSetting.Keywords": unknown
-		"There is no calendar the file could be added to.": unknown
-		"There is no other calendar these entries could move to.": unknown
 		"This and following entries": unknown
-		"This and its ${count:pluralityNumber} subtasks": unknown
 		"This browser is blocking notifications. Allow them in its site settings to get reminders here.": unknown
 		"This browser will show your reminders.": unknown
 		"this device": unknown
 		"This entry": unknown
 		"This file could not be uploaded": unknown
-		"This relationship could not be saved": unknown
-		"This relationship is not possible": unknown
-		"Time": unknown
 		"Time zone": unknown
-		"Time zone names": unknown
 		"Timed entries only": unknown
 		"Timeline": unknown
 		"Timeline View": unknown
@@ -664,54 +409,35 @@ declare global {
 		"Title": unknown
 		"To Do": unknown
 		"Today": unknown
-		"Todoist": unknown
-		"Todoist account": unknown
-		"Todoist API Token": unknown
-		"Todoist.TokenHint": unknown
 		"Toggle sidebar": unknown
 		"Toggle Sidebar": unknown
 		"Toggle.Off": unknown
 		"Toggle.On": unknown
 		"ToggleSidebar.Keywords": unknown
-		"Token": unknown
 		"Tomorrow": unknown
 		"Track how it goes": unknown
 		"Type": unknown
-		"unchanged": unknown
 		"Unit": unknown
 		"Unknown device": unknown
-		"Unknown entry": unknown
-		"Unreleased": unknown
 		"Unscheduled": unknown
 		"Until": unknown
 		"Untitled": unknown
 		"Upcoming": unknown
-		"Update available": unknown
-		"Update available: ${version}": unknown
 		"Uploading…": unknown
-		"Username": unknown
-		"Username (optional)": unknown
 		"View": unknown
-		"View on GitHub": unknown
 		"Views": unknown
 		"Visibility": unknown
 		"Week": unknown
 		"Week ${week:number}": unknown
 		"Week View": unknown
 		"Weekdays": unknown
-		"Weekend": unknown
 		"weeks": unknown
 		"WeekView.Keywords": unknown
 		"Welcome to ${name}": unknown
-		"What it is for, like Laptop or Claude": unknown
 		"What you keep doing shows up here: an entry that repeats, or four entries with one title.": unknown
-		"What's New": unknown
-		"WhatsNew.Keywords": unknown
 		"When": unknown
 		"Where new events and tasks are created": unknown
 		"Where your reminders arrive": unknown
-		"Workspace": unknown
-		"World": unknown
 		"Year": unknown
 		"Year View": unknown
 		"YearView.Keywords": unknown

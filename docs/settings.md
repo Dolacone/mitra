@@ -1,6 +1,6 @@
 ---
 title: Settings
-description: "Choose Mitra's theme, language and default view, and how new entries start out. Search finds any setting, and the command palette changes most of them directly."
+description: "Choose Mitra's theme and default view, and how new entries start out. Search finds any setting, and the command palette changes most of them directly."
 ---
 
 Mitra keeps its settings in one dialog. Open it with **Settings** at the bottom of the sidebar, with <kbd>Ctrl</kbd>+<kbd>,</kbd> (<kbd>⌘</kbd>+<kbd>,</kbd> on a Mac) from anywhere, or from the [command palette](shortcuts.md). When you sign in with an account, **Settings** is the gear on your account card at the bottom of the sidebar, and the **⋯** beside it holds **Sign out**.
@@ -20,7 +20,7 @@ The command palette knows the same words, and changes most settings without open
 
 ## Your account or this device
 
-Most settings belong to your account and follow you to every device and browser you use: the language, the default view, **Hide done tasks**, **Hide cancelled**, **Hide availability**, the default calendar, the default duration, **Snap to** and both default reminders.
+Most settings belong to your account and follow you to every device and browser you use: the default view, **Hide done tasks**, **Hide cancelled**, **Hide availability**, the default calendar, the default duration, **Snap to** and both default reminders.
 
 The others belong to the device you're on, so your phone and your laptop can differ: the theme and whether this browser shows notifications.
 
@@ -30,9 +30,7 @@ Mitra also remembers some things on each device as you use them: how far you've 
 
 **Theme** is **Match the system**, **Light** or **Dark**. **Match the system**, the default, follows your device's light or dark mode.
 
-**Language** offers English, German, French, Spanish, Portuguese, Italian, Persian, Chinese, Polish, Dutch, Arabic, Russian and Japanese, each named in its own language; Chinese is written in simplified characters. The change applies at once, without reloading, and Persian and Arabic lay Mitra out from right to left.
-
-Each language also decides how dates and times read, which day the week starts on, and which days are the weekend. At first it reads as your browser writes the language, so English usually reads as in the United States, German as in Germany and Persian as in Iran. The arrow at the end of a language unfolds the countries and areas it is written in, such as the United Kingdom or Europe for English: English for the United Kingdom writes 9 Oct 2026 and 13:00 and starts weeks on Monday, while for the United States it writes Oct 9, 2026 and 1:00 PM and starts them on Sunday. A switch to another language from the command palette keeps your country when the new language is written there. A preview under the setting shows how dates, times, the week, numbers and time zone names read. A country here is not a time zone: New York and Los Angeles share one.
+Mitra reads in English as written in the United States: dates read Oct 9, 2026, weeks start on Sunday, and every time is on a 24-hour clock, such as 13:00.
 
 ## Calendar
 

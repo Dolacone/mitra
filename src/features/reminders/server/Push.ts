@@ -38,7 +38,7 @@ export class Push {
 		return (await this.vapid()).publicKey
 	}
 
-	/** Renders the notification for each device the user registered, in that device's locale and zone; a device gone for good is let go. */
+	/** Renders the notification for each device the user registered, in that device's zone; a device gone for good is let go. */
 	async send(user: User, notification: ReminderNotification) {
 		const em = orm.em.fork()
 		const devices = await user.getDevices(em)

@@ -3,6 +3,7 @@ import { EntryType } from '#features/entries'
 import { TimeZone } from '#features/time/TimeZone.js'
 import type { IntegrationClass } from '#integrations'
 import { operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
+import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 import { tool } from './tool.js'
 
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const
@@ -36,7 +37,7 @@ export class GetContext extends Operation {
 		return {
 			now: Temporal.Now.zonedDateTimeISO(zone.id).toString({ timeZoneName: 'never', smallestUnit: 'minute' }),
 			homeTimeZone: zone.id,
-			...readingOf(new Intl.Locale(user.settings?.locale ?? 'en'), zone),
+			...readingOf(new Intl.Locale(AppLocale.tag), zone),
 			integrations: integrations.map(integration => ({
 				id: integration.id,
 				name: integration.title,

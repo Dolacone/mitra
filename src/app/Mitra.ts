@@ -1,6 +1,5 @@
 import { component, css, eventListener } from '@a11d/lit'
 import { Application, application, DialogCancelledError } from '@a11d/lit-application'
-import { Localizer } from '@3mo/localization'
 import { themeStyles, focusRingStyles, kbdStyles, Choices, Choice, windowDragStyles, Markdown } from '#design'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { Weeks } from '#features/calendar/client/Weeks.js'
@@ -50,8 +49,6 @@ import { RoutineField } from '#features/routines/client/RoutineField.js'
 import { ScrollDeviceController } from '#features/calendar/client/ScrollDeviceController.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
 import { session } from '#infrastructure/http/PageSession.js'
-import { LocalePreview } from '#infrastructure/i18n/LocalePreview.js'
-import { LocaleSetting } from '#infrastructure/i18n/LocaleSetting.js'
 import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 import { Sidebar } from './Sidebar.js'
 import { claimFileDrops } from './launch.js'
@@ -84,16 +81,11 @@ export class Mitra extends Application {
 	protected override async initialized() {
 		Mitra.trackFocusModality()
 		await Promise.all([Calendars.fetch(), session.fetchUser(), session.fetchInstance()])
-		// After the integrations, so a linked language switches the sample calendar too.
-		LocaleSetting.followAccount()
-		LocaleSetting.rememberLinkedLanguage()
-		AppLocale.readTwentyFourHours()
+		AppLocale.apply()
 		// Nothing waits for it: until the account has a home, home is this device's zone anyway.
 		void TimeZones.settle().catch(() => void 0)
 		void offerToolsToBrowserAgents().catch(() => void 0)
 		document.title = this.documentTitle
-		// The framework writes the title only when the page heading changes, so a language switch would keep the old name.
-		Localizer.locales.change.subscribe(() => document.title = this.documentTitle)
 		syncPushSubscription()
 		syncThemeColor()
 		await super.initialized()
@@ -208,7 +200,6 @@ export class Mitra extends Application {
 			${DialogSettings.styles}
 			${SettingRow.styles}
 			${NotificationDevices.styles}
-			${LocalePreview.styles}
 			${DialogEntryScope.styles}
 			${DialogDeleteEntries.styles}
 			${DialogDuplicateDays.styles}
