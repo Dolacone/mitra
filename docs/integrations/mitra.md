@@ -24,8 +24,6 @@ To add another calendar, open the **⋯** menu on the Mitra heading in the sideb
 
 A Mitra calendar's entries exist only in Mitra's database. Make sure Mitra's data folder is part of your [backups](../backups.md).
 
-If you plan to turn on [sign-in](../sso.md) later, know that it starts everyone with a new, empty account. Mitra calendars you made before stay with the old single-user account.
-
 ## What they can't do
 
 - Other apps can't see them. Mitra doesn't publish its calendars over CalDAV.

@@ -10,8 +10,6 @@ export class Environment {
 	readonly port: number
 	/** The operator's name for the instance (`MITRA_NAME`); without one the browser names it in the viewer's language. */
 	readonly name?: string
-	/** Local development (`MITRA_DEV`). */
-	readonly developer: boolean
 	/** Whether agents may connect over MCP (`MITRA_MCP`). */
 	readonly mcp: boolean
 	/** The instance's public address (`MITRA_URL`), where one is set and reads as a URL. */
@@ -24,25 +22,16 @@ export class Environment {
 	readonly discordWebhook?: URL
 	/** The largest file in bytes (`MITRA_FILE_MAX_SIZE`) and each account's total (`MITRA_FILE_QUOTA`), where set. */
 	readonly files: { readonly maxSize?: number, readonly quota?: number }
-	/** Sign-in through OpenID Connect (`MITRA_OIDC_*`). */
-	readonly oidc?: { readonly issuer: string, readonly clientId: string, readonly clientSecret?: string, readonly scope: string }
 
 	constructor(variables: Variables) {
 		this.port = Number(variables.MITRA_PORT) || 3000
 		this.name = variables.MITRA_NAME || undefined
-		this.developer = variables.MITRA_DEV === 'true'
 		this.mcp = !Environment.off(variables.MITRA_MCP)
 		this.url = Environment.urlOf(variables.MITRA_URL)
 		this.photon = new URL(variables.MITRA_PHOTON_URL || 'https://photon.komoot.io')
 		this.vapidSubject = variables.MITRA_VAPID_SUBJECT || 'mailto:mitra@localhost'
 		this.discordWebhook = Environment.urlOf(variables.MITRA_DISCORD_WEBHOOK_URL)
 		this.files = { maxSize: Environment.bytesOf(variables.MITRA_FILE_MAX_SIZE), quota: Environment.bytesOf(variables.MITRA_FILE_QUOTA) }
-		this.oidc = this.oidcOf(variables)
-	}
-
-	/** Whether people sign in. */
-	get signedIn() {
-		return !!this.oidc
 	}
 
 	/** A byte count, or one with a `k`/`M`/`G` suffix, as the docs advertise. */
@@ -66,21 +55,6 @@ export class Environment {
 		} catch {
 			return undefined
 		}
-	}
-
-	private oidcOf(variables: Variables) {
-		const issuer = variables.MITRA_OIDC_ISSUER
-		if (!issuer) {
-			return undefined
-		}
-		const clientId = variables.MITRA_OIDC_CLIENT_ID
-		if (!clientId) {
-			throw new Error('MITRA_OIDC_ISSUER is set but MITRA_OIDC_CLIENT_ID is missing')
-		}
-		if (!this.url) {
-			throw new Error('MITRA_OIDC_ISSUER is set but MITRA_URL (the app\'s external URL, e.g. https://mitra.example.com) is missing or no URL')
-		}
-		return { issuer, clientId, clientSecret: variables.MITRA_OIDC_CLIENT_SECRET || undefined, scope: variables.MITRA_OIDC_SCOPES || 'openid profile email' }
 	}
 }
 

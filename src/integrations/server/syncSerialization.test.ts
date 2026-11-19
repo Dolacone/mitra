@@ -1,11 +1,10 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
-import { User, Identity } from '#features/identity'
+import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Session } from '#features/identity/server/Session.js'
 import { Integration, integration } from '#integrations'
 import { model, children } from '#infrastructure/model'
 
@@ -46,7 +45,7 @@ class SlowProvider extends Integration<Record<string, never>> {
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, SlowProvider, Source, Entry, NotificationSubscription, Session],
+		entities: [User, Integration, SlowProvider, Source, Entry, NotificationSubscription],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

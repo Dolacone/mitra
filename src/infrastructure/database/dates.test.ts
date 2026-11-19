@@ -2,7 +2,6 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, type EntityManager } from '@mikro-orm/sqlite'
 import { User } from '#features/identity'
-import { Session } from '#features/identity/server/Session.js'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
@@ -29,14 +28,13 @@ describe('Dates in the database', () => {
 			const id = crypto.randomUUID()
 			const entry = new Entry({ id, sourceId: source.id, type: EntryType.Task, heading: 'Report', start: at('2026-06-01T09:00:00Z'), end: at('2026-06-01T10:00:00Z'), due: at('2026-06-05T17:00:00Z'), recurrenceId: at('2026-06-01T09:00:00Z') })
 			const device = new NotificationSubscription({ id: 'device', userId: user.id, endpoint: 'https://push.example.com/device', keys: { p256dh: 'key', auth: 'auth' }, lastSeenAt: at('2026-06-01T08:30:00Z') })
-			em.persist([user, integration, source, entry, device, Session.issue(user).session])
+			em.persist([user, integration, source, entry, device])
 			await em.flush()
 
 			const fork = orm.em.fork()
 			const loaded = await fork.findOneOrFail(Entry, { id })
 			await fork.findOneOrFail(Source, { id: source.id })
 			await fork.findOneOrFail(NotificationSubscription, { id: 'device' })
-			await fork.findOneOrFail(Session, { userId: user.id })
 			assert.deepEqual(changes(fork), [])
 
 			loaded.start = at('2026-06-01T11:00:00Z')

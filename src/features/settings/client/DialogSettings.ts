@@ -129,13 +129,6 @@ export class DialogSettings extends DialogComponent<SettingsParameters> {
 						padding-inline: 0.25rem;
 						scrollbar-width: thin;
 						scrollbar-color: color-mix(in srgb, var(--color-text) 15%, transparent) transparent;
-
-						> .page[data-instance] {
-							margin-block-start: auto;
-							padding-block-start: 0.5rem;
-							border-block-start: var(--border);
-							border-radius: 0;
-						}
 					}
 
 					.page {
@@ -284,7 +277,7 @@ export class DialogSettings extends DialogComponent<SettingsParameters> {
 					${this.pages.map(page => {
 						const { title, icon } = settingsPage(page)
 						return html`
-							<button class="page" ?data-instance=${page === 'administration'}
+							<button class="page"
 								aria-current=${ifDefined(!this.searching && page === this.page ? 'page' : undefined)}
 								@click=${() => this.setPage(page)}
 							>

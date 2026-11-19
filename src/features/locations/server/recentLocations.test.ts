@@ -2,8 +2,7 @@ import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
 import { children } from '#infrastructure/model'
-import { User, Identity } from '#features/identity'
-import { Session } from '#features/identity/server/Session.js'
+import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
@@ -18,7 +17,7 @@ describe('recent locations', () => {
 
 	before(async () => {
 		orm = await MikroORM.init({
-			entities: [User, Identity, Session, Integration, MitraCalendar, Source, Entry, NotificationSubscription],
+			entities: [User, Integration, MitraCalendar, Source, Entry, NotificationSubscription],
 			dbName: ':memory:',
 			subscribers: [children.subscriber],
 			forceUndefined: true,

@@ -6,7 +6,6 @@ import { ModelValueConstructor } from '@a11d/api-model-value-constructor'
 import { createLogger, logLevelName } from '#infrastructure/logging/Logger.js'
 import { orm } from '#infrastructure/database/orm.js'
 import { environment } from '#infrastructure/server/Environment.js'
-import { Session } from '#features/identity/server/Session.js'
 import { Authentication } from '#features/identity/server/Authentication.js'
 import { synchronizer } from '#integrations/server/Synchronizer.js'
 import { eventsRouter } from '#infrastructure/realtime/events.js'
@@ -26,8 +25,7 @@ import { observeInstanceOrigin } from '#infrastructure/http/instanceUrl.js'
 
 const logger = createLogger('API')
 
-await Session.sweep(orm.em.fork())
-const authentication = await Authentication.of(orm.em.fork(), environment)
+const authentication = await Authentication.of(orm.em.fork())
 
 synchronizer.start()
 new ReminderScheduler(orm).start()
@@ -44,7 +42,7 @@ app.use(compression())
 // Request logger middleware.
 app.use((req, res, next) => {
 	const startedAt = performance.now()
-	const appRoute = (req.path.startsWith('/api') || req.path.startsWith('/auth')) && req.path !== '/api/health'
+	const appRoute = req.path.startsWith('/api') && req.path !== '/api/health'
 	res.on('finish', () => {
 		const line = `${req.method} ${req.originalUrl} → ${res.statusCode} (${Math.round(performance.now() - startedAt)}ms)`
 		const tagged = req.user ? `${line} · user ${req.user.id}` : line
@@ -65,12 +63,6 @@ app.use('/api/files', authentication.middleware, filesRouter)
 // Rehydrate typed JSON into domain model instances.
 const modelConstructor = new ModelValueConstructor()
 app.use(express.json({ reviver: (_key, value) => modelConstructor.shallConstruct(value) ? modelConstructor.construct(value) : value }))
-
-// Only a provider's sign-in has routes of its own: its round trip at `/auth`.
-const { router } = authentication
-if (router) {
-	app.use('/auth', router)
-}
 
 // Unauthenticated health check endpoint for orchestrators.
 app.use('/api/health', healthRouter)

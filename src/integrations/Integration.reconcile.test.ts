@@ -2,7 +2,7 @@ import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
 import { children } from '#infrastructure/model'
-import { User, Identity } from '#features/identity'
+import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
 import { Integration } from './Integration.js'
@@ -10,7 +10,7 @@ import { MitraCalendar } from './mitra/MitraCalendar.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry],
+		entities: [User, Integration, MitraCalendar, Source, Entry],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

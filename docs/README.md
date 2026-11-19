@@ -24,7 +24,7 @@ services:
 
 Run `docker compose up -d` and open [http://localhost:3000](http://localhost:3000).
 
-Before you rely on it, [back up](backups.md) `~/mitra` and [put it behind HTTPS](configuration.md#put-it-behind-https). If others will use it, turn on [sign-in](sso.md) first, since turning it on later starts everyone over with an empty account.
+Before you rely on it, [back up](backups.md) `~/mitra` and [put it behind HTTPS](configuration.md#put-it-behind-https).
 
 ## Get a calendar
 

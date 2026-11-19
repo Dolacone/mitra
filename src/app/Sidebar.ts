@@ -1,4 +1,4 @@
-import { Component, component, html, css, property, state, event, eventListener, unsafeCSS, ifDefined } from '@a11d/lit'
+import { Component, component, html, css, property, state, event, eventListener, unsafeCSS } from '@a11d/lit'
 import { ReorderabilityController, ReorderabilityState } from '@3mo/reorderability'
 import { MediaQueryController } from '@3mo/media-query-observer'
 import { RenameSource, RecolorSource, SetSourceRoutines, CreateSource, ReimportSource, SetDefaultCalendar, DisconnectIntegration, ReimportIntegration, RenameIntegration } from '#operations'
@@ -215,62 +215,6 @@ export class Sidebar extends Component {
 						   window, so the logo moves it. */
 						.brand, .brand :is(.mark, img, .name) {
 							-webkit-app-region: drag;
-						}
-					}
-				}
-
-				/* User account card footer in multi-user mode. */
-				.account {
-					display: flex;
-					align-items: center;
-					gap: 0.5rem;
-					margin-block-start: 0.5rem;
-					padding: 0.5rem 0.5rem 0.5rem 0.4375rem;
-					background: var(--color-surface);
-					border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
-					border-radius: calc(var(--border-radius) * 2);
-
-					mitra-avatar {
-						--mitra-avatar-size: 2rem;
-					}
-
-					> mitra-icon-button {
-						color: var(--color-text-muted);
-					}
-
-					/* The menu holding the rare action keeps to itself until the card is reached for, the
-					   same bargain a source row's ⋯ strikes with its eye. Focus and an open menu pin it, so
-					   it never fades out from under itself. */
-					.actions mitra-icon-button {
-						opacity: 0;
-						transition: opacity 0.15s ease;
-					}
-
-					&:hover .actions mitra-icon-button,
-					&:focus-within .actions mitra-icon-button,
-					&:has(mitra-menu:popover-open) .actions mitra-icon-button {
-						opacity: 1;
-					}
-
-					.who {
-						flex: 1;
-						min-width: 0;
-
-						.name {
-							font-size: 0.8125rem;
-							font-weight: 600;
-							color: var(--color-text);
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
-						}
-
-						.email {
-							font-size: 0.75rem;
-							color: color-mix(in srgb, var(--color-text) 65%, transparent);
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
 						}
 					}
 				}
@@ -579,7 +523,7 @@ export class Sidebar extends Component {
 
 				/* The trailing icon buttons bleed their glyph inset back out, so it is the GLYPHS that land on the
 				   trailing edge. Aligning the boxes instead leaves every icon a few pixels short of the text above. */
-				.integration > header > .actions > mitra-popover-container:last-child > mitra-icon-button, :is(.integrations, .account) .actions > mitra-icon-button:last-child, .account > mitra-icon-button:last-child {
+				.integration > header > .actions > mitra-popover-container:last-child > mitra-icon-button, .integrations .actions > mitra-icon-button:last-child {
 					margin-inline-end: calc(-1 * var(--mitra-glyph-inset));
 				}
 
@@ -604,7 +548,7 @@ export class Sidebar extends Component {
 
 				/* A 280px column has no room to drop a menu below its trigger, so they open off its inline end.
 				   Only the sidebar's own: an entry editor opened from the Planning tab carries its menu in here. */
-				:is(.integrations, .account) mitra-menu {
+				.integrations mitra-menu {
 					margin: 0;
 					/* The menu sits inside its row in the DOM, so the row's grab cursor reached its gaps. */
 					cursor: auto;
@@ -919,12 +863,10 @@ export class Sidebar extends Component {
 					</mitra-tab-panel>
 				</mitra-tabs>
 				<div class="footer">
-					${session.user?.identity ? html.nothing : html`
-						<mitra-button class="action" title=${t('Settings')} @click=${() => this.settingsClick.dispatch()}>
-							<mitra-icon icon="settings"></mitra-icon>
-							${t('Settings')}
-						</mitra-button>
-					`}
+					<mitra-button class="action" title=${t('Settings')} @click=${() => this.settingsClick.dispatch()}>
+						<mitra-icon icon="settings"></mitra-icon>
+						${t('Settings')}
+					</mitra-button>
 					${!canInstall() ? html.nothing : html`
 						<mitra-button class="action"
 							title=${t('Install mitra as an app. It gets its own window, and notifications appear under its own name and icon')}
@@ -933,32 +875,8 @@ export class Sidebar extends Component {
 							${t('Install as an App')}
 						</mitra-button>
 					`}
-					${this.accountTemplate}
 				</div>
 			</nav>
-		`
-	}
-
-	/** User account footer for multi-user mode. */
-	private get accountTemplate() {
-		const identity = session.user?.identity
-		return !identity ? html.nothing : html`
-			<div class="account">
-				<mitra-avatar src=${ifDefined(identity.picture ?? undefined)}></mitra-avatar>
-				<div class="who">
-					<div class="name">${identity.name || identity.email || t('Account')}</div>
-					${!identity.email || identity.email === identity.name ? html.nothing : html`<div class="email">${identity.email}</div>`}
-				</div>
-				<span class="actions">
-					<mitra-popover-container>
-						<mitra-icon-button icon="more-horizontal" label=${t('Account options')}></mitra-icon-button>
-						<mitra-menu slot="popover">
-							<mitra-menu-item icon="log-out" @click=${() => location.assign('/auth/logout')}>${t('Sign out')}</mitra-menu-item>
-						</mitra-menu>
-					</mitra-popover-container>
-				</span>
-				<mitra-icon-button icon="settings" label=${t('Settings')} @click=${() => this.settingsClick.dispatch()}></mitra-icon-button>
-			</div>
 		`
 	}
 

@@ -10,12 +10,8 @@ import { UserTimeZones } from '#features/time/UserTimeZones.js'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { Routine } from '#features/routines/Routine.js'
 import { Integration } from '#integrations'
-import { model, entity, primaryKey, property, manyToOne, embedded, unique } from '#infrastructure/model'
+import { model, entity, primaryKey, property, manyToOne } from '#infrastructure/model'
 import { ValidationError } from '#infrastructure/validation'
-import { Identity, type IdentityClaims } from './Identity.js'
-
-/** What a person may do on the instance: an administrator also looks after it, saying what holds for everyone on it. */
-export type UserRole = 'administrator' | 'member'
 
 interface EntryFilter {
 	readonly range?: DateTimeRange
@@ -27,16 +23,11 @@ interface EntryFilter {
 
 @model('User')
 @entity()
-@unique({ properties: ['identity.issuer', 'identity.subject'] })
 export class User {
 	static readonly default = new User({ username: '[default_local_user]' })
 
 	@primaryKey() id: string = crypto.randomUUID()
 	@property({ type: 'string', unique: true }) username!: string
-
-	@property({ type: 'string', default: 'member' }) role: UserRole = 'member'
-
-	@embedded(() => Identity, { prefix: 'oidc_', nullable: true }) identity?: Identity
 
 	@manyToOne(() => Source, { mapToPk: true, deleteRule: 'set null', nullable: true }) defaultSourceId?: string
 
@@ -50,25 +41,6 @@ export class User {
 
 	constructor(init?: Partial<User>) {
 		Object.assign(this, init)
-	}
-
-	static async provision(em: EntityManager, issuer: string, claims: IdentityClaims): Promise<User> {
-		const existing = await em.findOne(User, { identity: { issuer, subject: claims.sub } })
-		if (existing) {
-			existing.identity?.applyClaims(claims)
-			return existing
-		}
-		const user = new User({ username: claims.sub, identity: Identity.fromClaims(issuer, claims) })
-		// The first to sign in looks after the instance while nobody who signs in does (the local account can't once anyone does).
-		if (!await em.count(User, { role: 'administrator', identity: { issuer: { $ne: null } } })) {
-			user.role = 'administrator'
-		}
-		em.persist(user)
-		return user
-	}
-
-	get administers() {
-		return this.role === 'administrator'
 	}
 
 	/** The reminders a new entry of the user's starts with. */
@@ -134,10 +106,9 @@ export class User {
 		return found
 	}
 
-	/** The one local account single-user mode signs every request in as, made on first use, and administering the instance it has to itself. */
+	/** The one local account single-user mode signs every request in as, made on first use. */
 	static async local(em: EntityManager) {
 		const user = await em.findOne(User, { username: User.default.username }) ?? User.default
-		user.role = 'administrator'
 		await em.persist(user).flush()
 		return user
 	}

@@ -26,14 +26,11 @@ docker compose up -d
 
 Almost nothing. People add [Mitra calendars](integrations/mitra.md) themselves, in the app.
 
-[Sign-in](sso.md) (`MITRA_OIDC_*`) needs credentials you register with someone else first.
-
 ## Put it behind HTTPS
 
 Once Mitra is reachable from anywhere but your own machine, put it behind a reverse proxy such as Caddy, Traefik or nginx, and let the proxy handle HTTPS. Mitra itself speaks plain HTTP inside the container. Some features only work over HTTPS:
 
 - Browsers only allow [reminders](reminders.md) and [installing the app](install-app.md) on `https://` addresses (and on `http://localhost`).
-- [Sign-in](sso.md) cookies are only marked secure on `https://`, and most identity providers insist on an `https://` redirect address.
 
 Then set [`MITRA_URL`](#set-the-public-url) to the public address.
 
@@ -71,7 +68,7 @@ environment:
   MITRA_URL: 'https://mitra.example.com'
 ```
 
-Mitra builds the return address for sign-in from it, and marks its cookies secure when it starts with `https://`. You can leave it out while you try Mitra on `http://localhost`. Set it as soon as Mitra has a real address, and you must set it to turn on sign-in.
+You can leave it out while you try Mitra on `http://localhost`. Set it as soon as Mitra has a real address.
 
 ## Name your instance
 
@@ -90,7 +87,7 @@ The [installed app](install-app.md) keeps the name and icon "Mitra", because tho
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MITRA_URL` | *(unset)* | The [public address](#set-the-public-url) people reach Mitra at, such as `https://mitra.example.com`. The return address for sign-in, and whether cookies are secure, come from it. Optional while you try Mitra on localhost, required for [sign-in](sso.md), and recommended for any public server. |
+| `MITRA_URL` | *(unset)* | The [public address](#set-the-public-url) people reach Mitra at, such as `https://mitra.example.com`. Links in Discord notifications point to it. Optional while you try Mitra on localhost, and recommended for any public server. |
 | `MITRA_NAME` | *(Mitra, in each person's language)* | The [name](#name-your-instance) shown in the sidebar, the browser tab and the installed app. |
 | `MITRA_PORT` | `3000` | The port the server listens on. With Docker, change the host side of the port mapping instead; set this only when the process itself must listen elsewhere. The built-in health check follows it. |
 | `MITRA_LOG_LEVEL` | `info` | [How much Mitra logs](logging.md): `error`, `warn`, `info`, `debug` or `trace`. Each level includes everything quieter than it. |
@@ -116,17 +113,6 @@ The [installed app](install-app.md) keeps the name and icon "Mitra", because tho
 | `MITRA_FILE_MAX_SIZE` | `25M` | The largest file a person can [attach](attachments.md) to an entry, in bytes or with a `k`, `M` or `G` suffix. Set it to `0` to turn adding files off. |
 | `MITRA_FILE_QUOTA` | *(unset)* | How much each person can store in attached files altogether, written the same way. Without it, there's no limit. |
 
-### Single sign-on
-
-Setting `MITRA_OIDC_ISSUER` turns on [sign-in](sso.md). If the variables it needs are missing, Mitra refuses to start.
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `MITRA_OIDC_ISSUER` | *(unset)* | Your OIDC provider's issuer URL. Requires `MITRA_OIDC_CLIENT_ID` and `MITRA_URL`. |
-| `MITRA_OIDC_CLIENT_ID` | *(unset)* | The client ID registered at your provider. |
-| `MITRA_OIDC_CLIENT_SECRET` | *(unset)* | The client secret. Leave it out for a public client; Mitra always uses PKCE. |
-| `MITRA_OIDC_SCOPES` | `openid profile email` | The scopes Mitra asks for, separated by spaces. `openid` is required; `profile` and `email` give Mitra each person's name and email. |
-
 ### Set by the build
 
 You don't set these on a server. The build or the image sets them, or they're for working on Mitra itself.
@@ -135,12 +121,11 @@ You don't set these on a server. The build or the image sets them, or they're fo
 | --- | --- | --- |
 | `MITRA_VERSION` | Build | The version built into the image. |
 | `MITRA_COMMIT` | Build | The commit built into the image. |
-| `MITRA_DEV` | Development | Checks for updates every few seconds and keeps the local account beside a sign-in provider, while working on Mitra. |
 | `NODE_ENV` | Image | `production` in the container image. |
 
 ### Example
 
-A server with sign-in and its own geocoder:
+A server with its own name and geocoder:
 
 ```yaml
 services:
@@ -154,11 +139,6 @@ services:
     environment:
       MITRA_URL: 'https://mitra.example.com'
       MITRA_NAME: 'Family Calendar'
-
-      # Sign-in
-      MITRA_OIDC_ISSUER: 'https://auth.example.com'
-      MITRA_OIDC_CLIENT_ID: 'mitra'
-      MITRA_OIDC_CLIENT_SECRET: '…'
 
       # Your own geocoder
       MITRA_PHOTON_URL: 'https://photon.internal.example.com'

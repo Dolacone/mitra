@@ -3,12 +3,11 @@ import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
 import { children } from '#infrastructure/model'
 import { DateTimeRange } from '@3mo/date-time'
-import { User, Identity } from '#features/identity'
+import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { Recurrence, EntryOccurrences, RecurrenceFrequency } from '#features/recurrence'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Session } from '#features/identity/server/Session.js'
 import { Integration } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { EntryType } from '../EntryType.js'
@@ -17,7 +16,7 @@ import { EntryStatus } from '../EntryStatus.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, NotificationSubscription, Session],
+		entities: [User, Integration, MitraCalendar, Source, Entry, NotificationSubscription],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

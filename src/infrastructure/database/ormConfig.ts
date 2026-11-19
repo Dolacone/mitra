@@ -1,10 +1,9 @@
 import { UnderscoreNamingStrategy, defineConfig } from '@mikro-orm/sqlite'
 import { Migrator } from '@mikro-orm/migrations'
-import { User, Identity } from '#features/identity'
+import { User } from '#features/identity'
 import { Source } from '#features/sources'
 import { Entry, EntryFile } from '#features/entries'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Session } from '#features/identity/server/Session.js'
 import { File } from '#features/files/File.js'
 import { Routine } from '#features/routines/Routine.js'
 import { RoutineSubscriber } from '#features/routines/server/RoutineSubscriber.js'
@@ -17,7 +16,7 @@ import { migrations, nameOf } from './migrations/index.js'
 /** ORM configuration shared between runtime (orm.ts) and migration CLI. */
 export function ormConfig(dbName: string) {
 	return defineConfig({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, NotificationSubscription, Session, File, EntryFile, Routine, State],
+		entities: [User, Integration, MitraCalendar, Source, Entry, NotificationSubscription, File, EntryFile, Routine, State],
 		subscribers: [children.subscriber, RoutineSubscriber],
 		dbName,
 		extensions: [Migrator],

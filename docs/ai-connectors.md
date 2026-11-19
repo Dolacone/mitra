@@ -14,7 +14,7 @@ A connected tool sees and changes exactly what you do in Mitra, across all your 
 
 ## Connect a tool
 
-Without sign-in, Mitra is for one person and asks for no token: the address is enough. Anyone who can reach that address can then use it, so keep such a server private. Where people [sign in](sso.md), a tool outside the browser can't connect.
+Mitra is for one person and asks for no token: the address is enough. Anyone who can reach that address can then use it, so keep the server private.
 
 Many tools can also set themselves up: tell Claude Code or Cursor to connect to the address, and it writes its own configuration. The examples below do the same by hand.
 

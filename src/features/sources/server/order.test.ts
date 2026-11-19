@@ -1,10 +1,9 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
-import { User, Identity } from '#features/identity'
+import { User } from '#features/identity'
 import { EntryType, Entry } from '#features/entries'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { Session } from '#features/identity/server/Session.js'
 import { Integration } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { applyOrder, byOrder, children } from '#infrastructure/model'
@@ -12,7 +11,7 @@ import { Source } from '../Source.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, NotificationSubscription, Session],
+		entities: [User, Integration, MitraCalendar, Source, Entry, NotificationSubscription],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,

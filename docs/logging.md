@@ -23,9 +23,9 @@ Each level includes everything quieter than it:
 | `MITRA_LOG_LEVEL` | What you get |
 | --- | --- |
 | `error` | Failures only. |
-| `warn` | Also problems Mitra worked around, such as a reminder that couldn't be delivered, a geocoder that didn't answer, or a sign-in provider it couldn't reach. |
-| `info` *(default)* | Also what matters day to day: starting up, sign-ins and reminders sent. |
-| `debug` | Also every request with its status and time, sessions and entry edits. |
+| `warn` | Also problems Mitra worked around, such as a reminder that couldn't be delivered or a geocoder that didn't answer. |
+| `info` *(default)* | Also what matters day to day: starting up and reminders sent. |
+| `debug` | Also every request with its status and time, and entry edits. |
 | `trace` | Also every database query and the raw calendar data. There's a lot of it. |
 
 Mitra logs the level it runs at when it starts.

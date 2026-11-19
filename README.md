@@ -37,7 +37,7 @@ Most tools make you choose between a calendar for your time and a to-do app for 
 - Availability, checklists, files attached to entries, reminders as push notifications, guest lists with replies, and a command palette for the keyboard.
 - AI connectors: Claude, Cursor and other AI tools can read and plan your calendars over the Model Context Protocol (MCP).
 - Thirteen languages, right to left included, light and dark themes, and a color for every calendar.
-- One small container with a database you own, no telemetry, and sign-in for several people when you need it.
+- One small container with a database you own, and no telemetry.
 
 ## Get started
 
@@ -59,9 +59,9 @@ services:
 docker compose up -d   # → http://localhost:3000
 ```
 
-Out of the box, Mitra is for one person and has no sign-in. Everything it stores is in the `~/mitra` folder, so backing that up backs up everything.
+Mitra is for one person and has no sign-in. Everything it stores is in the `~/mitra` folder, so backing that up backs up everything.
 
-From here, the **[documentation](https://mitracal.com/docs/)** covers your first calendar, sign-in for several people and everything else. You can also read it as Markdown in [`docs/`](docs).
+From here, the **[documentation](https://mitracal.com/docs/)** covers your first calendar and everything else. You can also read it as Markdown in [`docs/`](docs).
 
 ## Contributing
 

@@ -34,7 +34,7 @@ interface CalledTool {
 let requests = 0
 
 /**
- * One JSON-RPC request to the endpoint, which needs no session: the cookie signs it in as the page is. A request naming no
+ * One JSON-RPC request to the endpoint, which needs no session. A request naming no
  * protocol version is answered as the 2025 revision answers, a stream holding the one message, whose data is read.
  */
 async function request<Result>(method: string, params?: object) {

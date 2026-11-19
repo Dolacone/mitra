@@ -12,7 +12,7 @@ if (process.argv.includes('--typecheck')) {
 const backendContext = await esbuild.context({ ...backendOptions, sourcemap: 'inline' })
 await backendContext.rebuild()
 await backendContext.watch()
-spawn('node', ['--watch', 'out/server/server.mjs'], { stdio: 'inherit', shell: true, env: { ...process.env, MITRA_DEV: 'true' } })
+spawn('node', ['--watch', 'out/server/server.mjs'], { stdio: 'inherit', shell: true })
 
 await writeIndexHtml()
 
