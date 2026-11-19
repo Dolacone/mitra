@@ -29,8 +29,7 @@
 		"db:migration:up": "node ./scripts/db.ts up",
 		"db:migration:down": "node ./scripts/db.ts down",
 		"i18n:generate": "node ./scripts/i18n.ts",
-		"zones:generate": "node ./scripts/goldenZones.ts",
-		"changelog": "node ./scripts/changelog.ts"
+		"zones:generate": "node ./scripts/goldenZones.ts"
 	},
 	"devDependencies": {
 		"@a11d/eslint-config": "2.x",

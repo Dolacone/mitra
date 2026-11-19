@@ -5,5 +5,3 @@ tsconfig.tsbuildinfo
 out_test/
 out/
 .DS_Store
-# Generated from the commits and tags (npm run changelog); CI writes it for the image, the release and the site.
-CHANGELOG.md

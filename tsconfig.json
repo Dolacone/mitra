@@ -1,8 +1,7 @@
 {
 	"include": [
 		"src/**/*.ts",
-		"scripts/**/*.ts",
-		"releases/**/*.ts"
+		"scripts/**/*.ts"
 	],
 	"compilerOptions": {
 		"incremental": true,
