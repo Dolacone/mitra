@@ -9,7 +9,7 @@ Installing is worth it for three reasons:
 
 - Mitra opens in its own window, away from your browser tabs, and its notifications show under its own name and icon.
 - On an iPhone or iPad, it's the only way to get [reminders](reminders.md).
-- On a computer, Mitra can open `.ics` files and `webcal://` links for you. See [Calendar files](calendar-files.md).
+- On a computer, Mitra can open `webcal://` links for you. See [Calendar files](calendar-files.md).
 
 The installed app is always called Mitra and has Mitra's icon, even when your server gives the instance [a name of its own](configuration.md#name-your-instance).
 
@@ -19,7 +19,7 @@ In Chrome, Edge and other Chromium-based browsers, open Mitra and click the inst
 
 In Safari on a Mac, choose **File → Add to Dock**.
 
-Once installed, Mitra opens in its own window. If that window is already open when you open a calendar file or link, Mitra brings it to the front instead of opening a second one.
+Once installed, Mitra opens in its own window. If that window is already open when you open a calendar link, Mitra brings it to the front instead of opening a second one.
 
 ## On Android
 

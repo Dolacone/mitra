@@ -52,31 +52,9 @@ The calendar with the filled icon is your default: new entries go there unless y
 
 New entries are events, unless the calendar can only hold tasks, as a Notion view can. While an entry is new, its editor has an **Event** / **Task** switch. Once it's saved, change it with **Type** in the editor, as long as its calendar can hold the other kind. A repeating entry keeps its type.
 
-## Move or copy every entry to another calendar
+## Move an entry to another calendar
 
-**Move entries to…** in a calendar's **⋯** menu, or **Move entries from …** in the command palette, moves everything in it to another calendar at once. Pick where they should go, and before anything happens, Mitra shows you what the move would cost:
-
-```
-19 of 21 entries move to Personal
-✓ 15 arrive with everything they carry
-! 4 lose their reminders
-⨯ 2 repeat and stay here
-```
-
-The report depends on what the destination can hold, so it reads differently for a CalDAV calendar than for a Notion view. Entries the destination can't take at all, like a repeating entry going to Notion, stay where they are and are listed by name.
-
-**Copy instead** leaves the originals where they are and puts a copy of each in the destination. That's also how you take entries out of a read-only calendar, such as a subscription: it can be copied from, but not moved out of.
-
-Links between the entries you move come along, even into Notion, which gives every page a new ID. Links from entries that stay behind keep pointing at the ones that moved.
-
-If the destination can't repeat entries, Mitra asks what to do with the repeating ones: leave them here, or flatten them into single entries, one for each occurrence in the coming year, that no longer repeat. It never flattens without asking.
-
-> [!NOTE]
-> Mitra copies first and deletes the originals only once their copies have landed. There's no undo across two providers, so this order is the safety net: if something goes wrong, you may end up with an entry in both calendars, but never with one missing. If copying fails, the whole move stops and nothing is deleted.
-
-### Move a single entry
-
-To move one entry, open it and pick another calendar in its editor. For a repeating entry, Mitra asks which ones you mean. **This entry** moves that one occurrence on its own, **This and following entries** moves the rest of the series and leaves the earlier occurrences behind, and **All entries** moves the whole series, repeat rule and all.
+To move an entry, open it and pick another calendar in its editor. For a repeating entry, Mitra asks which ones you mean. **This entry** moves that one occurrence on its own, **This and following entries** moves the rest of the series and leaves the earlier occurrences behind, and **All entries** moves the whole series, repeat rule and all.
 
 ## Read-only calendars
 

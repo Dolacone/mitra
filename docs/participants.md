@@ -52,7 +52,7 @@ The **⋯** menu beside the count acts on the whole list:
 On an entry someone else organized, you can't add, remove or change people: the **＋** is hidden, and the menu only emails and copies. That's the rule of the scheduling standard calendar apps follow, and Mitra's server refuses such a change too. You can still edit the rest of the entry, such as its title, time and description.
 
 > [!CAUTION]
-> Moving an entry with participants to another calendar deletes it from the first one, and some servers then tell the participants it was cancelled. [Copy it](calendars.md#move-or-copy-every-entry-to-another-calendar) instead if they shouldn't hear about it.
+> Moving an entry with participants to another calendar deletes it from the first one, and some servers then tell the participants it was cancelled.
 
 ## Troubleshooting
 

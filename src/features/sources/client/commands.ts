@@ -1,5 +1,4 @@
 import { Command } from '#features/commands/Command.js'
-import { DialogSourceMigration } from '#features/migration/client/DialogSourceMigration.js'
 import { type Source } from '../Source.js'
 import { Calendars } from './Calendars.js'
 
@@ -22,29 +21,6 @@ class ShowOnlySource extends Command {
 	}
 }
 
-/** Palette command to move or copy all entries from a source. */
-class MoveSourceEntries extends Command {
-	constructor(private readonly source: Source) {
-		super()
-	}
-
-	get heading() {
-		return Calendars.canMoveEntriesOut(this.source)
-			? t('Move entries from ${name}…', { name: this.source.name })
-			: t('Copy entries from ${name}…', { name: this.source.name })
-	}
-	readonly icon = 'folder-input'
-	readonly keywords = t('MoveSourceEntries.Keywords')
-	readonly keys = []
-	readonly group = undefined
-
-	override get listedWithoutQuery() { return false }
-
-	override execute() {
-		return new DialogSourceMigration({ source: this.source }).confirm()
-	}
-}
-
 class ShowPreviouslyVisibleSources extends Command {
 	readonly heading = t('Show Previously Visible Calendars')
 	readonly icon = 'eye'
@@ -64,6 +40,5 @@ export function sourceCommands(): Array<Command> {
 	return [
 		...Calendars.canRestoreVisibility ? [new ShowPreviouslyVisibleSources()] : [],
 		...sources.length < 2 ? [] : sources.map(source => new ShowOnlySource(source)),
-		...sources.filter(source => Calendars.canCopyEntriesOut(source)).map(source => new MoveSourceEntries(source)),
 	]
 }

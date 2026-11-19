@@ -48,12 +48,6 @@ describe('Calendars', () => {
 		assert.equal(Calendars.getSource('work')?.capabilities.entries.create, true)
 	})
 
-	it('copies entries out where another calendar takes them, and moves them only where they can also be deleted', () => {
-		assert.equal(Calendars.canCopyEntriesOut(Calendars.getSource('holidays')!), true)
-		assert.equal(Calendars.canMoveEntriesOut(Calendars.getSource('holidays')!), false)
-		assert.equal(Calendars.canMoveEntriesOut(Calendars.getSource('work')!), true)
-	})
-
 	it('reorders sources and integrations in place', async () => {
 		await Calendars.reorderIntegrations(['local', 'feed']).catch(() => void 0)
 		assert.deepEqual(Calendars.integrations.map(integration => integration.id), ['local', 'feed'])

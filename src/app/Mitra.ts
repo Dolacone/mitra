@@ -26,8 +26,6 @@ import { EntryDetailsComponent } from '#features/entries/client/EventDetails.js'
 import { DialogAbout } from '#features/about/client/DialogAbout.js'
 import { ReleaseNotesComponent } from '#features/about/client/ReleaseNotesComponent.js'
 import { DialogWelcome } from '#features/onboarding/client/DialogWelcome.js'
-import { DialogSourceMigration } from '#features/migration/client/DialogSourceMigration.js'
-import { DialogIcsImport } from '#features/migration/client/DialogIcsImport.js'
 import { DialogKeyboardShortcuts } from '#features/commands/client/DialogKeyboardShortcuts.js'
 import { DialogSettings } from '#features/settings/client/DialogSettings.js'
 import { SettingRow } from '#features/settings/client/SettingRow.js'
@@ -73,7 +71,7 @@ import { LocalePreview } from '#infrastructure/i18n/LocalePreview.js'
 import { LocaleSetting } from '#infrastructure/i18n/LocaleSetting.js'
 import { AppLocale } from '#infrastructure/i18n/AppLocale.js'
 import { Sidebar } from './Sidebar.js'
-import { consumeSubscribeParameter, observeFileDrops, observeLaunches } from './launch.js'
+import { claimFileDrops, consumeSubscribeParameter, observeLaunches } from './launch.js'
 import { syncThemeColor } from './pwa.js'
 
 EntryStore.resolveScope = (entry, intent) => hierarchy.resolveRecurrenceScope(entry, intent)
@@ -124,12 +122,11 @@ export class Mitra extends Application {
 			DialogAbout.markSeen()
 		}
 		await super.initialized()
-		// Warm OS launches (focus-existing) and file opens arrive here even while another dialog is up.
+		// Warm OS launches (focus-existing) arrive here even while another dialog is up.
 		observeLaunches({
 			subscribe: url => void Mitra.subscribe(url),
-			files: files => void Mitra.addCalendarFiles(files),
 		})
-		observeFileDrops(files => void Mitra.addCalendarFiles(files))
+		claimFileDrops()
 		if (pendingIntegrationId) {
 			await new DialogIntegration({ id: pendingIntegrationId, preselectSources: true }).confirm()
 		} else if (subscribeUrl) {
@@ -147,20 +144,6 @@ export class Mitra extends Application {
 			return
 		}
 		await new DialogIntegration({ prefill: new IcsSubscription({ uri: normalized }) }).confirm()
-	}
-
-	private static async addCalendarFiles(files: ReadonlyArray<File>) {
-		for (const file of files) {
-			await new DialogIcsImport({ fileName: file.name, ics: await file.text() }).confirm()
-				.catch(Mitra.absorbCancellation)
-		}
-	}
-
-	private static absorbCancellation(error: unknown) {
-		if (!(error instanceof DialogCancelledError)) {
-			throw error
-		}
-		return undefined
 	}
 
 	protected override get documentTitle() {
@@ -279,8 +262,6 @@ export class Mitra extends Application {
 			${ReleaseNotesComponent.styles}
 			${DialogIntegration.styles}
 			${DialogWelcome.styles}
-			${DialogSourceMigration.styles}
-			${DialogIcsImport.styles}
 			${DialogKeyboardShortcuts.styles}
 			${DialogSettings.styles}
 			${SettingRow.styles}

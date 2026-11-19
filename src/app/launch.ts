@@ -1,6 +1,6 @@
 /**
  * OS launch integration. The PWA manifest (scripts/indexHtml.ts) registers mitra as a handler for
- * .ics files and the webcal: protocol; with `launch_handler: focus-existing`, a launch reaches the
+ * the webcal: protocol; with `launch_handler: focus-existing`, a launch reaches the
  * already-running window as LaunchParams on `window.launchQueue` instead of navigating it. A cold
  * start instead navigates to the handler URL, whose `?subscribe=` parameter is consumed at boot, so
  * a cold protocol launch surfaces on BOTH paths, which {@link observeLaunches} deduplicates.
@@ -8,7 +8,6 @@
 
 interface LaunchParams {
 	readonly targetURL?: string
-	readonly files?: ReadonlyArray<FileSystemFileHandle>
 }
 
 interface LaunchQueue {
@@ -17,7 +16,6 @@ interface LaunchQueue {
 
 export interface LaunchHandlers {
 	subscribe(url: string): void
-	files(files: ReadonlyArray<File>): void
 }
 
 /** Extracts the subscription address a protocol launch encoded into the handler URL. */
@@ -38,39 +36,27 @@ export function consumeSubscribeParameter(): string | undefined {
 	return bootConsumedUrl = subscribeUrlOf(location.href)
 }
 
-/** Consumes queued and future launches (focus-existing warm launches, and cold-start file opens). */
+/** Consumes queued and future launches (focus-existing warm launches). */
 export function observeLaunches(handlers: LaunchHandlers) {
-	(window as { launchQueue?: LaunchQueue }).launchQueue?.setConsumer(async params => {
+	(window as { launchQueue?: LaunchQueue }).launchQueue?.setConsumer(params => {
 		const url = !params.targetURL ? undefined : subscribeUrlOf(params.targetURL)
 		if (url && url !== bootConsumedUrl) {
 			handlers.subscribe(url)
 		}
 		bootConsumedUrl = undefined
-		const files = await Promise.all([...params.files ?? []].map(handle => handle.getFile()))
-		if (files.length) {
-			handlers.files(files)
-		}
 	})
 }
 
-/** Accepts .ics files dropped onto the window, the in-browser counterpart to OS file launches.
- * Every file drop is claimed (never handed to the browser, which would navigate away from the app);
- * non-calendar files are simply ignored. */
-export function observeFileDrops(handler: (files: ReadonlyArray<File>) => void) {
+/** Claims every file dropped onto the window, as the browser would otherwise navigate away from the app to show it. */
+export function claimFileDrops() {
 	window.addEventListener('dragover', event => {
 		if ([...event.dataTransfer?.items ?? []].some(item => item.kind === 'file')) {
 			event.preventDefault()
 		}
 	})
 	window.addEventListener('drop', event => {
-		// Claimed on its way up, as by the entry editor attaching the files.
-		if (event.defaultPrevented || ![...event.dataTransfer?.files ?? []].length) {
-			return
-		}
-		event.preventDefault()
-		const files = [...event.dataTransfer!.files].filter(file => file.type === 'text/calendar' || file.name.toLowerCase().endsWith('.ics'))
-		if (files.length) {
-			handler(files)
+		if ([...event.dataTransfer?.files ?? []].length) {
+			event.preventDefault()
 		}
 	})
 }

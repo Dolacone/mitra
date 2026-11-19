@@ -10,7 +10,6 @@ import { UpdateEntry } from '#features/entries/server/UpdateEntry.js'
 import { UpdateEntryOccurrence } from '#features/entries/server/UpdateEntryOccurrence.js'
 import { CompleteTask } from '#features/entries/server/CompleteTask.js'
 import { CreateSource } from '#features/sources/server/CreateSource.js'
-import { MigrateSource } from '#features/migration/server/MigrateSource.js'
 import { TimeZone } from '#features/time/TimeZone.js'
 import { orm } from '#infrastructure/database/orm.js'
 import { OperationServer } from '#infrastructure/operations/OperationServer.testing.js'
@@ -167,28 +166,6 @@ describe('RoutineRecognition', () => {
 		await once('Reading', start.add({ days: 2 }))
 		assert.equal(await routineOf(declined.id!), undefined)
 		assert.ok(await routineOf(series.id!))
-	})
-
-	it('recognizes a copy in its new calendar by its title, rather than taking the original\'s routine', async () => {
-		const origin = await CreateSource.call({ id: server.integration.id, name: 'Origin' })
-		const target = await CreateSource.call({ id: server.integration.id, name: 'Target' })
-		const original = await recurring('Choir', rule(RecurrenceFrequency.Weekly), { sourceId: origin.id })
-		await MigrateSource.call({ id: origin.id, targetSourceId: target.id, flatten: false, keepOriginals: true })
-		const [copy] = await server.query<{ id: string, routine_id: string }>('select id, routine_id from entry where source_id = ?', [target.id])
-		assert.ok(copy!.routine_id)
-		assert.notEqual(copy!.routine_id, await routineOf(original.id!))
-		assert.equal(await calendarOf(copy!.routine_id), target.id)
-	})
-
-	it('takes its routine along when it moves to another calendar', async () => {
-		const origin = await CreateSource.call({ id: server.integration.id, name: 'Before' })
-		const target = await CreateSource.call({ id: server.integration.id, name: 'After' })
-		const original = await recurring('Piano', rule(RecurrenceFrequency.Daily), { sourceId: origin.id })
-		const id = await routineOf(original.id!)
-		await MigrateSource.call({ id: origin.id, targetSourceId: target.id, flatten: false, keepOriginals: false })
-		const [moved] = await server.query<{ routine_id: string }>('select routine_id from entry where source_id = ?', [target.id])
-		assert.equal(moved!.routine_id, id)
-		assert.equal(await calendarOf(id), target.id)
 	})
 
 	describe('an override, as a sync stores another app\'s', () => {

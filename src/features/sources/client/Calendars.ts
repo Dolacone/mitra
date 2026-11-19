@@ -67,14 +67,6 @@ export class Calendars {
 		return Calendars.getPrimary(EntryType.Task)
 	}
 
-	static canCopyEntriesOut(source: Source) {
-		return Calendars.sources.some(other => other.id !== source.id && other.writable)
-	}
-
-	static canMoveEntriesOut(source: Source) {
-		return Calendars.canCopyEntriesOut(source) && source.capabilities.entries.delete
-	}
-
 	static reorderSources(integration: Integration, ids: Array<string>) {
 		const sources = [...integration.sources]
 		applyOrder(sources, ids)

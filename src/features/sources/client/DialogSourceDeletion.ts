@@ -1,7 +1,6 @@
 import { component, html, css } from '@a11d/lit'
 import { DialogComponent } from '@a11d/lit-application'
 import { CountSourceEntries, DeleteSource } from '#operations'
-import { DialogSourceMigration } from '#features/migration/client/DialogSourceMigration.js'
 import { type Source } from '../Source.js'
 import { Calendars } from './Calendars.js'
 
@@ -42,22 +41,13 @@ export class DialogSourceDeletion extends DialogComponent<{ readonly source: Sou
 		`
 	}
 
-	private async migrate() {
-		this.close(false)
-		await new DialogSourceMigration({ source: this.parameters.source }).confirm()
-	}
-
 	protected override get template() {
 		const { source } = this.parameters
 		return html`
 			<mitra-dialog heading=${t('Delete "${name}"?', { name: source.name })}>
 				<p class="warning">${t('All entries in this calendar will be deleted too. This can\'t be undone.')}</p>
 				<mitra-choices>
-					${Calendars.canCopyEntriesOut(source) ? html`
-						<mitra-choice autofocus icon="folder-input" @click=${() => this.migrate()}>${t('Move entries first…')}</mitra-choice>
-					` : html`
-						<mitra-choice autofocus icon="calendar" @click=${() => this.close(false)}>${t('Keep the calendar')}</mitra-choice>
-					`}
+					<mitra-choice autofocus icon="calendar" @click=${() => this.close(false)}>${t('Keep the calendar')}</mitra-choice>
 					<mitra-choice icon="trash-2" @click=${() => this.close(true)}>${t('Delete')}</mitra-choice>
 				</mitra-choices>
 			</mitra-dialog>

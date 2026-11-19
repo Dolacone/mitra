@@ -12,8 +12,7 @@ import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { EntryRelation, EntryRelations, RelationGraph, RelationType } from '#features/relations'
 import { NotificationSubscription } from '#features/reminders/NotificationSubscription.js'
-import { MigrationVerdict, MigrationBlocker } from '#features/migration/MigrationPlan.js'
-import { Integration, registerEngine, type SourceSyncEngine, type IntegrationCapabilities } from '#integrations'
+import { Integration, registerEngine, type SourceSyncEngine } from '#integrations'
 import { CalDAV } from '#integrations/caldav/CalDAV.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { Notion } from '#integrations/notion/Notion.js'
@@ -148,22 +147,6 @@ describe('converting an entry to availability', () => {
 		entry.type = EntryType.Task
 		assert.equal(entry.location, 'Room 1')
 		assert.deepEqual(entry.reminders, EntryReminders.normalize([10]))
-	})
-})
-
-describe('moving availability to a calendar', () => {
-	const availability = new Entry({ id: 'a', heading: 'Working hours', type: EntryType.Availability, recurrence: new Recurrence({ freq: RecurrenceFrequency.Weekly }) })
-	const assess = (capabilities: IntegrationCapabilities) =>
-		MigrationVerdict.of(availability, Object.assign(new Source(), { integration: { ownership: new CalDAV().ownership, capabilitiesFor: (source: Source) => capabilities.in(source), canHold: (source: Source, type: EntryType) => source.supportsEntryType(type) && capabilities.availability } as never }), { occurrences: () => 52 })
-
-	it('is clean where the provider takes part', () => {
-		assert.equal(assess(new CalDAV().capabilities).clean, true)
-	})
-
-	it('is blocked where it does not, even when flattening would get the series in', () => {
-		const verdict = assess(new Notion().capabilities)
-		assert.equal(verdict.blockers.includes(MigrationBlocker.Availability), true)
-		assert.equal(verdict.moves(true), false)
 	})
 })
 

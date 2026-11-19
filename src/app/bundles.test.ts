@@ -55,7 +55,7 @@ describe('the browser bundle', () => {
 		const inputs = await inputsOf(frontendOptions)
 		assert.ok(inputs.some(input => input.endsWith('features/entries/server/UpdateEntry.ts')), 'the browser calls its operations')
 		// What operations declare at load: the tool decorator, and the bases their classes and parameters extend.
-		const declared = ['features/agents/server/tool.ts', 'features/time/server/ChangeTimeZones.ts', 'features/migration/server/SourceMigration.ts']
+		const declared = ['features/agents/server/tool.ts', 'features/time/server/ChangeTimeZones.ts']
 		const strays = inputs.filter(input => input.includes('/server/') && !declared.some(each => input.endsWith(each)) && !readFileSync(input, 'utf8').includes('@operation('))
 		assert.deepEqual(strays, [], 'only operations and what they declare at load reach the browser from server/')
 		for (const forbidden of ['node_modules/express', 'node_modules/@mikro-orm/sqlite', 'node_modules/@mikro-orm/knex', 'node_modules/web-push']) {

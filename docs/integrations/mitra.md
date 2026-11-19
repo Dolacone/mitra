@@ -18,13 +18,11 @@ The calendar is ready straight away. You only add the integration once: it holds
 To add another calendar, open the **⋯** menu on the Mitra heading in the sidebar and choose **New calendar**. To delete one, choose **Delete calendar** from that calendar's **⋯** menu. Renaming, recoloring, reordering and hiding work as they do for any calendar; see [Calendars](../calendars.md).
 
 > [!CAUTION]
-> Deleting a Mitra calendar deletes all of its entries for good, since there's no provider to fetch them back from. Mitra asks first, and offers to [move the entries](../calendars.md#move-or-copy-every-entry-to-another-calendar) to another calendar before it deletes anything.
+> Deleting a Mitra calendar deletes all of its entries for good, since there's no provider to fetch them back from. Mitra asks first.
 
 ## Move entries in and out
 
-Entries move between a Mitra calendar and any other calendar. To move one, pick another calendar in its editor. To move a whole calendar, use **⋯ → Move entries to…**, which shows first what the destination can't store.
-
-This also works the other way round: you can start in Mitra and move everything into a CalDAV or Google calendar later.
+Entries move between a Mitra calendar and any other calendar. To move one, pick another calendar in its editor.
 
 ## Back them up
 

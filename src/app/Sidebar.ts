@@ -5,7 +5,6 @@ import { RenameSource, RecolorSource, SetSourceRoutines, CreateSource, ReimportS
 import { focusRing, windowDragHandle, scrollbar } from '#design'
 import { Calendars } from '#features/sources/client/Calendars.js'
 import { DialogAbout } from '#features/about/client/DialogAbout.js'
-import { DialogSourceMigration } from '#features/migration/client/DialogSourceMigration.js'
 import { DialogSourceDeletion } from '#features/sources/client/DialogSourceDeletion.js'
 import { type Source, Color } from '#features/sources'
 import { EntryStore } from '#features/entries/client/EntryStore.js'
@@ -1074,12 +1073,6 @@ export class Sidebar extends Component {
 						<mitra-menu-item icon="activity" @click=${() => this.toggleRoutines(source)}>${source.routinesDisabled ? t('Show its routines') : t('Hide its routines')}</mitra-menu-item>
 						<mitra-menu-item icon="arrow-up" ?disabled=${index === 0} @click=${() => this.moveSource(integration, source, -1)}>${t('Move up')}</mitra-menu-item>
 						<mitra-menu-item icon="arrow-down" ?disabled=${index === count - 1} @click=${() => this.moveSource(integration, source, 1)}>${t('Move down')}</mitra-menu-item>
-						${!Calendars.canCopyEntriesOut(source) ? html.nothing : html`
-							<mitra-menu-item icon="folder-input"
-								title=${Calendars.canMoveEntriesOut(source) ? t('Move or copy every entry into another calendar') : t('Copy every entry into another calendar')}
-								@click=${() => new DialogSourceMigration({ source }).confirm()}
-							>${Calendars.canMoveEntriesOut(source) ? t('Move entries to…') : t('Copy entries to…')}</mitra-menu-item>
-						`}
 						${!integration.reimportable ? html.nothing : html`
 							<mitra-menu-item icon="hard-drive-download" title=${t('Read this calendar again from the start')}
 								@click=${() => void ReimportSource.call({ id: source.id }).catch(() => void 0)}>${t('Re-import entries')}</mitra-menu-item>
