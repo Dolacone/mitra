@@ -10,7 +10,7 @@ await esbuild.build({ ...frontendOptions, minify: true, sourcemap: false })
 await esbuild.build({ ...serviceWorkerOptions, minify: true, sourcemap: false })
 console.log('Built backend → out/server/server.mjs and frontend → dist/')
 
-// Compressing takes a minute and a half, which the captures, served locally, skip with --no-compress.
+// --no-compress skips compressing, which takes a minute and a half.
 if (process.argv.includes('--no-compress')) {
 	await removePrecompressed()
 } else {
