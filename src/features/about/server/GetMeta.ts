@@ -21,7 +21,6 @@ export class GetMeta extends Operation<object, Instance> {
 			commit: mitra.commit,
 			node: process.version,
 			development: environment.developer,
-			demo: environment.demo,
 			files: FileLimits.of(environment),
 			signIn: environment.signedIn,
 			mcp: environment.mcp,

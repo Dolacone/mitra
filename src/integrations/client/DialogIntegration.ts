@@ -8,7 +8,6 @@ import { Calendars } from '#features/sources/client/Calendars.js'
 import { integrationClasses, type Integration, type IntegrationClass } from '#integrations'
 import { Notion } from '#integrations/registerIntegrations.js'
 import mitraLogo from '#integrations/mitra/logo.svg'
-import demoLogo from '#integrations/demo/logo.svg'
 import caldavLogo from '#integrations/caldav/logo.svg'
 import googleLogo from '#integrations/google/logo.svg'
 import appleLogo from '#integrations/apple/logo.svg'
@@ -17,7 +16,6 @@ import notionLogo from '#integrations/notion/logo.svg'
 import tempoLogo from '#integrations/tempo/logo.svg'
 import todoistLogo from '#integrations/todoist/logo.svg'
 import { connectGoogle } from '#infrastructure/http/Api.js'
-import { session } from '#infrastructure/http/PageSession.js'
 
 const logos: Record<string, string> = {
 	mitra: mitraLogo,
@@ -28,7 +26,6 @@ const logos: Record<string, string> = {
 	notion: notionLogo,
 	todoist: todoistLogo,
 	tempo: tempoLogo,
-	demo: demoLogo,
 }
 
 @component('mitra-dialog-integration')
@@ -55,8 +52,7 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get offeredClasses(): Array<IntegrationClass> {
 		const connected = new Set(Calendars.integrations.map(integration => integration.type))
 		return integrationClasses().filter(integrationClass =>
-			(!integrationClass.developmentOnly || !!session.instance.development)
-			&& !(integrationClass.onePerUser && connected.has(integrationClass.type)))
+			!(integrationClass.onePerUser && connected.has(integrationClass.type)))
 	}
 
 	private selectType(integrationClass: IntegrationClass) {
@@ -315,7 +311,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get descriptionTemplate() {
 		switch (this.entity!.type) {
 			case 'mitra': return html`<p class="hint">${t('Mitra.Hint')}</p>`
-			case 'demo': return html`<p class="hint">${t('Demo.Hint')}</p>`
 			default: return html.nothing
 		}
 	}
@@ -323,7 +318,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 	private get panelTemplate() {
 		switch (this.entity!.type) {
 			case 'mitra': return this.mitraTemplate
-			case 'demo': return this.demoTemplate
 			case 'google': return this.googleTemplate
 			case 'apple': return this.appleTemplate
 			case 'ics': return this.icsTemplate
@@ -343,10 +337,6 @@ export class DialogIntegration extends DialogComponent<{ readonly id?: string, r
 		return this.isEdit ? html.nothing : html`
 			<mitra-text-field label=${t('Calendar name')} placeholder=${t('Calendar')} ${bind(this, 'calendarName', { event: 'input' })}></mitra-text-field>
 		`
-	}
-
-	private get demoTemplate() {
-		return this.connectTemplate
 	}
 
 	private get appleTemplate() {

@@ -10,7 +10,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-white.svg)](LICENSE)
 [![Image: ghcr.io](https://img.shields.io/badge/image-ghcr.io%2Fa11delavar%2Fmitra-2496ED?logo=docker&logoColor=white)](https://github.com/a11delavar/mitra/pkgs/container/mitra)
 [![Docs](https://img.shields.io/badge/docs-mitracal.com-f97316?logo=markdown&logoColor=white)](https://mitracal.com/docs/)
-[![Demo](https://img.shields.io/badge/demo-demo.mitracal.com-22c55e)](https://demo.mitracal.com)
 
 <br />
 <br />
@@ -29,8 +28,6 @@
 ## Why Mitra
 
 Most tools make you choose between a calendar for your time and a to-do app for your tasks. Mitra puts both on one timeline, so you can see when there's actually room to get things done. It runs on your own server, keeps calendars itself if you like, and connects to the ones you already have.
-
-Want to look around first? **[Try the demo](https://demo.mitracal.com)**: you get a calendar of your own with sample entries, and nothing to install.
 
 ## Features
 

@@ -1,6 +1,5 @@
 import { DialogAbout } from '#features/about/client/DialogAbout.js'
 import { DialogIntegration } from '#integrations/client/DialogIntegration.js'
-import { session } from '#infrastructure/http/PageSession.js'
 import { command, Command } from '../Command.js'
 import { DialogKeyboardShortcuts } from './DialogKeyboardShortcuts.js'
 
@@ -31,7 +30,6 @@ export class AddIntegration extends Command {
 	keywords = t('AddIntegration.Keywords')
 	group = undefined
 	keys = []
-	override get available() { return !session.instance.demo }
 	execute() { return new DialogIntegration({}).confirm() }
 }
 

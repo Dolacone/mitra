@@ -1,9 +1,7 @@
 import { description, label } from '@a11d/metadata'
 import { Integration, integrationClassFor } from '#integrations'
-import { NotAllowed } from '#infrastructure/validation'
 import { updates } from '#infrastructure/realtime/Updates.js'
 import { http, operation, Operation, type OperationContext } from '#infrastructure/operations/Operation.js'
-import { environment } from '#infrastructure/server/Environment.js'
 import { importer } from './Importer.js'
 
 @operation()
@@ -13,13 +11,7 @@ import { importer } from './Importer.js'
 @updates('sources')
 export class ConnectIntegration extends Operation<{ readonly integration: Integration }, Integration> {
 	async run({ em, user }: OperationContext): Promise<Integration> {
-		if (environment.demo) {
-			throw new NotAllowed('Connecting accounts is turned off in the demo')
-		}
 		const incoming = this.parameters.integration
-		if (integrationClassFor(incoming.type).developmentOnly && !environment.developer) {
-			throw new NotAllowed('This integration is only available on a development system')
-		}
 		const integration: Integration = new (integrationClassFor(incoming.type))({ userId: user.id })
 		em.persist(integration)
 		await integration.apply(em, incoming)

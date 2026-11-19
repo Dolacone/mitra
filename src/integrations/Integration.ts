@@ -130,9 +130,6 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 
 	static readonly onePerUser: boolean = false
 
-	/** Offered only on a development system (`MITRA_DEV`). */
-	static readonly developmentOnly: boolean = false
-
 	/** False when connecting finds nothing, so the first source is created instead. */
 	static readonly discoversSources: boolean = true
 
@@ -451,7 +448,6 @@ export interface IntegrationClass extends IntegrationConstructor {
 	readonly logo: string
 	readonly description: string
 	readonly onePerUser: boolean
-	readonly developmentOnly: boolean
 	readonly discoversSources: boolean
 	readonly docs: string | undefined
 }

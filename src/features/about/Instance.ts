@@ -10,7 +10,6 @@ export class Instance {
 	commit!: string
 	node?: string
 	development?: boolean
-	demo?: boolean
 	releaseUrl?: string
 	update?: { readonly version: string, readonly url: string, readonly commits?: number }
 	/** The largest file in bytes (0 takes no uploads), and each account's total. */

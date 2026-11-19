@@ -5,7 +5,7 @@ sidebar:
   label: Getting started
 ---
 
-Mitra is a self-hosted calendar for your events and tasks. To look around first, [try the demo](https://demo.mitracal.com).
+Mitra is a self-hosted calendar for your events and tasks.
 
 ## Install Mitra
 

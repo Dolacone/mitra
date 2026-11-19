@@ -1,4 +1,4 @@
-import { Router, type Request, type RequestHandler } from 'express'
+import { Router, type Request } from 'express'
 import { Cookie } from '#features/identity/server/Cookie.js'
 import { Integration } from '#integrations'
 import { orm } from '#infrastructure/database/orm.js'
@@ -14,11 +14,6 @@ export const googleOAuth = GoogleOAuth.of(environment)
 
 GoogleCalendar.from(() => environment.google)
 
-/** Keeps strangers' credentials off a demo box, and the box from fetching the URLs they type. */
-const refusedInDemo: RequestHandler = (_req, res, next) => environment.demo
-	? res.status(403).json({ error: 'Connecting accounts is turned off in the demo' })
-	: next()
-
 interface GoogleTransit {
 	verifier: string
 	state: string
@@ -32,7 +27,7 @@ const requestOrigin = (req: Request) => `${req.protocol}://${req.get('host')}`
 /** Google's consent round trip: redirects and a cookie carrying the PKCE verifier, which no operation answers with JSON. */
 export const googleConnectRouter = Router()
 
-googleConnectRouter.get('/connect', refusedInDemo, async (req, res) => {
+googleConnectRouter.get('/connect', async (req, res) => {
 	if (!googleOAuth) {
 		return res.status(400).json({ error: 'Google Calendar is not configured. Set MITRA_GOOGLE_CLIENT_ID and MITRA_GOOGLE_CLIENT_SECRET' })
 	}

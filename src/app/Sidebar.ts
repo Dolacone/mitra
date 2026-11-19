@@ -937,12 +937,10 @@ export class Sidebar extends Component {
 					</div>
 			`)}
 			</div>
-			${session.instance.demo ? html.nothing : html`
-				<mitra-button class="action" @click=${() => this.openDialog()}>
-					<mitra-icon icon="plus"></mitra-icon>
-					${t('Add Integration')}
-				</mitra-button>
-			`}
+			<mitra-button class="action" @click=${() => this.openDialog()}>
+				<mitra-icon icon="plus"></mitra-icon>
+				${t('Add Integration')}
+			</mitra-button>
 		`
 	}
 

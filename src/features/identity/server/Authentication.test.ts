@@ -206,23 +206,4 @@ describe('Authentication', () => {
 			assert.equal(await orm.em.fork().findOne(Session, { id: session.id }), null)
 		})
 	})
-
-	describe('in a demo', () => {
-		const demo = async () => serve(await Authentication.of(orm.em.fork(), new Environment({ ...provider, MITRA_DEMO: 'true' })))
-
-		it('wins over a provider: no sign-in, a sandbox for a new visitor', async () => {
-			const request = await demo()
-			assert.equal((await request('/auth/login')).status, 200)
-			const response = await request('/api/entries')
-			assert.ok(cookiesOf(response).has(Session.cookie))
-			const user = await orm.em.fork().findOneOrFail(User, { id: (await userOf(response))! })
-			assert.match(user.username, /^demo-/)
-		})
-
-		it('opens no sandbox for an asset', async () => {
-			const response = await (await demo())('/app.js')
-			assert.equal(await userOf(response), null)
-			assert.equal(cookiesOf(response).has(Session.cookie), false)
-		})
-	})
 })

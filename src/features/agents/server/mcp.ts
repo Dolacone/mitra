@@ -91,10 +91,6 @@ mcpRouter.all('/', async (req, res) => {
 		res.status(404).json({ error: 'Agents are turned off on this instance (MITRA_MCP)' })
 		return
 	}
-	if (environment.demo) {
-		res.status(403).json({ error: 'Agents cannot connect to the demo' })
-		return
-	}
 	const origin = req.get('origin')
 	if (origin && origin !== 'null' && new URL(origin).host !== req.get('host')) {
 		res.status(403).json({ error: 'Requests from other sites are refused' })

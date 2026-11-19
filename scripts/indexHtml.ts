@@ -112,7 +112,6 @@ export async function writeIndexHtml() {
 </html>
 `.trim())
 
-	// A calendar is private, so crawlers stay out of every instance. Disallowing the fetch rather than
-	// tagging the shell noindex also keeps them from opening demo sandboxes, which the document request opens.
+	// A calendar is private, so crawlers stay out of every instance.
 	fs.writeFileSync(join(distDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n')
 }

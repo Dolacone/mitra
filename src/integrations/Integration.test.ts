@@ -30,7 +30,6 @@ describe('Integration', () => {
 	describe('docs', () => {
 		it('names a page of the documentation for every integration people can connect', () => {
 			const missing = integrationClasses()
-				.filter(integrationClass => !integrationClass.developmentOnly)
 				.filter(integrationClass => !integrationClass.docs || !existsSync(join('docs', `${integrationClass.docs}.md`)))
 				.map(integrationClass => integrationClass.type)
 			assert.deepEqual(missing, [])

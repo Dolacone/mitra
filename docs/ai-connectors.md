@@ -86,4 +86,4 @@ Where the browser's own assistant can use what a page offers (WebMCP, an early C
 
 ## Turn it off
 
-Set [`MITRA_MCP`](configuration.md) to `off` and no tool can connect. The [demo](https://demo.mitracal.com) never takes connections.
+Set [`MITRA_MCP`](configuration.md) to `off` and no tool can connect.

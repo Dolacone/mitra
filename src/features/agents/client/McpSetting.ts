@@ -14,8 +14,8 @@ export class McpSetting extends Setting<undefined> {
 
 	protected readonly storage: SettingStorage<undefined> = { read: () => undefined, write: () => undefined }
 
-	/** The operator can turn agents off (`MITRA_MCP`), and the demo never takes them. */
-	override get applies() { return session.instance.mcp !== false && !session.instance.demo }
+	/** The operator can turn agents off (`MITRA_MCP`). */
+	override get applies() { return session.instance.mcp !== false }
 
 	override get hint() {
 		return t('Claude, Cursor and other AI tools can read and change your calendars through this address, over the Model Context Protocol (MCP).')

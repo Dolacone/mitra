@@ -1,4 +1,4 @@
-import { describe, it, before, after, beforeEach } from 'node:test'
+import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { MikroORM, UnderscoreNamingStrategy, type EntityManager } from '@mikro-orm/sqlite'
 import { children } from '#infrastructure/model'
@@ -6,15 +6,12 @@ import { User, Identity } from '#features/identity'
 import { Source, Color } from '#features/sources'
 import { Entry, EntryType } from '#features/entries'
 import { EntryRelation } from '#features/relations'
-import { TimeZone } from '#features/time/TimeZone.js'
-import { UserTimeZones } from '#features/time/UserTimeZones.js'
 import { Integration, IntegrationCapabilities } from '#integrations'
-import { Demo } from '#integrations/demo/Demo.js'
 import { MitraCalendar } from './MitraCalendar.js'
 
 async function inMemoryOrm() {
 	const orm = await MikroORM.init({
-		entities: [User, Identity, Integration, MitraCalendar, Demo, Source, Entry, EntryRelation],
+		entities: [User, Identity, Integration, MitraCalendar, Source, Entry, EntryRelation],
 		dbName: ':memory:',
 		subscribers: [children.subscriber],
 		forceUndefined: true,
@@ -82,14 +79,12 @@ describe('MitraCalendar', () => {
 		it('declares what the add dialog and sidebar need to know about it', () => {
 			assert.equal(MitraCalendar.onePerUser, true)
 			assert.equal(MitraCalendar.discoversSources, false)
-			assert.equal(MitraCalendar.developmentOnly, false)
 			assert.equal(new MitraCalendar().reimportable, false)
 		})
 
 		it('every other integration keeps the defaults', () => {
 			assert.equal(Integration.onePerUser, false)
 			assert.equal(Integration.discoversSources, true)
-			assert.equal(Integration.developmentOnly, false)
 		})
 	})
 
@@ -267,217 +262,5 @@ describe('MitraCalendar', () => {
 			await seed(em)
 			assert.equal((await em.find(MitraCalendar, {})).length >= 2, true)
 		})
-	})
-})
-
-describe('Demo', () => {
-	before(async () => { orm = await inMemoryOrm() })
-	after(async () => { await orm.close(true) })
-
-	let em: EntityManager
-	let user: User
-	let demo: Demo
-
-	beforeEach(async () => {
-		em = orm.em.fork()
-		user = new User({ username: `demo-${++users}` })
-		demo = new Demo({ userId: user.id })
-		em.persist([user, demo])
-		await em.flush()
-	})
-
-	/** Only this demo's entries; earlier tests share the database. */
-	async function entryIds() {
-		const sources = await em.find(Source, { integrationId: demo.id })
-		return (await em.find(Entry, { sourceId: { $in: sources.map(source => source.id) } })).map(entry => entry.id)
-	}
-
-	/** Counts filled calendars rather than entries, since the fixture size changes. */
-	async function filledCalendars() {
-		const sources = await em.find(Source, { integrationId: demo.id })
-		const counts = await Promise.all(sources.map(source => em.count(Entry, { sourceId: source.id })))
-		return sources.filter((_, index) => counts[index]! > 0).length
-	}
-
-	it('is polled, unlike its parent, because the fixtures roll over daily', () => {
-		assert.equal(Number.isFinite(demo.syncInterval), true)
-		assert.equal(Number.isFinite(new MitraCalendar().syncInterval), false)
-	})
-
-	it('is development-only and discovers its sample calendars, one per user like its parent', () => {
-		assert.equal(Demo.developmentOnly, true)
-		assert.equal(Demo.discoversSources, true)
-		assert.equal(Demo.onePerUser, true)
-		assert.equal(demo.reimportable, true)
-	})
-
-	it('offers the five sample calendars on a first reconcile', async () => {
-		const sources = await demo.getSources(em)
-		await em.flush()
-		assert.deepEqual(sources.map(source => source.name).sort(), ['Hobbies', 'Personal', 'University', 'Upkeep', 'Work'])
-		assert.equal(sources.every(source => source.uri.startsWith('mitra://sample/')), true)
-	})
-
-	it('fills itself the moment it is added, and stops there', async () => {
-		await demo.getSources(em)
-		await em.flush()
-
-		assert.equal(await demo.syncEntries(em), true)
-		await em.flush()
-		const seeded = (await entryIds()).length
-		assert.equal(await filledCalendars(), 5, 'every sample calendar was filled')
-
-		assert.equal(await demo.syncEntries(em), false, 'already anchored to today')
-		await em.flush()
-		assert.equal((await entryIds()).length, seeded)
-	})
-
-	it('a day rollover rebuilds the entries but keeps the calendars the user has made their own', async () => {
-		await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-
-		const work = await em.findOneOrFail(Source, { integrationId: demo.id, uri: Demo.sampleUri('work') })
-		work.name = 'Day job'
-		work.color = Color.parse('#123456')
-		const before = await entryIds()
-		await em.flush()
-
-		demo.credentials = { ...demo.credentials, seededFor: '2000-1-1' }
-		assert.equal(await demo.syncEntries(em), true)
-		await em.flush()
-
-		const renamed = await em.findOneOrFail(Source, { id: work.id })
-		assert.equal(renamed.name, 'Day job', 'the calendar survived the rebuild')
-		assert.equal(renamed.color, Color.parse('#123456'))
-
-		const after = await entryIds()
-		assert.equal(await filledCalendars(), 5)
-		assert.equal(after.length, before.length, 'the same fixtures, rebuilt')
-		assert.equal(after.some(id => before.includes(id)), false, 'every entry was rebuilt')
-	})
-
-	// One without a zone repeats at fixed instants, so the Gym moved an hour on the wall clock at every DST change.
-	it('seeds its timed entries in the zone it reads their times in, so a recurring one keeps its wall clock', async () => {
-		await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-
-		const sources = await em.find(Source, { integrationId: demo.id })
-		const timed = (await em.find(Entry, { sourceId: { $in: sources.map(source => source.id) } })).filter(entry => entry.start && !entry.allDay)
-		assert.ok(timed.some(entry => entry.recurrence))
-		assert.deepEqual([...new Set(timed.filter(entry => !entry.floating).map(entry => entry.timeZone?.id))], [TimeZone.deviceId])
-		// The morning meds are the same hour wherever their taker is: no zone, their wall clock kept as UTC.
-		const floating = timed.filter(entry => entry.floating)
-		assert.deepEqual([...new Set(floating.map(entry => entry.heading))], ['💊 Morning Meds'])
-		assert.ok(floating.every(entry => [entry.start!.getUTCHours(), entry.start!.getUTCMinutes()].join(':') === '7:30'))
-	})
-
-	it('seeds in the account’s home zone, so the day and its hours are the visitor’s, and rebuilds when that changes', async () => {
-		const kiritimati = TimeZone.of('Pacific/Kiritimati')
-		user.timeZones = UserTimeZones.none.settle(kiritimati)
-		await em.flush()
-		await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-
-		const sources = await em.find(Source, { integrationId: demo.id })
-		const entries = () => em.find(Entry, { sourceId: { $in: sources.map(source => source.id) } })
-		const timed = (await entries()).filter(entry => entry.start && !entry.allDay && !entry.floating)
-		assert.deepEqual([...new Set(timed.map(entry => entry.timeZone?.id))], [kiritimati.id])
-		// The fixture keeps its days within 07:00–19:00, read in the visitor's zone.
-		const hours = timed.map(entry => Temporal.Instant.fromEpochMilliseconds(entry.start!.valueOf()).toZonedDateTimeISO(kiritimati.id).hour)
-		assert.ok(hours.every(hour => hour >= 7 && hour <= 19), `hours ${[...new Set(hours)].join(', ')}`)
-		assert.ok(timed.some(entry => entry.recurrence))
-
-		assert.equal(await demo.syncEntries(em), false, 'the same day in the same zone')
-		user.timeZones = user.timeZones!.makeHome(TimeZone.of('Pacific/Honolulu'))
-		await em.flush()
-		assert.equal(await demo.syncEntries(em), true, 'a new home zone rebuilds')
-		await em.flush()
-		assert.deepEqual([...new Set((await entries()).filter(entry => entry.start && !entry.allDay && !entry.floating).map(entry => entry.timeZone?.id))], ['Pacific/Honolulu'])
-	})
-
-	it('is written in the language it is given, calendars included, and rewritten when that changes', async () => {
-		demo.credentials = { language: 'de' }
-		await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-
-		const work = await em.findOneOrFail(Source, { integrationId: demo.id, uri: Demo.sampleUri('work') })
-		assert.equal(work.name, 'Arbeit')
-		assert.equal(work.remoteName, 'Arbeit')
-		const headings = async () => (await em.find(Entry, { sourceId: work.id })).map(entry => entry.heading)
-		assert.equal((await headings()).includes('Wöchentliches Team-Meeting'), true)
-
-		assert.equal(await demo.syncEntries(em), false, 'the same day in the same language')
-
-		demo.merge({ credentials: { language: 'fa' } } as Demo)
-		assert.equal(await demo.syncEntries(em), true, 'a new language rebuilds')
-		await em.flush()
-		assert.equal((await em.findOneOrFail(Source, { id: work.id })).name, 'کار')
-		assert.equal((await headings()).includes('جلسهٔ هفتگی تیم'), true)
-		assert.equal((await headings()).includes('Wöchentliches Team-Meeting'), false)
-	})
-
-	it('a calendar the user renamed keeps its name through a language change', async () => {
-		demo.credentials = { language: 'en' }
-		await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-
-		const work = await em.findOneOrFail(Source, { integrationId: demo.id, uri: Demo.sampleUri('work') })
-		work.name = 'Day job'
-		await em.flush()
-
-		demo.merge({ credentials: { language: 'de' } } as Demo)
-		await demo.syncEntries(em)
-		await em.flush()
-		const renamed = await em.findOneOrFail(Source, { id: work.id })
-		assert.equal(renamed.name, 'Day job')
-		assert.equal(renamed.remoteName, 'Arbeit', 'the baseline moved with the language')
-	})
-
-	it('restores a sample calendar the user deleted, without disturbing the ones they added', async () => {
-		await demo.getSources(em)
-		await em.flush()
-
-		const mine = new Source({ name: 'Mine' })
-		await demo.createSource(em, mine)
-		const hobbies = await em.findOneOrFail(Source, { uri: Demo.sampleUri('hobbies') })
-		await demo.deleteSource(em, hobbies)
-		await em.flush()
-
-		await demo.getSources(em)
-		await em.flush()
-
-		const names = (await em.find(Source, { integrationId: demo.id })).map(source => source.name).sort()
-		assert.deepEqual(names, ['Hobbies', 'Mine', 'Personal', 'University', 'Upkeep', 'Work'])
-	})
-
-	it('re-import queues a rebuild: the anchor is cleared and the calendars await import again', async () => {
-		const sources = await demo.getSources(em)
-		await em.flush()
-		await demo.syncEntries(em)
-		await em.flush()
-		const before = await entryIds()
-
-		await demo.reimportSource(em, sources[0]!)
-		await em.flush()
-
-		assert.equal(demo.credentials.seededFor, undefined, 'the day anchor is cleared, so the next pass reseeds')
-		assert.equal(sources[0]!.importing, true)
-
-		// What the importer then does, one pass per pending source.
-		assert.equal(await demo.syncSource(em, sources[0]!), true)
-		await em.flush()
-		const after = await entryIds()
-		assert.equal(await filledCalendars(), 5)
-		assert.equal(after.some(id => before.includes(id)), false)
 	})
 })

@@ -4,9 +4,8 @@ import type { Environment } from '#infrastructure/server/Environment.js'
 export class FileLimits {
 	static readonly defaultMaxSize = 25 * 1024 * 1024
 
-	/** A public demo takes no uploads: its unauthenticated file URLs would make it a free anonymous file host. */
 	static of(environment: Environment) {
-		return new FileLimits(environment.demo ? 0 : environment.files.maxSize ?? FileLimits.defaultMaxSize, environment.files.quota)
+		return new FileLimits(environment.files.maxSize ?? FileLimits.defaultMaxSize, environment.files.quota)
 	}
 
 	constructor(readonly maxSize: number, readonly quota?: number) { }

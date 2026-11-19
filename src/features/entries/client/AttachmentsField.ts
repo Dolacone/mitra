@@ -61,7 +61,7 @@ export class AttachmentsField extends Component {
 		this.changed()
 	}
 
-	/** Whether this instance takes uploads at all: off when its size limit is zero, as on the public demo. */
+	/** Whether this instance takes uploads at all: off when its size limit is zero. */
 	static get uploads() {
 		return session.instance.files?.maxSize !== 0
 	}

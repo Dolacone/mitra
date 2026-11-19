@@ -14,7 +14,7 @@ export interface OidcOptions {
 
 /** OpenID Connect relying party client handling Authorization Code + PKCE flows: the protocol alone, which `Oidc` signs people in through. */
 export class OidcClient {
-	/** The client people sign in through, none in single-user mode or a demo. */
+	/** The client people sign in through, none in single-user mode. */
 	static of({ oidc, url }: Environment) {
 		return oidc && new OidcClient({ ...oidc, baseUrl: url! })
 	}

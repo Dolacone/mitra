@@ -19,7 +19,7 @@ export class AccessTokensSetting extends Setting<undefined> {
 
 	override get applies() {
 		const meta = session.instance
-		return meta?.mcp !== false && !meta?.demo && !!meta?.signIn
+		return meta?.mcp !== false && !!meta?.signIn
 	}
 
 	override get hint() {

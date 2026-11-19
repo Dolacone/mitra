@@ -146,7 +146,7 @@ You don't set these on a server. The build or the image sets them, or they're fo
 | --- | --- | --- |
 | `MITRA_VERSION` | Build | The version built into the image. |
 | `MITRA_COMMIT` | Build | The commit built into the image. |
-| `MITRA_DEV` | Development | Offers the **Demo** integration, a set of sample calendars, while working on Mitra. |
+| `MITRA_DEV` | Development | Checks for updates every few seconds and keeps the local account beside a sign-in provider, while working on Mitra. |
 | `NODE_ENV` | Image | `production` in the container image. |
 
 ### Example

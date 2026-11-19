@@ -1,6 +1,5 @@
 import type { EntityManager } from '@mikro-orm/sqlite'
 import { Router, type NextFunction, type Request, type RequestHandler, type Response } from 'express'
-import { languages } from '#integrations/demo/i18n/dictionaries.js'
 import { createLogger } from '#infrastructure/logging/Logger.js'
 import { orm } from '#infrastructure/database/orm.js'
 import type { Environment } from '#infrastructure/server/Environment.js'
@@ -9,7 +8,6 @@ import type { AccessToken } from '../AccessToken.js'
 import { OidcClient } from './OidcClient.js'
 import { Session } from './Session.js'
 import { Cookie } from './Cookie.js'
-import { Sandbox } from './Sandbox.js'
 
 declare global {
 	namespace Express {
@@ -32,11 +30,10 @@ interface Transit {
 }
 
 /**
- * How the instance signs a request in, by its mode: the one local account, a session the identity provider began, or a
- * sandbox for each demo visitor. An agent's access token signs it in before any of them (`accessTokenMiddleware`).
+ * How the instance signs a request in, by its mode: the one local account, or a session the identity provider began. An agent's access token signs it in before any of them (`accessTokenMiddleware`).
  */
 export abstract class Authentication {
-	/** The instance's mode: a demo wins over a provider, and without either the one local account, which a developer keeps beside a provider. */
+	/** The instance's mode: a provider's sessions, else the one local account, which a developer keeps beside a provider. */
 	static async of(em: EntityManager, environment: Environment) {
 		const client = OidcClient.of(environment)
 		const authentication = await Authentication.for(em, environment, client)
@@ -47,12 +44,12 @@ export abstract class Authentication {
 	private static async for(em: EntityManager, environment: Environment, client: OidcClient | undefined): Promise<Authentication> {
 		if (!client) {
 			const local = await User.local(em)
-			return environment.demo ? new DemoVisitors(environment) : new LocalAccount(environment, local)
+			return new LocalAccount(environment, local)
 		}
 		if (environment.developer) {
 			await User.local(em)
 		}
-		return environment.demo ? new DemoVisitors(environment) : new Oidc(environment, client)
+		return new Oidc(environment, client)
 	}
 
 	constructor(protected readonly environment: Environment) { }
@@ -201,27 +198,5 @@ class Oidc extends Authentication {
 		})
 
 		return router
-	}
-}
-
-/** Demo mode: where multi-user mode would ask for a sign-in, a new visitor gets a sandbox. */
-class DemoVisitors extends Authentication {
-	protected readonly description = 'Demo mode: every visitor gets a sandbox with the sample calendar'
-
-	protected async authenticate(req: Request, res: Response, next: NextFunction) {
-		const returning = await this.sessionUser(req, res)
-		if (returning) {
-			req.user = returning
-			return next()
-		}
-		// A crawler fetching an asset must not leave a sandbox behind. A visit always starts with the document.
-		if (!req.path.startsWith('/api/') && req.path.includes('.')) {
-			return next()
-		}
-		const { user, token } = await Sandbox.open(orm.em.fork(), req.acceptsLanguages(...languages) || undefined)
-		this.sessionCookie.write(res, token)
-		logger.info(`Opened a sandbox for a new visitor (user ${user.id})`)
-		req.user = user
-		return next()
 	}
 }

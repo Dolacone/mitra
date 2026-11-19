@@ -58,7 +58,7 @@ async function request<Result>(method: string, params?: object) {
  */
 export async function offerToolsToBrowserAgents() {
 	const modelContext = (document as { modelContext?: ModelContext }).modelContext
-	if (!modelContext || session.instance.mcp === false || session.instance.demo) {
+	if (!modelContext || session.instance.mcp === false) {
 		return
 	}
 	const { tools } = await request<{ tools: ReadonlyArray<ListedTool> }>('tools/list')

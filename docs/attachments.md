@@ -29,7 +29,7 @@ Images, videos, audio, PDFs and plain text open in the browser. Every other kind
 
 ## Limits
 
-A single file can be up to 25 MB, and there's no limit on how much a person can store. Whoever runs the server can change both, or turn adding files off; see [Configuration](configuration.md#attachments). Adding files is always off in the [demo](https://demo.mitracal.com).
+A single file can be up to 25 MB, and there's no limit on how much a person can store. Whoever runs the server can change both, or turn adding files off; see [Configuration](configuration.md#attachments).
 
 A file that no entry uses any more is deleted about a day after it was added. Until then, you can still add it to an entry you haven't saved yet, or add it back after removing it by mistake.
 

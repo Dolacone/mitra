@@ -10,12 +10,8 @@ export class Environment {
 	readonly port: number
 	/** The operator's name for the instance (`MITRA_NAME`); without one the browser names it in the viewer's language. */
 	readonly name?: string
-	/** Local development (`MITRA_DEV`), where the Demo integration is offered. */
+	/** Local development (`MITRA_DEV`). */
 	readonly developer: boolean
-	/** A public demo (`MITRA_DEMO`): every visitor gets a sandbox of their own. */
-	readonly demo: boolean
-	/** How many sandboxes a demo keeps at once (`MITRA_DEMO_CAP`). */
-	readonly demoCap: number
 	/** Whether agents may connect over MCP (`MITRA_MCP`). */
 	readonly mcp: boolean
 	/** Whether the server asks GitHub for updates (`MITRA_UPDATE_CHECK`). */
@@ -30,7 +26,7 @@ export class Environment {
 	readonly discordWebhook?: URL
 	/** The largest file in bytes (`MITRA_FILE_MAX_SIZE`) and each account's total (`MITRA_FILE_QUOTA`), where set. */
 	readonly files: { readonly maxSize?: number, readonly quota?: number }
-	/** Sign-in through OpenID Connect (`MITRA_OIDC_*`), never on a demo, which opens sandboxes instead. */
+	/** Sign-in through OpenID Connect (`MITRA_OIDC_*`). */
 	readonly oidc?: { readonly issuer: string, readonly clientId: string, readonly clientSecret?: string, readonly scope: string }
 	/** The OAuth client Google Calendar connects with (`MITRA_GOOGLE_CLIENT_ID`, `MITRA_GOOGLE_CLIENT_SECRET`). */
 	readonly google?: { readonly clientId: string, readonly clientSecret: string }
@@ -39,8 +35,6 @@ export class Environment {
 		this.port = Number(variables.MITRA_PORT) || 3000
 		this.name = variables.MITRA_NAME || undefined
 		this.developer = variables.MITRA_DEV === 'true'
-		this.demo = variables.MITRA_DEMO === 'true'
-		this.demoCap = Number(variables.MITRA_DEMO_CAP) || 1000
 		this.mcp = !Environment.off(variables.MITRA_MCP)
 		this.updateCheck = !Environment.off(variables.MITRA_UPDATE_CHECK)
 		this.url = Environment.urlOf(variables.MITRA_URL)
@@ -48,7 +42,7 @@ export class Environment {
 		this.vapidSubject = variables.MITRA_VAPID_SUBJECT || 'mailto:mitra@localhost'
 		this.discordWebhook = Environment.urlOf(variables.MITRA_DISCORD_WEBHOOK_URL)
 		this.files = { maxSize: Environment.bytesOf(variables.MITRA_FILE_MAX_SIZE), quota: Environment.bytesOf(variables.MITRA_FILE_QUOTA) }
-		this.oidc = this.demo ? undefined : this.oidcOf(variables)
+		this.oidc = this.oidcOf(variables)
 		this.google = Environment.googleOf(variables)
 	}
 

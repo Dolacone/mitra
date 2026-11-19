@@ -74,12 +74,6 @@ describe('FileLimits', () => {
 		assert.deepEqual(FileLimits.of(new Environment({ MITRA_FILE_MAX_SIZE: '2M', MITRA_FILE_QUOTA: '20M' })).toJSON(), { maxSize: 2 * 1024 * 1024, quota: 20 * 1024 * 1024 })
 	})
 
-	it('takes no uploads on a public demo, whatever the size limit says', () => {
-		const demo = FileLimits.of(new Environment({ MITRA_DEMO: 'true', MITRA_FILE_MAX_SIZE: '2M' }))
-		assert.equal(demo.maxSize, 0)
-		assert.equal(demo.uploads, false)
-	})
-
 	it('allows more until the quota is reached, and always without one', () => {
 		assert.equal(new FileLimits(10, 100).allowsMore(99), true)
 		assert.equal(new FileLimits(10, 100).allowsMore(100), false)
