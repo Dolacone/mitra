@@ -71,7 +71,6 @@ A connected tool works with your calendars as you would in Mitra. It can:
 - find entries and read them in full
 - see how your [routines](routines.md) are going: how many of their last occurrences you kept, cancelled or missed, and the weekday they slip on, so you can ask "How is the gym going?"
 - create, change, complete and delete entries, one occurrence of a repeating entry or all of them
-- record the people taking part as [participants](participants.md)
 - create and delete calendars
 
 It reads all your calendars, including the ones you've hidden in the sidebar, and knows your time zone and the language and region you chose in **Settings → General**, so it can speak your dates the way you write them.

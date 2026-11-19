@@ -106,7 +106,6 @@ export class TableRow {
 		return !start || !end ? undefined : Math.round((end.valueOf() - start.valueOf()) / 60_000)
 	}
 
-	get participants() { return this.entry.participants?.length || undefined }
 	get reminders() { return this.entry.reminders?.length || undefined }
 	/** The description's first line, which is all a row has room for. */
 	get description() {

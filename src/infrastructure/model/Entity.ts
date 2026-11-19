@@ -31,7 +31,7 @@ function deep(value: unknown, entity: (nested: Entity) => Entity): unknown {
 	}
 	if (Array.isArray(value)) {
 		const items = value.map(item => deep(item, entity))
-		// An array of its own kind (`Participants`, `EntryTypes`) stays one, though `map` may answer a plain array (its species).
+		// An array of its own kind (`EntryTypes`) stays one, though `map` may answer a plain array (its species).
 		return value.constructor === Array ? items : (value.constructor as ArrayConstructor).from(items)
 	}
 	if (value === null || typeof value !== 'object') {

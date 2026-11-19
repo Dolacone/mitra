@@ -34,7 +34,7 @@ Next to the dot is the name of the entry's calendar. Click it and pick another c
 
 Further along, the header shows the entry's type: **Event**, **Task** or **Availability**. Click it and pick another. Mitra saves the entry anew as the other type and deletes the old one. The editor stays open on the result.
 
-Whatever the new type can't hold is dropped. A task that becomes an event loses its status, progress, due date and estimate. An event that becomes a task loses busy or free. Availability has no participants or reminders.
+Whatever the new type can't hold is dropped. A task that becomes an event loses its status, progress, due date and estimate. An event that becomes a task loses busy or free. Availability has no reminders.
 
 The type can't change on a repeating entry, or in a calendar that holds only one type. **Availability** is only offered where the calendar can hold it.
 
@@ -72,10 +72,9 @@ Events choose between **Busy** and **Free**. Busy, the default, marks the time a
 
 Every entry has a visibility. **Default visibility** leaves it to the calendar. **Public** lets anyone who can see your calendar read the entry. **Private** asks other apps to show people you share the calendar with only that the time is taken, not what it is. **Confidential** is the strictest, for entries that should stay between you and the people invited. Mitra saves your choice with the entry, and the server and the apps reading it decide what to hide.
 
-## Location, people and more
+## Location and more
 
 - [Location](location.md) holds a place, with a map, or a meeting link.
-- [Participants](participants.md) lists the people involved and their replies.
 - [Reminders](reminders.md) notify you before the entry starts, or before a task's due date.
 - [Links](links.md) gathers the links in the description above it.
 - [Attachments](attachments.md) holds the files added to the entry.

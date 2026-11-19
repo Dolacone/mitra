@@ -3,12 +3,11 @@ import { DateTime, DateTimeRange } from '@3mo/date-time'
 import { DataGridColumn } from '@3mo/data-grid/controller'
 import { MarkdownLinks } from '#design'
 import { type Entry } from '#features/entries'
-import '#features/participants/client/ParticipantFaces.js'
 import '#features/locations/client/MapLink.js'
 import '#features/time/TimeSpan.time.js'
 import { type TableRow } from './TableRow.js'
 
-type TableColumnKey = 'heading' | 'when' | 'due' | 'statusRank' | 'durationMinutes' | 'sourceName' | 'typeKey' | 'location' | 'repeats' | 'participants' | 'reminders' | 'description'
+type TableColumnKey = 'heading' | 'when' | 'due' | 'statusRank' | 'durationMinutes' | 'sourceName' | 'typeKey' | 'location' | 'repeats' | 'reminders' | 'description'
 
 /** A cell's text, cut short where the column is narrower. */
 const text = (value: unknown) => html`<span class="text">${value ?? ''}</span>`
@@ -44,15 +43,6 @@ function span(row: TableRow) {
 /** The due as the When column says a date. */
 function due({ occurrence }: TableRow) {
 	return text(occurrence.due?.format(dateFormat(occurrence.due, occurrence.due, !occurrence.allDay)))
-}
-
-/** The first few faces, the rest counted; the list itself is the editor's. */
-function participants(entry: Entry) {
-	const list = entry.participants ?? []
-	return html`
-		<mitra-participant-faces .participants=${list.slice(0, 3)} title=${list.map(participant => participant.name || participant.email).join(', ')}></mitra-participant-faces>
-		${list.length <= 3 ? html.nothing : html`<span class="more">+${list.length - 3}</span>`}
-	`
 }
 
 /** A place with its map; a location that is a link, as the link it is. */
@@ -95,7 +85,6 @@ export const tableColumns = (): Array<DataGridColumn<TableRow>> => [
 	column('typeKey', t('Type'), { hidden: true, getContentTemplate: (_, row) => text(row.entry.type.format()) }),
 	column('location', t('Location'), { getContentTemplate: (_, row) => location(row.location) }),
 	column('repeats', t('Repeats'), { hidden: true }),
-	column('participants', t('Participants'), { getContentTemplate: (_, row) => participants(row.entry) }),
 	column('reminders', t('Reminders'), { hidden: true, getContentTemplate: (_, row) => reminders(row.entry) }),
 	column('description', t('Description'), { hidden: true }),
 ]

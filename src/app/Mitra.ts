@@ -10,8 +10,6 @@ import { Timeline } from '#features/calendar/client/Timeline.js'
 import { Table } from '#features/calendar/client/Table.js'
 import { TableColumnMenu } from '#features/calendar/client/TableColumnMenu.js'
 import { TableSelection } from '#features/calendar/client/TableSelection.js'
-import { ParticipantAvatar } from '#features/participants/client/ParticipantAvatar.js'
-import { ParticipantFaces } from '#features/participants/client/ParticipantFaces.js'
 import { MapLink } from '#features/locations/client/MapLink.js'
 import { Day } from '#features/calendar/client/Day.js'
 import { DueMark } from '#features/calendar/client/DueMark.js'
@@ -36,7 +34,6 @@ import { SourceIcon } from '#features/sources/client/SourceIcon.js'
 import { RepeatField } from '#features/recurrence/client/RepeatField.js'
 import { LocationField } from '#features/locations/client/LocationField.js'
 import { RemindersField } from '#features/reminders/client/RemindersField.js'
-import { ParticipantsField } from '#features/participants/client/ParticipantsField.js'
 import { AttachmentsField } from '#features/entries/client/AttachmentsField.js'
 import { TimeZoneHeader } from '#features/time/client/TimeZoneHeader.js'
 import '#features/time/client/TimeZonePicker.js'
@@ -208,8 +205,6 @@ export class Mitra extends Application {
 			${Table.styles}
 			${TableColumnMenu.styles}
 			${TableSelection.styles}
-			${ParticipantAvatar.styles}
-			${ParticipantFaces.styles}
 			${MapLink.styles}
 			${Day.styles}
 			${DueMark.styles}
@@ -238,7 +233,6 @@ export class Mitra extends Application {
 			${RepeatField.styles}
 			${LocationField.styles}
 			${RemindersField.styles}
-			${ParticipantsField.styles}
 			${AttachmentsField.styles}
 			${TimeZoneHeader.styles}
 		`

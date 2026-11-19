@@ -82,14 +82,5 @@ describe('CreateEntry', () => {
 			assert.deepEqual((await server.tool<Reminded>('create_entry', { heading: 'Standup', ...at })).reminders, [10])
 			await SaveSettings.call({ settings: {} })
 		})
-
-		it('writes the people taking part, the user leading as organizer', async () => {
-			const created = await server.tool<Row & { participants: Array<{ email: string, organizer?: boolean, role: string }> }>('create_entry', {
-				heading: 'Team meeting', start: '2027-03-08T10:00[Europe/Berlin]', end: '2027-03-08T11:00[Europe/Berlin]',
-				participants: [{ email: 'organizer@example.com', organizer: true, self: true }, { email: 'colleague@example.com', role: 'optional' }],
-			})
-			assert.deepEqual(created.participants.map(participant => [participant.email, !!participant.organizer, participant.role]), [['organizer@example.com', true, 'required'], ['colleague@example.com', false, 'optional']])
-			assert.equal((await server.callTool('create_entry', { heading: 'Lunch', start: '2027-03-08T12:00[Europe/Berlin]', participants: [{ email: 'not an address' }] })).isError, true)
-		})
 	})
 })

@@ -548,7 +548,7 @@ export class EntryDetailsComponent extends Component {
 		const groups = [
 			// Rendered for an UNDATED entry too, where it shows just the way in (see EntryDetailsWhen).
 			[html`<mitra-entry-details-when .entry=${entry} @change=${this.handleInPlaceEdit}></mitra-entry-details-when>`, this.routineTemplate],
-			[this.locationTemplate, this.participantsTemplate, this.hyperlinksTemplate, this.attachmentsTemplate, this.descriptionTemplate],
+			[this.locationTemplate, this.hyperlinksTemplate, this.attachmentsTemplate, this.descriptionTemplate],
 			[
 				!EntryDetailsSharing.applies(entry) ? html.nothing : html`
 					<mitra-entry-details-sharing .entry=${entry} @change=${this.handleInPlaceEdit}></mitra-entry-details-sharing>
@@ -630,15 +630,6 @@ export class EntryDetailsComponent extends Component {
 			<li class="location field">
 				<mitra-icon icon="map-pin"></mitra-icon>
 				<mitra-location-field .entry=${this.segment!.entry} @change=${this.handleChange}></mitra-location-field>
-			</li>
-		`
-	}
-
-	private get participantsTemplate() {
-		return !this.segment!.entry.holds('participants') ? html.nothing : html`
-			<li class="participants field">
-				<mitra-icon icon="users"></mitra-icon>
-				<mitra-participants-field .entry=${this.segment!.entry} @change=${this.handleChange}></mitra-participants-field>
 			</li>
 		`
 	}

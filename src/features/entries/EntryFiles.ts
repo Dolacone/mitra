@@ -7,7 +7,7 @@ import { EntryFileType } from './EntryFileType.js'
 export class EntryFiles implements Iterable<EntryFile> {
 	static readonly maxCount = 50
 
-	/** The usable files among `values`, deduplicated, each ranked by its place among those of its type. Anything unusable is dropped, as participants are. */
+	/** The usable files among `values`, deduplicated, each ranked by its place among those of its type. Anything unusable is dropped. */
 	static of(values: unknown): EntryFiles {
 		const byKey = new Map<string, EntryFile>()
 		const counts = new Map<EntryFileType, number>()

@@ -2,7 +2,6 @@ import { converter } from '@a11d/converter'
 import { description } from '@a11d/metadata'
 import { z } from 'zod'
 import { Recurrence, EntryOccurrenceChangeScope } from '#features/recurrence'
-import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { type Source, Color } from '#features/sources'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
@@ -60,11 +59,11 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 	/** The fields an edit reaches, in the order they apply. */
 	static readonly fields = [
 		'sourceId', 'type', 'heading', 'description', 'location', 'color', 'allDay', 'start', 'end', 'due', 'estimate', 'timeZone',
-		'status', 'percentComplete', 'transparency', 'visibility', 'recurrence', 'reminders', 'participants', 'files',
+		'status', 'percentComplete', 'transparency', 'visibility', 'recurrence', 'reminders', 'files',
 	] as const satisfies ReadonlyArray<keyof Entry & keyof EntryPatch>
 
 	/** What an edit through one occurrence of a repeating entry changes for all of them, its rule aside. */
-	static readonly shared = ['heading', 'description', 'location', 'color', 'timeZone', 'transparency', 'visibility', 'reminders', 'participants', 'files'] as const satisfies ReadonlyArray<EntryPatchField>
+	static readonly shared = ['heading', 'description', 'location', 'color', 'timeZone', 'transparency', 'visibility', 'reminders', 'files'] as const satisfies ReadonlyArray<EntryPatchField>
 
 	/** What an edit of one occurrence carries: neither its type nor its rule are its own. */
 	static readonly occurrence = EntryPatch.fields.filter(field => field !== 'type' && field !== 'recurrence')
@@ -164,10 +163,6 @@ export class EntryPatch implements Validatable<EntryPatchContext | undefined> {
 	@description('Minutes before the start, or an unscheduled task\'s due, to remind at. Creating without them gives the user\'s default reminders; an empty list gives none.')
 	@converter(EntryReminders.converter)
 	reminders?: EntryReminders | null
-
-	@description('The people taking part, the whole list, each by email with an optional name, role and status. The user leads it as organizer (organizer: true, self: true) by an address get_context names; only the organizer changes the list. Whether people are told is up to the provider: a CalDAV server that schedules (RFC 6638) sends the invitations, changes and cancellations, a Mitra calendar tells no one.')
-	@converter(Participants.converter)
-	participants?: Participants | null
 
 	/** None at all, `[]` as much as `null`, clears them. */
 	@converter({ construct: (value: unknown) => value === undefined || value === null ? value : EntryFiles.of(value), deconstruct: (value: EntryFiles | null | undefined) => value === undefined ? value : !value?.length ? null : EntryFiles.converter.deconstruct!(value, {}) })

@@ -2,7 +2,6 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { type EntityManager } from '@mikro-orm/core'
 import { Source } from '#features/sources'
-import { Participants } from '#features/participants/Participant.js'
 import { Integration, IntegrationCapabilities, IntegrationOwnership } from '#integrations'
 import { Entry } from './Entry.js'
 import { EntryPatch } from './EntryPatch.js'
@@ -20,7 +19,7 @@ describe('EntryChange', () => {
 		const integration = {
 			id: integrationId,
 			capabilities,
-			ownership: new IntegrationOwnership({ end: 'upstream', estimate: 'upstream', participants: 'upstream' }),
+			ownership: new IntegrationOwnership({ end: 'upstream', estimate: 'upstream' }),
 			capabilitiesFor: () => capabilities,
 			canHold: (source: Source, type: EntryType) => source.supportsEntryType(type),
 			createEntry: (_em: EntityManager, entry: Entry) => (log.push(`create ${entry.heading}`), Promise.resolve(entry)),
@@ -98,12 +97,9 @@ describe('EntryChange', () => {
 		assert.deepEqual(deleted, ['there'])
 	})
 
-	it('refuses everything at once: the organizer\'s list changed by someone else, beside what the calendar cannot hold', () => {
+	it('refuses what the calendar cannot hold', () => {
 		const here = calendar('here', 'https://dav/here/')
-		const entry = Object.assign(task(here.calendar), { participants: Participants.normalize([{ email: 'organizer@example.com', organizer: true }, { email: 'me@example.com', self: true }]) })
-		const change = entry.edit(patchOf({ participants: null, visibility: Visibility.Private }))
-		const refusals = [...change.validate()]
-		assert.deepEqual(refusals.map(refusal => refusal.fields), [['participants'], ['visibility']])
-		assert.equal((refusals[0]!.constructor as { status?: number }).status, 403)
+		const change = task(here.calendar).edit(patchOf({ visibility: Visibility.Private }))
+		assert.deepEqual([...change.validate()].map(refusal => refusal.fields), [['visibility']])
 	})
 })

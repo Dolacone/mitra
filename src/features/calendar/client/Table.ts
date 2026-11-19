@@ -371,17 +371,6 @@ export class Table extends Component {
 								font-size: 0.875rem;
 								padding: 0;
 							}
-
-							/* Ringed in the row's own colour, so the faces cut into each other the way the row paints. */
-							> mitra-participant-faces {
-								--participant-faces-ring: var(--_row-bg);
-								--mitra-avatar-size: 1.25rem;
-							}
-
-							> .more {
-								font-size: 0.6875rem;
-								color: var(--color-text-muted);
-							}
 						}
 
 						/* The chip fills its cell: size containment leaves it no intrinsic width to shrink to. */

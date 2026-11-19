@@ -84,10 +84,6 @@ export abstract class Integration<TCredentials extends Record<string, any> = any
 	@equality()
 	@property({ type: 'number', nullable: true }) order?: number
 
-	/** Lowercase email addresses representing the user in participant lists (RFC 6638). */
-	@equality()
-	@property({ type: 'json', nullable: true }) addresses?: Array<string>
-
 	/** Where the provider's account-wide changes were last read up to. Never on the wire. */
 	@converter({ in: {}, out: {} })
 	@property({ type: 'json', nullable: true }) syncState?: Record<string, any>

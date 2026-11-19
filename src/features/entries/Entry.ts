@@ -3,7 +3,6 @@ import { converter } from '@a11d/converter'
 import { MarkdownLinks } from '#design/MarkdownLinks.js'
 import { Source, Color } from '#features/sources'
 import { Recurrence, EntryOccurrences } from '#features/recurrence'
-import { Participants, type ParticipantRole } from '#features/participants/Participant.js'
 import { ReminderDefaults } from '#features/reminders/ReminderDefaults.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { TimeZone } from '#features/time/TimeZone.js'
@@ -75,7 +74,7 @@ export class Entry extends Entity implements Validatable {
 		if (this.status && !this.status.appliesTo(this._type)) {
 			this.status = undefined
 		}
-		for (const field of ['transparency', 'percentComplete', 'due', 'estimate', 'participants', 'reminders', 'attachments'] as const) {
+		for (const field of ['transparency', 'percentComplete', 'due', 'estimate', 'reminders', 'attachments'] as const) {
 			if (!this._type.holds(field)) {
 				this[field] = undefined
 			}
@@ -115,7 +114,7 @@ export class Entry extends Entity implements Validatable {
 	/** Whether it has `field` here: one its type has, kept by its calendar. */
 	holds(field: OwnedField) { return this.type.holds(field) && this.source.ownership.holds(field) }
 
-	/** Whether `field` can be changed here: held and editable; the heading only renamed where the provider allows it, files only attached where they are taken, participants only by the organizer. */
+	/** Whether `field` can be changed here: held and editable; the heading only renamed where the provider allows it, files only attached where they are taken. */
 	canEdit(field: OwnedField | 'heading') {
 		if (!this.editable) {
 			return false
@@ -123,7 +122,6 @@ export class Entry extends Entity implements Validatable {
 		switch (field) {
 			case 'heading': return !this.persisted || this.source.capabilities.entries.rename
 			case 'attachments': return this.holds(field) && this.source.capabilities.entries.attach
-			case 'participants': return this.holds(field) && this.canManageParticipants
 			default: return this.holds(field)
 		}
 	}
@@ -315,46 +313,6 @@ export class Entry extends Entity implements Validatable {
 
 	get remindersAnchorToEnd() {
 		return this.occurrences.single.remindersAnchorToEnd
-	}
-
-	@equality()
-	@whereUnsupported({ save: { throw: 'This calendar does not support participants' }, move: 'block' })
-	@property({ type: Participants.Mapper, nullable: true })
-	@converter(Participants.converter) participants?: Participants
-
-	/** Whether the account may change who takes part: without an organizer (its own entry), or as the organizer (RFC 5546). */
-	get canManageParticipants() {
-		return this.participants?.manageable ?? true
-	}
-
-	invite(emails: ReadonlyArray<string>, ownAddress?: string): boolean {
-		const invited = (this.participants ?? new Participants()).inviting(emails, ownAddress)
-		if (!invited) {
-			return false
-		}
-		this.participants = invited
-		return true
-	}
-
-	markAllParticipants(role: ParticipantRole) {
-		this.participants = this.participants?.marked(role)
-	}
-
-	setParticipantRole(email: string, role: ParticipantRole): boolean {
-		const marked = this.participants?.withRole(email, role)
-		if (!marked) {
-			return false
-		}
-		this.participants = marked
-		return true
-	}
-
-	removeParticipant(email: string): boolean {
-		if (!this.participants?.invitee(email)) {
-			return false
-		}
-		this.participants = this.participants.without(email)
-		return true
 	}
 
 	/** The files it carries, each as what it is to the entry (`type`) and in its place (`rank`); a list set is saved as their rows. */

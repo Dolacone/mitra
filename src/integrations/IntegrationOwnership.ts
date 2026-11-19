@@ -4,7 +4,7 @@ import type { Entry } from '#features/entries'
 export type Owner = 'upstream' | 'mitra'
 
 export type OwnedField = keyof Entry & ('end' | 'recurrence' | 'reminders' | 'location' | 'description' | 'percentComplete' | 'due' | 'estimate'
-	| 'timeZone' | 'participants' | 'attachments' | 'transparency' | 'visibility' | 'allDay' | 'rank')
+	| 'timeZone' | 'attachments' | 'transparency' | 'visibility' | 'allDay' | 'rank')
 
 /** Which fields of its entries an integration holds, and who owns each: a field nobody owns is one its calendars don't hold. */
 export class IntegrationOwnership {

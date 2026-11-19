@@ -2,7 +2,6 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
 import { Recurrence, RecurrenceFrequency, RecurrenceEnd } from '#features/recurrence'
-import { ParticipantRole, Participants } from '#features/participants/Participant.js'
 import { Source, Color } from '#features/sources'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { TimeZone } from '#features/time/TimeZone.js'
@@ -79,97 +78,6 @@ describe('Entry', () => {
 	})
 
 	const at = (d: number, hour: number, minute = 0) => day.add({ days: d }).with({ hour, minute })
-
-	describe('participants', () => {
-		const invited = () => new Entry({
-			participants: Participants.normalize([
-				{ email: 'organizer@example.com', organizer: true },
-				{ email: 'me@example.com', self: true },
-			]),
-		})
-
-		it('surfaces the organizer from the list', () => {
-			assert.equal(invited().participants?.organizer?.email, 'organizer@example.com')
-			assert.equal(new Entry({}).participants?.organizer, undefined)
-		})
-
-		it('is manageable without an organizer (one\'s own entry) or as the organizer, per iTIP (RFC 5546)', () => {
-			assert.equal(new Entry({}).canManageParticipants, true)
-			assert.equal(new Entry({ participants: Participants.normalize([{ email: 'a@example.com' }]) }).canManageParticipants, true)
-			assert.equal(new Entry({ participants: Participants.normalize([{ email: 'me@example.com', organizer: true, self: true }]) }).canManageParticipants, true)
-			assert.equal(invited().canManageParticipants, false)
-		})
-
-		it('counts as editable content: equals compares the lists structurally', () => {
-			const a = invited()
-			const b = invited()
-			assert.equal(a.equals(b), true)
-			b.participants = Participants.normalize([...b.participants!, { email: 'late@example.com' }])
-			assert.equal(a.equals(b), false)
-		})
-
-		it('invite adds pending required invitees and enlists the account as the organizer', () => {
-			const entry = new Entry({})
-			assert.equal(entry.invite([' Invitee@Example.com ', 'invitee@example.com', 'junk'], 'me@example.com'), true)
-			assert.deepEqual(entry.participants!.map(participant => [participant.email, !!participant.organizer, participant.status]), [
-				['me@example.com', true, 'accepted'],
-				['invitee@example.com', false, 'needs-action'],
-			])
-		})
-
-		it('invite skips the already-invited and reports whether anything changed', () => {
-			const entry = invited()
-			assert.equal(entry.invite(['ME@example.com'], 'me@example.com'), false)
-			assert.equal(entry.invite(['second@example.com']), true)
-			assert.equal(entry.participants?.organizer?.email, 'organizer@example.com')
-		})
-
-		it('invite replaces the list, and the previous array (a clone may share it) is untouched', () => {
-			const entry = invited()
-			const before = entry.participants
-			entry.invite(['second@example.com'])
-			assert.equal(before!.length, 2)
-			assert.notEqual(entry.participants, before)
-		})
-
-		it('markAllParticipants changes every invitee but never the organizer', () => {
-			const entry = invited()
-			entry.markAllParticipants(ParticipantRole.Optional)
-			assert.deepEqual(entry.participants!.map(participant => participant.role), [ParticipantRole.Required, ParticipantRole.Optional])
-		})
-
-		it('setParticipantRole changes one invitee and reports whether anything changed', () => {
-			const entry = invited()
-			assert.equal(entry.setParticipantRole('ME@example.com', ParticipantRole.Optional), true)
-			assert.deepEqual(entry.participants!.map(participant => participant.role), [ParticipantRole.Required, ParticipantRole.Optional])
-			assert.equal(entry.setParticipantRole('me@example.com', ParticipantRole.Optional), false)
-			assert.equal(entry.setParticipantRole('organizer@example.com', ParticipantRole.Optional), false)
-		})
-
-		it('removeParticipant uninvites one, refuses the organizer, and clears the list with the last invitee', () => {
-			const entry = new Entry({
-				participants: Participants.normalize([
-					{ email: 'organizer@example.com', organizer: true },
-					{ email: 'a@example.com' },
-					{ email: 'b@example.com' },
-				]),
-			})
-			assert.equal(entry.removeParticipant('organizer@example.com'), false)
-			assert.equal(entry.removeParticipant('A@example.com'), true)
-			assert.deepEqual(entry.participants!.map(participant => participant.email), ['organizer@example.com', 'b@example.com'])
-			assert.equal(entry.removeParticipant('b@example.com'), true)
-			assert.equal(entry.participants, undefined)
-			assert.equal(entry.removeParticipant('b@example.com'), false)
-		})
-
-		it('stays a list of participants through a copy and a clone, and is a plain private one again without', () => {
-			const entry = new Entry({ type: EntryType.Event, participants: invited().participants })
-			assert.ok(entry.copy().participants instanceof Participants && entry.clone().participants instanceof Participants)
-			assert.equal(entry.copy().participants?.organizer?.email, 'organizer@example.com')
-			entry.participants = undefined
-			assert.equal(entry.canManageParticipants, true)
-		})
-	})
 
 	describe('effectiveEnd / inclusiveEnd', () => {
 		it('returns the stored end when it is after the start', () => {
@@ -967,7 +875,7 @@ describe('Entry', () => {
 	})
 
 	describe('what its calendar allows', () => {
-		const everything = new IntegrationOwnership({ due: 'upstream', estimate: 'upstream', transparency: 'upstream', participants: 'upstream', attachments: 'upstream', description: 'upstream', end: 'upstream' })
+		const everything = new IntegrationOwnership({ due: 'upstream', estimate: 'upstream', transparency: 'upstream', attachments: 'upstream', description: 'upstream', end: 'upstream' })
 		const task = (ownership = everything, capabilities?: IntegrationCapabilities, init?: Partial<Entry>) => new Entry({ id: 't', type: EntryType.Task, heading: 'Paint', sourceId: 'c', source: holding(ownership, capabilities), ...init })
 
 		it('holds a field its type has and its calendar keeps', () => {
@@ -975,7 +883,7 @@ describe('Entry', () => {
 			assert.equal(task().holds('transparency'), false)
 			assert.equal(task(new IntegrationOwnership()).holds('due'), false)
 			assert.equal(task(everything, undefined, { type: EntryType.Event }).holds('transparency'), true)
-			assert.equal(task(everything, undefined, { type: EntryType.Availability }).holds('participants'), false)
+			assert.equal(task(everything, undefined, { type: EntryType.Availability }).holds('attachments'), false)
 		})
 
 		it('can edit what it holds where the calendar is written, the heading only where it is renamed, files only where they are taken', () => {

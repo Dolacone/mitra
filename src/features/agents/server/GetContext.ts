@@ -25,7 +25,7 @@ function readingOf(locale: Intl.Locale, zone: TimeZone) {
 
 @operation()
 @label('Calendar context')
-@description('Call this first. Answers the current time and the home time zone times are read in where an entry names none; how the user reads dates (their locale, its calendar and week, and today as they write it), so speak dates in their calendar while the tools take ISO dates; the integrations calendars live in, with the user\'s own addresses there; and the calendars with what each can hold, which writes it takes, and the types it takes when create_entry names no calendar. A field a calendar does not hold cannot be set on its entries. Then get_overview gives what is going on in a day or a week. Words used throughout: a task\'s schedule is its start and end; its due date and estimate are constraints apart from the schedule; an unscheduled task has no start; a moment is a start without an end.')
+@description('Call this first. Answers the current time and the home time zone times are read in where an entry names none; how the user reads dates (their locale, its calendar and week, and today as they write it), so speak dates in their calendar while the tools take ISO dates; the integrations calendars live in; and the calendars with what each can hold, which writes it takes, and the types it takes when create_entry names no calendar. A field a calendar does not hold cannot be set on its entries. Then get_overview gives what is going on in a day or a week. Words used throughout: a task\'s schedule is its start and end; its due date and estimate are constraints apart from the schedule; an unscheduled task has no start; a moment is a start without an end.')
 @tool({ name: 'get_context', annotations: { readOnlyHint: true } })
 export class GetContext extends Operation {
 	async run({ em, user }: OperationContext) {
@@ -41,7 +41,6 @@ export class GetContext extends Operation {
 				id: integration.id,
 				name: integration.title,
 				provider: (integration.constructor as IntegrationClass).label,
-				addresses: integration.addresses ?? [],
 				can: { createCalendars: integration.capabilities.sources.create },
 			})),
 			calendars: sources.map(source => {

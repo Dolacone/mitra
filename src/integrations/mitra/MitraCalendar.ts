@@ -40,7 +40,6 @@ export class MitraCalendar extends Integration {
 
 	override get syncInterval() { return Infinity }
 
-	/** Participants are kept as a record of who is involved: with no server behind it, nothing delivers invitations or replies. */
 	override get capabilities() {
 		return new IntegrationCapabilities({ sources: { create: true, delete: true } })
 	}
@@ -49,7 +48,7 @@ export class MitraCalendar extends Integration {
 	override get ownership() {
 		return new IntegrationOwnership({
 			end: 'mitra', recurrence: 'mitra', reminders: 'mitra', location: 'mitra', description: 'mitra', percentComplete: 'mitra',
-			due: 'mitra', estimate: 'mitra', timeZone: 'mitra', participants: 'mitra', attachments: 'mitra',
+			due: 'mitra', estimate: 'mitra', timeZone: 'mitra', attachments: 'mitra',
 			transparency: 'mitra', visibility: 'mitra', allDay: 'mitra', rank: 'mitra',
 		})
 	}

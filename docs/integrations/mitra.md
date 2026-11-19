@@ -28,5 +28,4 @@ If you plan to turn on [sign-in](../sso.md) later, know that it starts everyone 
 
 ## What they can't do
 
-- Participants are kept as a record of who is involved, but nobody gets an invitation and no replies come in, because there's no calendar server to send them.
 - Other apps can't see them. Mitra doesn't publish its calendars over CalDAV.

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
 import { Source } from '#features/sources'
 import { Recurrence, RecurrenceFrequency, EntryOccurrenceChangeScope } from '#features/recurrence'
-import { Participants } from '#features/participants/Participant.js'
 import { IntegrationCapabilities, type OwnedField } from '#integrations'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import type { ValidationError } from '#infrastructure/validation'
@@ -36,12 +35,11 @@ describe('Entry.validate', () => {
 	})
 
 	it('names every fact the calendar cannot store, each with its field', () => {
-		const task = new Entry({ type: EntryType.Task, heading: 'Report', visibility: Visibility.Private, percentComplete: 0, due: start, participants: Participants.normalize([{ email: 'organizer@example.com', organizer: true }]) })
-		assert.deepEqual(refusals(task, calendar({ lacking: ['participants', 'visibility', 'percentComplete', 'due'] })), [
+		const task = new Entry({ type: EntryType.Task, heading: 'Report', visibility: Visibility.Private, percentComplete: 0, due: start })
+		assert.deepEqual(refusals(task, calendar({ lacking: ['visibility', 'percentComplete', 'due'] })), [
 			['This calendar does not support due dates', ['due']],
 			['This calendar does not support task progress', ['percentComplete']],
 			['This calendar does not support visibility', ['visibility']],
-			['This calendar does not support participants', ['participants']],
 		])
 		assert.deepEqual(refusals(event({ transparency: Transparency.Free }), calendar({ lacking: ['transparency'] })), [['This calendar cannot mark an entry as free', ['transparency']]])
 	})

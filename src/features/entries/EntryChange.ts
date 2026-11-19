@@ -1,6 +1,4 @@
-import { equals } from '@a11d/equals'
 import { type EntityManager } from '@mikro-orm/core'
-import { OrganizerOnly } from '#features/participants/OrganizerOnly.js'
 import type { EntryOccurrenceChangeScope } from '#features/recurrence'
 import type { Validatable } from '#infrastructure/validation'
 import { type Entry } from './Entry.js'
@@ -37,15 +35,11 @@ export class EntryChange implements Validatable<EntryChangeContext> {
 	}
 
 	/**
-	 * What refuses the change, judged before any provider is written, as a refusal must leave it untouched: who may change
-	 * the participants, what the patch may do here and in `scope`, and what the calendar can hold.
+	 * What refuses the change, judged before any provider is written, as a refusal must leave it untouched: what the patch may
+	 * do here and in `scope`, and what the calendar can hold.
 	 */
 	*validate({ scope }: EntryChangeContext = {}) {
 		const { entry, edited, patch } = this
-		// Changing the list is the organizer's prerogative, so content edits pass only while they leave it as it is.
-		if (entry && !Object[equals](edited.participants, entry.participants) && !entry.canManageParticipants) {
-			yield new OrganizerOnly('Only the organizer can modify participants', ['participants'])
-		}
 		yield* patch.validate({ entry, from: this.from, to: this.to, scope })
 		yield* edited.validate()
 	}

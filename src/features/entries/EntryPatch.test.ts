@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
 import { construct } from '@a11d/converter'
 import { Recurrence, RecurrenceFrequency } from '#features/recurrence'
-import { ParticipantRole, Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { Color } from '#features/sources'
 import { EntryTimeZone } from '#features/time/EntryTimeZone.js'
@@ -55,13 +54,11 @@ describe('EntryPatch', () => {
 			assert.equal(patch.heading, undefined)
 		})
 
-		it('carries a rule and participants as the server reads them', () => {
+		it('carries a rule as the server reads it', () => {
 			const patch = sent(EntryPatch.of(task({
 				recurrence: new Recurrence({ freq: RecurrenceFrequency.Weekly }),
-				participants: Participants.normalize([{ email: 'Organizer@Example.com', organizer: true, role: ParticipantRole.Required }]),
-			}), ['recurrence', 'participants']))
+			}), ['recurrence']))
 			assert.equal(patch.recurrence?.freq, RecurrenceFrequency.Weekly)
-			assert.deepEqual(patch.participants?.map(participant => participant.email), ['organizer@example.com'])
 			assert.deepEqual([...patch.validate()], [])
 		})
 	})

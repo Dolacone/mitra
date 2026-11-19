@@ -104,7 +104,7 @@ describe('Source.readOnly narrows what may be written to one calendar', () => {
 			[capabilities.entries.create, capabilities.entries.edit, capabilities.entries.delete, capabilities.entries.rename],
 			[false, false, false, false],
 		)
-		for (const field of ['recurrence', 'reminders', 'location', 'participants', 'timeZone'] as const) {
+		for (const field of ['recurrence', 'reminders', 'location', 'timeZone'] as const) {
 			assert.equal(new MitraCalendar().ownership.holds(field), true, `${field} should be unaffected`)
 		}
 	})

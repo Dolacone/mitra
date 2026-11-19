@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { DateTime } from '@3mo/date-time'
 import { Source } from '#features/sources'
 import { Entry, EntryStatus, Transparency, EntryType, EntryTypes } from '#features/entries'
-import { Participants } from '#features/participants/Participant.js'
 import { EntryReminders } from '#features/reminders/EntryReminders.js'
 import { MitraCalendar } from '#integrations/mitra/MitraCalendar.js'
 import { Availability } from './client/Availability.js'
@@ -103,12 +102,11 @@ describe('the availability labels of a day', () => {
 describe('converting an entry to availability', () => {
 	const day = new DateTime().dayStart
 
-	it('drops participants and reminders but keeps where it is and busy/free', () => {
+	it('drops reminders but keeps where it is and busy/free', () => {
 		const entry = new Entry({
 			sourceId: 's', type: EntryType.Event, heading: 'Standup',
 			start: day.add({ hours: 9 }), end: day.add({ hours: 10 }),
 			location: 'Room 1', transparency: Transparency.Busy, reminders: EntryReminders.normalize([10]),
-			participants: Participants.normalize([{ email: 'organizer@example.com', organizer: true }]),
 		})
 
 		entry.type = EntryType.Availability
@@ -116,7 +114,6 @@ describe('converting an entry to availability', () => {
 		assert.equal(entry.location, 'Room 1')
 		assert.equal(entry.transparency, Transparency.Busy)
 		assert.equal(entry.reminders, undefined)
-		assert.equal(entry.participants, undefined)
 		assert.equal(entry.heading, 'Standup')
 	})
 
