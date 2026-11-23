@@ -96,6 +96,8 @@ export class ModalSheet extends Component {
 					inset-inline: 0;
 					max-inline-size: 30rem;
 					margin-inline: auto;
+					/* A context's block size stays under the max, so 100% fills up to it. */
+					block-size: var(--mitra-modal-sheet-block-size, auto);
 					max-block-size: var(--mitra-modal-sheet-size, calc(100% - 2.5rem));
 				}
 

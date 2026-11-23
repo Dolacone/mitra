@@ -450,6 +450,10 @@ export class EntryDetailsComponent extends Component {
 					}
 				}
 
+				> mitra-popover[data-sheet] {
+					--mitra-modal-sheet-block-size: 100%;
+				}
+
 				/* As a sheet the sheet's panel is the frame and wears the surface: the editor fills it and scrolls within. */
 				> mitra-popover[data-sheet] > .editor {
 					flex: 1;
