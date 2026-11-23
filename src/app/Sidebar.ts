@@ -164,6 +164,8 @@ export class Sidebar extends Component {
 				/* Three regions: the brand row and the footer never move; only the integrations between
 				   them scroll. The nav itself must not scroll, or the brand would ride away with it. */
 				nav {
+					/* The sidebar's width sizes only its own sheet, never one opened inside it (an entry's editor, a routine's detail). */
+					--mitra-modal-sheet-size: initial;
 					display: flex;
 					flex-direction: column;
 					width: var(--sidebar-width);
